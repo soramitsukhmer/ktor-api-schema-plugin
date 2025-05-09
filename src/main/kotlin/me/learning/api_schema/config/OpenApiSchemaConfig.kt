@@ -35,5 +35,5 @@ class OpenApiSchemaConfig internal constructor() {
         redoc = RouteSchemaConfig(defaultRedocPath).apply(block)
     }
 
-    fun getRouteBuilder() = route.cleanRoute().takeIf { it.isNotEmpty() } ?: defaultRoute
+    fun getRouteBuilder() = route.cleanRoute().takeIf { it.trim().isNotEmpty() } ?: defaultRoute
 }

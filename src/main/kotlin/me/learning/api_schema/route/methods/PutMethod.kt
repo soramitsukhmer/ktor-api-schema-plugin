@@ -12,25 +12,21 @@ import me.learning.api_schema.common.extension.requestBody
 import me.learning.api_schema.route.configBuilder
 
 /**
- * Configures a route to handle HTTP `PUT` requests with authentication and request body parsing.
+ * Defines a PUT route with optional authentication and request body handling.
  *
- * @param T The type of the response returned by the handler function.
- * @param I The type representing authentication information.
- * @param J The type representing the request body.
- * @param route The parent route to which this `PUT` request should be added.
- * @param path An optional subpath for the `PUT` route. Defaults to an empty string.
- * @param block A suspending lambda that handles the request. It takes two parameters:
- * - `auth`: The authentication information of type `I`.
- * - `requestBody`: The parsed request body of type `J`.
- * This lambda returns a response of type `T`.
- * @return The configured `Route` object representing this `PUT` route.
+ * @param T The type of the response body.
+ * @param I The type of the authentication object.
+ * @param J The type of the request body.
+ * @param path The URL path for the PUT route. Default is an empty string.
+ * @param block A lambda function that takes the authentication object of type [I]
+ * and request body of type [J], and returns the response object of type [T].
+ * @return The configured [Route] instance.
  */
-inline fun <reified T, reified I : Any, reified J : Any> put(
-    route: Route,
+inline fun <reified T, reified I : Any, reified J : Any> Route.put(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, requestBody: J) -> T
 ): Route {
-    return route.put(path, configBuilder<T>(requestBody = J::class.asKType())) {
+    return this.put(path, configBuilder<T>(requestBody = J::class.asKType())) {
         val auth = call.auth<I>()
         val request = call.requestBody<J>()
         call.ok(call.request.block(auth, request))
@@ -39,20 +35,19 @@ inline fun <reified T, reified I : Any, reified J : Any> put(
 
 
 /**
- * Configures an HTTP PUT route with the specified path and request processing block.
+ * Configures a HTTP PUT route that processes requests with authentication, a path variable, and a request body.
+ * The route handler processes the incoming request and returns a response of type T.
  *
- * @param T The type of the response body.
- * @param I The type of the authentication object, expected to be obtained from the request.
- * @param J The type of the path variable, extracted according to the path format.
- * @param K The type of the request body, parsed from the incoming request.
- * @param route The starting route definition to which this PUT handler will be added.
- * @param path The relative path for the PUT route. Can include path variables in the form `{variable}`. Defaults to an empty string.
- * @param block A suspending lambda function that receives the authentication object of type `I`,
- *              the path variable of type `J`, and the request body of type `K`. Returns a response of type `T`.
- * @return The configured `Route` object with the added PUT handler.
+ * @param T The return type of the response body.
+ * @param I The type of the authentication information.
+ * @param J The type of the path variable.
+ * @param K The type of the request body.
+ * @param path The path pattern for the route. Defaults to an empty string.
+ * @param block A suspendable lambda function that takes authentication information, the path variable,
+ *              and the request body as inputs, and produces a response of type T.
+ * @return The configured Route instance.
  */
-inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> put(
-    route: Route,
+inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.put(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, requestBody: K) -> T
 ): Route {
@@ -60,7 +55,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> put(
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVar = mapOf(pathVarJ to J::class)
 
-    return route.put(path, configBuilder<T>(variable = pathVar, requestBody = K::class.asKType())) {
+    return this.put(path, configBuilder<T>(variable = pathVar, requestBody = K::class.asKType())) {
         val auth = call.auth<I>()
         val valueJ = call.getPathVariable<J>(pathVarJ)
         val request = call.requestBody<K>()
@@ -70,22 +65,22 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> put(
 
 
 /**
- * Registers a PUT HTTP method handler on the provided route. The handler includes support
- * for authentication, path variables, and processing the request body.
+ * Defines a PUT route with customizable path parameters, an authenticated user, and a request body.
+ * This method allows for type-safe handling of authentication, path parameters, and request body parsing.
  *
- * @param T The type of the response body returned by the handler.
- * @param I The type of the authentication object required for this route.
- * @param J The type for the first path variable, if provided.
- * @param K The type for the second path variable, if provided.
- * @param L The type of the request body that the handler expects.
- * @param route The route object to register the PUT handler on.
- * @param path The relative path under the route for this handler. Defaults to an empty string.
- * @param block A suspending lambda that processes requests. It provides access to authentication,
- *              path variables, and the request body, and produces a response.
- * @return The updated route with the registered PUT handler.
+ * @param T The type of the response body.
+ * @param I The type of the authenticated user object.
+ * @param J The type of the first path parameter.
+ * @param K The type of the second path parameter.
+ * @param L The type of the request body.
+ * @param path The endpoint path for the route. Defaults to an empty string. The path can contain
+ * placeholders for path variables in the format `{variable}`.
+ * @param block A suspendable lambda function that defines the behavior of the route. It receives the
+ * authenticated user ([I]), parsed values of the first and second path parameters ([J] and [K]),
+ * the request body ([L]), and returns a response of type [T].
+ * @return The configured [Route] instance.
  */
-inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reified L : Any> put(
-    route: Route,
+inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reified L : Any> Route.put(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, varK: K, requestBody: L) -> T
 ): Route {
@@ -97,7 +92,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
         pathVarK to K::class,
     )
 
-    return route.put(path, configBuilder<T>(variable = pathVar, requestBody = L::class.asKType())) {
+    return this.put(path, configBuilder<T>(variable = pathVar, requestBody = L::class.asKType())) {
         val auth = call.auth<I>()
         val valueJ = call.getPathVariable<J>(pathVarJ)
         val valueK = call.getPathVariable<K>(pathVarK)

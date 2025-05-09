@@ -37,13 +37,13 @@ install(OpenApiSchema) {
 ### Usage
 ```
 // Get Method
-get(this, "/profile") { auth: UserAuth -> service.profile(auth) }
+get("/profile") { auth: UserAuth -> service.profile(auth) }
 
 // Post Method
-post(this) { request: UserBodyCreateReq -> service.save(request) }
+post { request: UserBodyCreateReq -> service.save(request) }
 
 // Put Method
-put(this, "/profile") { auth: UserAuth, requestBody: UserBodyUpdateReq -> service.save(auth.id, requestBody) }
+put("/profile") { auth: UserAuth, requestBody: UserBodyUpdateReq -> service.save(auth.id, requestBody) }
 ```
 
 ### Expose Default Endpoint:
