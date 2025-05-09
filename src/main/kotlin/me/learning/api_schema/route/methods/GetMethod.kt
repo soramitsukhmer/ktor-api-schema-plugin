@@ -159,7 +159,7 @@ inline fun <reified T : Any, reified I : Any, reified J : Any> get(
 ): Route {
     val allPathVar = extractAllPathParameters(path)
     val pathVarJ = allPathVar.firstOrNull() ?: ""
-    val pathVar = mapOf(pathVarJ to I::class)
+    val pathVar = mapOf(pathVarJ to J::class)
 
     return route.get(path, configBuilder<T>(hasPageRequest = true, variable = pathVar)) {
         val auth = call.auth<I>()

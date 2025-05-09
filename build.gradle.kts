@@ -26,34 +26,17 @@ application {
 
 dependencies {
     // KTOR Server
-    implementation("io.ktor:ktor-server-core-jvm")
-    implementation("io.ktor:ktor-server-status-pages-jvm")
-    implementation("io.ktor:ktor-server-cio-jvm")
     implementation("io.ktor:ktor-server-request-validation")
-    implementation("io.ktor:ktor-server-cors")
     implementation("io.ktor:ktor-server-auth-jwt")
-    implementation("io.ktor:ktor-server-auth")
-
-//    // KTOR Client
-//    implementation("io.ktor:ktor-client-resources")
-//    implementation("io.ktor:ktor-client-core")
-//    implementation("io.ktor:ktor-client-cio")
-//    implementation("io.ktor:ktor-client-logging")
-//    implementation("io.ktor:ktor-client-content-negotiation")
 
     // Serialization
     implementation("io.ktor:ktor-serialization-jackson")
-    implementation("io.ktor:ktor-server-content-negotiation-jvm")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version")
 
     // OpenAPI
     implementation("io.github.smiley4:ktor-openapi:5.0.2")
     implementation("io.github.smiley4:ktor-swagger-ui:5.0.2")
     implementation("io.github.smiley4:ktor-redoc:5.0.2")
-    implementation("io.ktor:ktor-server-core:3.1.2")
-    implementation("io.ktor:ktor-server-openapi:3.1.2")
-    implementation("io.ktor:ktor-server-core:3.1.2")
 
     testImplementation(kotlin("test"))
 }

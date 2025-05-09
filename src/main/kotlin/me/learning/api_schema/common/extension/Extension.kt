@@ -14,8 +14,6 @@ fun badRequest(message: String): Nothing = throw BadRequestException(message)
 
 fun invalidAuthentication(): Nothing = throw InvalidAuthException("invalid authentication")
 
-fun unauthorized(): Nothing = badRequest("Unauthorized access")
-
 fun String.cleanRoute() = when (endsWith("/")) {
     true -> substringBeforeLast("/")
     false -> this
