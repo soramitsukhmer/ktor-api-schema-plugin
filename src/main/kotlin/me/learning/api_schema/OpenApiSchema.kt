@@ -30,10 +30,9 @@ import me.learning.api_schema.plugin.requestValidatorConfigPlugin
  */
 
 val OpenApiSchema = createApplicationPlugin("OpenApiSchema", ::OpenApiSchemaConfig) {
-    if (pluginConfig.enable && (application.pluginOrNull(OpenApi) == null)) {
+    application.requestValidatorConfigPlugin()
 
-        application.requestValidatorConfigPlugin()
-
+    if (pluginConfig.enabled && (application.pluginOrNull(OpenApi) == null)) {
         application.install(OpenApi) {
             pluginConfig.info.let { config ->
                 info {
@@ -68,7 +67,7 @@ val OpenApiSchema = createApplicationPlugin("OpenApiSchema", ::OpenApiSchemaConf
                 openApi()
             }
 
-            if (pluginConfig.swagger.enable) {
+            if (pluginConfig.swagger.enabled) {
                 val route = pluginConfig.swagger.path.mergeRoute(baseRoute, pluginConfig.defaultSwaggerPath)
                 route(route) {
                     println(">>> expose endpoint swagger schema: $route")
@@ -76,7 +75,7 @@ val OpenApiSchema = createApplicationPlugin("OpenApiSchema", ::OpenApiSchemaConf
                 }
             }
 
-            if (pluginConfig.redoc.enable) {
+            if (pluginConfig.redoc.enabled) {
                 val route = pluginConfig.redoc.path.mergeRoute(baseRoute, pluginConfig.defaultRoute)
                 route(route) {
                     println(">>> expose endpoint redoc schema: $route")

@@ -10,7 +10,7 @@ class OpenApiSchemaConfig internal constructor() {
     val defaultSwaggerPath = "/swagger"
     val defaultRedocPath = "/redoc"
 
-    var enable: Boolean = true
+    var enabled: Boolean = true
     var route: String = ""
 
     var info: InfoSchemaConfig = InfoSchemaConfig()

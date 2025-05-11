@@ -25,11 +25,11 @@ install(OpenApiSchema) {
     }
 
     swagger {
-        enable = true
+        enabled = true
     }
 
     redoc {
-        enable = true
+        enabled = true
     }
 }
 ```
@@ -37,6 +37,15 @@ install(OpenApiSchema) {
 Provided security principle context:
 ```
 inline fun <reified T : Any> ApplicationCall.auth(): T { /* compiled code */ }
+```
+Support request body validation
+```
+import jakarta.validation.constraints.NotBlank
+
+data class Request(
+    @field:NotBlank val field: String
+    ...
+)
 ```
 
 ### Usage
