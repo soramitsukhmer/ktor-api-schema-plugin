@@ -34,16 +34,26 @@ install(OpenApiSchema) {
 }
 ```
 
+Provided security principle context:
+```
+inline fun <reified T : Any> ApplicationCall.auth(): T { /* compiled code */ }
+```
+
 ### Usage
 ```
 // Get Method
-get("/profile") { auth: UserAuth -> service.profile(auth) }
+import me.learning.api_schema.route.methods.get
+get { auth: UserAuth -> ... }
+
 
 // Post Method
-post { request: UserBodyCreateReq -> service.save(request) }
+import me.learning.api_schema.route.methods.post
+post { auth: UserAuth, request: Reauest -> ... }
+
 
 // Put Method
-put("/profile") { auth: UserAuth, requestBody: UserBodyUpdateReq -> service.save(auth.id, requestBody) }
+import me.learning.api_schema.route.methods.put
+put { auth: UserAuth, requestBody: UserBodyUpdateReq -> ... }
 ```
 
 ### Expose Default Endpoint:

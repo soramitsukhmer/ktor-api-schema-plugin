@@ -38,6 +38,10 @@ dependencies {
     implementation("io.github.smiley4:ktor-swagger-ui:5.0.2")
     implementation("io.github.smiley4:ktor-redoc:5.0.2")
 
+    // Request validating
+    api("org.hibernate:hibernate-validator:8.0.2.Final")
+    implementation("org.glassfish:jakarta.el:5.0.0-M1")
+
     testImplementation(kotlin("test"))
 }
 

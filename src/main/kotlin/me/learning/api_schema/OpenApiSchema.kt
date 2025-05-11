@@ -14,6 +14,7 @@ import io.ktor.server.routing.routing
 import me.learning.api_schema.common.Constant.SECURITY_BEARER_SCHEMA_NAME
 import me.learning.api_schema.common.extension.mergeRoute
 import me.learning.api_schema.config.OpenApiSchemaConfig
+import me.learning.api_schema.plugin.requestValidatorConfigPlugin
 
 /**
  * A Ktor plugin for configuring and installing OpenAPI schema support into the application.
@@ -30,6 +31,9 @@ import me.learning.api_schema.config.OpenApiSchemaConfig
 
 val OpenApiSchema = createApplicationPlugin("OpenApiSchema", ::OpenApiSchemaConfig) {
     if (pluginConfig.enable && (application.pluginOrNull(OpenApi) == null)) {
+
+        application.requestValidatorConfigPlugin()
+
         application.install(OpenApi) {
             pluginConfig.info.let { config ->
                 info {
