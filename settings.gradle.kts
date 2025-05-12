@@ -1,1 +1,1 @@
-rootProject.name = "api-plugin"
+rootProject.name = "api-schema-plugin"
