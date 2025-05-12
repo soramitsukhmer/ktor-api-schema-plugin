@@ -32,6 +32,7 @@ dependencies {
     // KTOR Server
     implementation("io.ktor:ktor-server-request-validation")
     implementation("io.ktor:ktor-server-auth-jwt")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm")
 
     // Serialization
     implementation("io.ktor:ktor-serialization-jackson")
@@ -66,7 +67,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/SokkunNORN/ktor-api-plugin")
+            url = uri("https://maven.pkg.github.com/soramitsukhmer/ktor-api-schema-plugin")
             credentials {
                 username = System.getenv("GIT_PUBLISH_USER")
                 password = System.getenv("GIT_PUBLISH_PASSWORD")

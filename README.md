@@ -3,7 +3,26 @@ This guide will help you integrate the `Open Api Schema` Plugin into your servic
 
 [#Smiley4](https://github.com/SMILEY4/ktor-openapi-tools)
 
+### Add SoramitsuKhmer GitHub Repository
+Add the following repository configuration to your `build.gradle.kts` file:
+
+```
+repositories {
+    // Other repositories
+    maven {
+        name = "GitHubSoramitsuKhmerApacheMavenPackages"
+        url = uri("https://maven.pkg.github.com/soramitsukhmer/*")
+        credentials {
+            username = System.getenv("GIT_PUBLISH_USER")
+            password = System.getenv("GIT_PUBLISH_PASSWORD")
+        }
+    }
+    // Other repositories
+}
+```
+
 ### Dependency
+Add the following dependency to your `build.gradle.kts` file:
 ```
 dependencies {
     // OpenApiShema
@@ -13,7 +32,7 @@ dependencies {
 
 ### Install Plugin
 ```
-install(OpenApiSchema) {
+install(ApiSchema) {
     info {
         title = "Ktor - Basic API"
         version = "1.0.0"

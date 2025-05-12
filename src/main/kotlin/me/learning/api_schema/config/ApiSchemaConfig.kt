@@ -5,7 +5,7 @@ import me.learning.api_schema.config.schema.InfoSchemaConfig
 import me.learning.api_schema.config.schema.RouteSchemaConfig
 import me.learning.api_schema.config.schema.ServerSchemaConfig
 
-class OpenApiSchemaConfig internal constructor() {
+class ApiSchemaConfig internal constructor() {
     val defaultRoute = "/api/v1/schema"
     val defaultSwaggerPath = "/swagger"
     val defaultRedocPath = "/redoc"
