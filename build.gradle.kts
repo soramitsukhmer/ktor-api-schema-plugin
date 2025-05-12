@@ -66,7 +66,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/SokkunNORN/ktor-api-plugin")
+            url = uri("https://maven.pkg.github.com/soramitsukhmer/ktor-api-schema-plugin")
             credentials {
                 username = System.getenv("GIT_PUBLISH_USER")
                 password = System.getenv("GIT_PUBLISH_PASSWORD")
