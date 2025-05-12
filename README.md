@@ -34,11 +34,11 @@ install(OpenApiSchema) {
 }
 ```
 
-Provided security principle context:
+Provided security principle context
 ```
 inline fun <reified T : Any> ApplicationCall.auth(): T { /* compiled code */ }
 ```
-Support request body validation
+Supported request body validation
 ```
 import jakarta.validation.constraints.NotBlank
 
@@ -66,6 +66,6 @@ put { auth: UserAuth, requestBody: UserBodyUpdateReq -> ... }
 ```
 
 ### Expose Default Endpoint:
-- [Json data](http://0.0.0.0:8080/api/v1/schema)
-- [Swagger-UI](http://0.0.0.0:8080/api/v1/schema/swagger)
-- [Redoc](http://0.0.0.0:8080/api/v1/schema/redoc)
+- Json data: `/api/v1/schema`
+- Swagger-UI: `/api/v1/schema/swagger`
+- Redoc: `/api/v1/schema/redoc`

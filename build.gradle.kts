@@ -41,6 +41,7 @@ dependencies {
     // Request validating
     api("org.hibernate:hibernate-validator:8.0.2.Final")
     implementation("org.glassfish:jakarta.el:5.0.0-M1")
+    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.2")
 
     testImplementation(kotlin("test"))
 }
