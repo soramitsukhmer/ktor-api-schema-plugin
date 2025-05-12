@@ -13,24 +13,36 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import me.learning.api_schema.common.Constant.SECURITY_BEARER_SCHEMA_NAME
 import me.learning.api_schema.common.extension.mergeRoute
-import me.learning.api_schema.config.OpenApiSchemaConfig
+import me.learning.api_schema.config.ApiSchemaConfig
+import me.learning.api_schema.plugin.configureSerialization
 import me.learning.api_schema.plugin.requestValidatorConfigPlugin
 
 /**
- * A Ktor plugin for configuring and installing OpenAPI schema support into the application.
+ * Plugin responsible for setting up API schema generation and routing configuration.
  *
- * This plugin integrates with the `OpenApi` plugin if it is not already installed in the application.
- * It allows for customization of the OpenAPI schema metadata through the `OpenApiSchemaConfig` configuration,
- * including settings such as API information, server details, and security configuration.
+ * The `ApiSchema` plugin integrates features for generating and exposing
+ * API schemas including OpenAPI, Swagger UI, and Redoc for documentation purposes.
+ * It ensures the application is equipped with request validation and JSON serialization
+ * plugins to handle incoming and outgoing data formats.
  *
- * The configuration supports specifying:
- * - General API information like title, version, description, and summary.
- * - Server details such as the URL and description.
- * - Security settings for the OpenAPI schema using bearer authentication with a JWT format.
+ * Key features of the `ApiSchema` plugin:
+ * - Configures request validation using `RequestValidation`.
+ * - Sets up JSON serialization and deserialization using Jackson.
+ * - Installs the OpenAPI plugin for schema generation with customizable
+ *   metadata such as title, version, and description.
+ * - Defines security schemas like bearer authentication for API documentation.
+ * - Exposes API documentation through configurable routes for OpenAPI, Swagger, and Redoc.
+ * - Utilizes configuration blocks through `ApiSchemaConfig` for fine-grained customization.
+ *
+ * This plugin dynamically installs specific endpoints to serve:
+ * - The raw OpenAPI schema via a JSON endpoint.
+ * - Swagger UI for interactive API documentation.
+ * - Redoc for simplified API documentation visualization.
  */
 
-val OpenApiSchema = createApplicationPlugin("OpenApiSchema", ::OpenApiSchemaConfig) {
+val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
     application.requestValidatorConfigPlugin()
+    application.configureSerialization()
 
     if (pluginConfig.enabled && (application.pluginOrNull(OpenApi) == null)) {
         application.install(OpenApi) {
