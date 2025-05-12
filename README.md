@@ -1,41 +1,71 @@
-# api-plugin
+# Ktor Api Schema Plugin
+This guide will help you integrate the `Open Api Schema` Plugin into your service.
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+[#Smiley4](https://github.com/SMILEY4/ktor-openapi-tools)
 
-Here are some useful links to get you started:
-
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
-
-## Features
-
-Here's a list of features included in this project:
-
-| Name                                                   | Description                                                    |
-| --------------------------------------------------------|---------------------------------------------------------------- |
-| [Authentication](https://start.ktor.io/p/auth)         | Provides extension point for handling the Authorization header |
-| [Routing](https://start.ktor.io/p/routing)             | Provides a structured routing DSL                              |
-| [Authentication JWT](https://start.ktor.io/p/auth-jwt) | Handles JSON Web Token (JWT) bearer authentication scheme      |
-
-## Building & Running
-
-To build or run the project, use one of the following tasks:
-
-| Task                          | Description                                                          |
-| -------------------------------|---------------------------------------------------------------------- |
-| `./gradlew test`              | Run the tests                                                        |
-| `./gradlew build`             | Build everything                                                     |
-| `buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `run`                         | Run the server                                                       |
-| `runDocker`                   | Run using the local docker image                                     |
-
-If the server starts successfully, you'll see the following output:
-
+### Dependency
 ```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+dependencies {
+    // OpenApiShema
+    implementation("me.learning:api-plugin:$api_scheme_version")
+}
 ```
 
+### Install Plugin
+```
+install(OpenApiSchema) {
+    info {
+        title = "Ktor - Basic API"
+        version = "1.0.0"
+    }
+
+    server {
+        url = "http://0.0.0.0:8080"
+        description = "This is the development server"
+    }
+
+    swagger {
+        enabled = true
+    }
+
+    redoc {
+        enabled = true
+    }
+}
+```
+
+Provided security principle context
+```
+inline fun <reified T : Any> ApplicationCall.auth(): T { /* compiled code */ }
+```
+Supported request body validation
+```
+import jakarta.validation.constraints.NotBlank
+
+data class Request(
+    @field:NotBlank val field: String
+    ...
+)
+```
+
+### Usage
+```
+// Get Method
+import me.learning.api_schema.route.methods.get
+get { auth: UserAuth -> ... }
+
+
+// Post Method
+import me.learning.api_schema.route.methods.post
+post { auth: UserAuth, request: Reauest -> ... }
+
+
+// Put Method
+import me.learning.api_schema.route.methods.put
+put { auth: UserAuth, requestBody: UserBodyUpdateReq -> ... }
+```
+
+### Expose Default Endpoint:
+- Json data: `/api/v1/schema`
+- Swagger-UI: `/api/v1/schema/swagger`
+- Redoc: `/api/v1/schema/redoc`

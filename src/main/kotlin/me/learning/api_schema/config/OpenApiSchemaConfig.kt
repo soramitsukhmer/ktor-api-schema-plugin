@@ -10,7 +10,7 @@ class OpenApiSchemaConfig internal constructor() {
     val defaultSwaggerPath = "/swagger"
     val defaultRedocPath = "/redoc"
 
-    var enable: Boolean = true
+    var enabled: Boolean = true
     var route: String = ""
 
     var info: InfoSchemaConfig = InfoSchemaConfig()
@@ -35,5 +35,5 @@ class OpenApiSchemaConfig internal constructor() {
         redoc = RouteSchemaConfig(defaultRedocPath).apply(block)
     }
 
-    fun getRouteBuilder() = route.cleanRoute().takeIf { it.isNotEmpty() } ?: defaultRoute
+    fun getRouteBuilder() = route.cleanRoute().takeIf { it.trim().isNotEmpty() } ?: defaultRoute
 }

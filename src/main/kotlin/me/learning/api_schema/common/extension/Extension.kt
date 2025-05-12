@@ -20,7 +20,7 @@ fun String.cleanRoute() = when (endsWith("/")) {
 }
 
 fun String.mergeRoute(baseRoute: String, defaultPath: String): String {
-    val path = cleanRoute().takeIf { it.isNotEmpty() } ?: defaultPath
+    val path = cleanRoute().takeIf { it.trim().isNotEmpty() } ?: defaultPath
     val base = baseRoute.cleanRoute()
 
     return when (path.startsWith("/")) {
