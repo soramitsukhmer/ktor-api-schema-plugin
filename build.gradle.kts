@@ -1,6 +1,10 @@
-val jackson_version: String by project
 val project_group: String by project
 val project_version: String by project
+val jackson_version: String by project
+val smiley4_version: String by project
+val hibernate_validator_version: String by project
+val glassfish_jakarta_el_version: String by project
+val libphonenumber_version: String by project
 
 plugins {
     kotlin("jvm") version "2.1.10"
@@ -34,14 +38,14 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version")
 
     // OpenAPI
-    implementation("io.github.smiley4:ktor-openapi:5.0.2")
-    implementation("io.github.smiley4:ktor-swagger-ui:5.0.2")
-    implementation("io.github.smiley4:ktor-redoc:5.0.2")
+    implementation("io.github.smiley4:ktor-openapi:$smiley4_version")
+    implementation("io.github.smiley4:ktor-swagger-ui:$smiley4_version")
+    implementation("io.github.smiley4:ktor-redoc:$smiley4_version")
 
     // Request validating
-    api("org.hibernate:hibernate-validator:8.0.2.Final")
-    implementation("org.glassfish:jakarta.el:5.0.0-M1")
-    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.2")
+    api("org.hibernate:hibernate-validator:$hibernate_validator_version")
+    implementation("org.glassfish:jakarta.el:$glassfish_jakarta_el_version")
+    implementation("com.googlecode.libphonenumber:libphonenumber:$libphonenumber_version")
 
     testImplementation(kotlin("test"))
 }
