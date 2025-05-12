@@ -32,7 +32,7 @@ dependencies {
 
 ### Install Plugin
 ```
-install(OpenApiSchema) {
+install(ApiSchema) {
     info {
         title = "Ktor - Basic API"
         version = "1.0.0"
