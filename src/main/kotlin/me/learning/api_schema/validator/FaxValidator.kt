@@ -2,7 +2,7 @@ package me.learning.api_schema.validator
 
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
-import me.learning.api_schema.common.extension.isFax
+import me.learning.api_schema.extension.isFax
 
 class FaxValidator : ConstraintValidator<Fax, String> {
 

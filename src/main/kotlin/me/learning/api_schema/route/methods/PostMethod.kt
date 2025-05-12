@@ -1,15 +1,14 @@
 package me.learning.api_schema.route.methods
 
-import me.learning.api_schema.common.Helper.asKType
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
-import io.ktor.server.routing.route
 import me.learning.api_schema.common.Helper.extractAllPathParameters
-import me.learning.api_schema.common.extension.auth
-import me.learning.api_schema.common.extension.getPathVariable
-import me.learning.api_schema.common.extension.ok
-import me.learning.api_schema.common.extension.requestBody
+import me.learning.api_schema.extension.asKType
+import me.learning.api_schema.extension.auth
+import me.learning.api_schema.extension.getPathVariable
+import me.learning.api_schema.extension.ok
+import me.learning.api_schema.extension.requestBody
 import me.learning.api_schema.route.configBuilder
 
 /**

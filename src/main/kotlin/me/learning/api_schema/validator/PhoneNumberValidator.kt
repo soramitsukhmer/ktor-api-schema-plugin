@@ -4,7 +4,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import me.learning.api_schema.common.Constant.DEFAULT_PHONE_REGION
-import me.learning.api_schema.common.extension.isPhone
+import me.learning.api_schema.extension.isPhone
 
 class PhoneNumberValidator : ConstraintValidator<PhoneNumber, String> {
     private val phoneUtil = PhoneNumberUtil.getInstance()

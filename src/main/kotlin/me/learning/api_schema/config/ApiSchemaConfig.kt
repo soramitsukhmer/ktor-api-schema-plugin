@@ -1,6 +1,7 @@
 package me.learning.api_schema.config
 
-import me.learning.api_schema.common.extension.cleanRoute
+import me.learning.api_schema.config.exception.ExceptionConfig
+import me.learning.api_schema.extension.cleanRoute
 import me.learning.api_schema.config.schema.InfoSchemaConfig
 import me.learning.api_schema.config.schema.RouteSchemaConfig
 import me.learning.api_schema.config.schema.ServerSchemaConfig
@@ -19,6 +20,8 @@ class ApiSchemaConfig internal constructor() {
     var swagger: RouteSchemaConfig = RouteSchemaConfig(defaultSwaggerPath)
     var redoc: RouteSchemaConfig = RouteSchemaConfig(defaultRedocPath)
 
+    var handler: ExceptionConfig = ExceptionConfig()
+
     fun info(block: InfoSchemaConfig.() -> Unit) {
         info = InfoSchemaConfig().apply(block)
     }
@@ -36,4 +39,8 @@ class ApiSchemaConfig internal constructor() {
     }
 
     fun getRouteBuilder() = route.cleanRoute().takeIf { it.trim().isNotEmpty() } ?: defaultRoute
+
+    fun handler(block: ExceptionConfig.() -> Unit) {
+        handler = ExceptionConfig().apply(block)
+    }
 }

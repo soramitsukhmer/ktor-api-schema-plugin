@@ -32,7 +32,8 @@ dependencies {
     // KTOR Server
     implementation("io.ktor:ktor-server-request-validation")
     implementation("io.ktor:ktor-server-auth-jwt")
-    implementation("io.ktor:ktor-server-content-negotiation-jvm")
+    implementation("io.ktor:ktor-server-content-negotiation")
+    api("io.ktor:ktor-server-status-pages")
 
     // Serialization
     implementation("io.ktor:ktor-serialization-jackson")

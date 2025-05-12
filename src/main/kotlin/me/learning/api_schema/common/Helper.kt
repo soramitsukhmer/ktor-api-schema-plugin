@@ -1,9 +1,7 @@
 package me.learning.api_schema.common
 
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.memberProperties
+import io.ktor.server.plugins.BadRequestException
+import me.learning.api_schema.dto.handler.InvalidAuthException
 
 object Helper {
 
@@ -14,13 +12,7 @@ object Helper {
             .toList()
     }
 
-    fun <T : Any> KClass<T>.asKType(): KType {
-        return this.java.kotlin.createType()
-    }
+    fun badRequest(message: String): Nothing = throw BadRequestException(message)
 
-    fun KClass<*>.getQueryParamInfo(): List<Pair<String, KType>> {
-        return this.memberProperties.map { prop ->
-            prop.name to prop.returnType
-        }
-    }
+    fun invalidAuthentication(): Nothing = throw InvalidAuthException("invalid authentication")
 }

@@ -12,37 +12,39 @@ import io.ktor.server.application.pluginOrNull
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import me.learning.api_schema.common.Constant.SECURITY_BEARER_SCHEMA_NAME
-import me.learning.api_schema.common.extension.mergeRoute
+import me.learning.api_schema.extension.mergeRoute
 import me.learning.api_schema.config.ApiSchemaConfig
 import me.learning.api_schema.plugin.configureSerialization
+import me.learning.api_schema.plugin.exceptionConfigPlugin
 import me.learning.api_schema.plugin.requestValidatorConfigPlugin
 
 /**
- * Plugin responsible for setting up API schema generation and routing configuration.
+ * A server-side application plugin named `ApiSchema`, used to enhance the application with API schema-related configuration and support.
  *
- * The `ApiSchema` plugin integrates features for generating and exposing
- * API schemas including OpenAPI, Swagger UI, and Redoc for documentation purposes.
- * It ensures the application is equipped with request validation and JSON serialization
- * plugins to handle incoming and outgoing data formats.
+ * This plugin performs the following:
+ * - Sets up request validation using a `RequestValidation` plugin if not already installed.
+ * - Configures serialization with `ContentNegotiation` and utilizes a Jackson serializer.
+ * - Configures global exception handling via status pages based on provided configuration.
  *
- * Key features of the `ApiSchema` plugin:
- * - Configures request validation using `RequestValidation`.
- * - Sets up JSON serialization and deserialization using Jackson.
- * - Installs the OpenAPI plugin for schema generation with customizable
- *   metadata such as title, version, and description.
- * - Defines security schemas like bearer authentication for API documentation.
- * - Exposes API documentation through configurable routes for OpenAPI, Swagger, and Redoc.
- * - Utilizes configuration blocks through `ApiSchemaConfig` for fine-grained customization.
+ * If enabled in the configuration (`ApiSchemaConfig.enabled`), and if the `OpenApi` plugin is not already installed,
+ * it will install and configure `OpenApi` with the following set of options:
  *
- * This plugin dynamically installs specific endpoints to serve:
- * - The raw OpenAPI schema via a JSON endpoint.
- * - Swagger UI for interactive API documentation.
- * - Redoc for simplified API documentation visualization.
+ * - OpenAPI metadata such as title, version, description, and summary, as defined in `ApiSchemaConfig.info`.
+ * - Server information like URL and description sourced from `ApiSchemaConfig.server`.
+ * - Security scheme configuration for bearer tokens (JWT).
+ *
+ * Furthermore, the plugin sets up routing for exposing API schema routes as follows:
+ * - A base route for the OpenAPI schema is derived from the configuration.
+ * - If Swagger support is enabled (`ApiSchemaConfig.swagger.enabled`), a route for Swagger UI is configured.
+ * - If ReDoc support is enabled (`ApiSchemaConfig.redoc.enabled`), a route for ReDoc UI is configured.
+ *
+ * The plugin's behavior can be customized via `ApiSchemaConfig`.
  */
 
 val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
     application.requestValidatorConfigPlugin()
     application.configureSerialization()
+    application.exceptionConfigPlugin(pluginConfig.handler)
 
     if (pluginConfig.enabled && (application.pluginOrNull(OpenApi) == null)) {
         application.install(OpenApi) {

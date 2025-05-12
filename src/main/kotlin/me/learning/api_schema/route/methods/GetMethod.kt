@@ -5,11 +5,11 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import io.ktor.server.routing.route
 import me.learning.api_schema.common.Helper.extractAllPathParameters
-import me.learning.api_schema.common.extension.auth
-import me.learning.api_schema.common.extension.getPathVariable
-import me.learning.api_schema.common.extension.ok
-import me.learning.api_schema.common.extension.pageRequest
-import me.learning.api_schema.common.extension.queryParameter
+import me.learning.api_schema.extension.auth
+import me.learning.api_schema.extension.getPathVariable
+import me.learning.api_schema.extension.ok
+import me.learning.api_schema.extension.pageRequest
+import me.learning.api_schema.extension.queryParameter
 import me.learning.api_schema.dto.request.PageRequest
 import me.learning.api_schema.route.configBuilder
 import kotlin.reflect.KClass
