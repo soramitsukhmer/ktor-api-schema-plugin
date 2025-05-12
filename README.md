@@ -26,7 +26,7 @@ Add the following dependency to your `build.gradle.kts` file:
 ```
 dependencies {
     // OpenApiShema
-    implementation("me.learning:api-plugin:$api_scheme_version")
+    implementation("com.skh.ktor:api-schema-plugin:$api_scheme_version")
 }
 ```
 
