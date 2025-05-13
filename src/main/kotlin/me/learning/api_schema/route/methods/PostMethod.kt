@@ -26,7 +26,7 @@ inline fun <reified T, reified I : Any> Route.post(
     path: String = "",
     crossinline block: suspend RoutingRequest.(requestBody: I) -> T
 ): Route {
-    return this.post(path, configBuilder<T>(requestBody = I::class.asKType())) {
+    return this.post(path, configBuilder<T>(hasAuth = false, requestBody = I::class.asKType())) {
         val requestBody = call.requestBody<I>()
         call.ok(call.request.block(requestBody))
     }

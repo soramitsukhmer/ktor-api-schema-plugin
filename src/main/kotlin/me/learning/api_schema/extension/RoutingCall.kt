@@ -17,12 +17,12 @@ inline fun <reified T : Any> RoutingCall.getPathVariable(param: String): T {
     val value = this.parameters[param]
         ?: badRequest("Missing path variable: $param")
 
-    return when {
-        T::class == Long::class -> value.toLongOrNull()
+    return when (T::class) {
+        Long::class -> value.toLongOrNull()
             ?: throw BadRequestException("Invalid Long value for parameter: $param")
-        T::class == Int::class -> value.toIntOrNull()
+        Int::class -> value.toIntOrNull()
             ?: throw BadRequestException("Invalid Int value for parameter: $param")
-        T::class == String::class -> value
+        String::class -> value
         else -> badRequest("Unsupported type ${T::class} for path parameters")
     } as T
 }

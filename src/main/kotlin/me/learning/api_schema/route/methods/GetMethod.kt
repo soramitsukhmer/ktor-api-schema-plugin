@@ -52,6 +52,35 @@ inline fun <reified T, reified I : Any> Route.get(
     }
 }
 
+/**
+ * Defines a GET route that processes requests with authentication and a path variable.
+ * The route handler generates a response of type [T] based on the authenticated user and path variable.
+ *
+ * @param T The type of the response body.
+ * @param I The type of the authenticated user object.
+ * @param J The type of the path variable.
+ * @param path The path pattern for the route. It can include placeholders for path variables
+ *             in the format `{variable}`. Defaults to an empty string.
+ * @param block A suspendable lambda function that takes the authenticated user ([I])
+ *              and the parsed path variable ([J]), and returns a response of type [T].
+ * @return The configured [Route] instance.
+ */
+@JvmName("getAuthWithPathVar")
+inline fun <reified T, reified I : Any, reified J : Any> Route.get(
+    path: String = "",
+    crossinline block: suspend RoutingRequest.(auth: I, varJ: J) -> T
+): Route {
+    val allPathVar = extractAllPathParameters(path)
+    val pathVarJ = allPathVar.firstOrNull() ?: ""
+    val pathVar = mapOf(pathVarJ to J::class)
+
+    return this.get(path, configBuilder<T>(variable = pathVar)) {
+        val auth = call.auth<I>()
+        val valueI = call.getPathVariable<J>(pathVarJ)
+        call.ok(call.request.block(auth, valueI))
+    }
+}
+
 
 /**
  * Defines a GET route with optional query parameter and authentication handling.
@@ -136,6 +165,7 @@ inline fun <reified T, reified I : Any, J : Any> Route.get(
  *
  * @return The configured [Route].
  */
+@JvmName("getAuthWithPathVarAndPageRequest")
 inline fun <reified T : Any, reified I : Any, reified J : Any> Route.get(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, pageRequest: PageRequest) -> T
@@ -154,19 +184,18 @@ inline fun <reified T : Any, reified I : Any, reified J : Any> Route.get(
 
 
 /**
- * Registers a GET route with support for authentication, query parameters, path variables,
- * pagination, and request processing for the specified route path.
+ * Adds a GET route to the specified path with specified query parameters and a handler block that processes the request.
+ * The handler block receives an authenticated user object, a path variable, pagination information, and query parameters.
  *
- * @param path The URI path for the route. Default is an empty string.
- * @param queryParam The class type that defines the query parameters for the request.
- * @param block A suspend function that processes the request, providing the following parameters:
- *  - [auth]: The authentication information of type [I].
- *  - [varJ]: A variable derived from the first path parameter in the route, of type [J].
- *  - [pageRequest]: A [PageRequest] object that represents pagination details.
- *  - [param]: An instance of the query parameters of type [K].
- * The suspend function returns a response of type [T].
- *
- * @return The configured [Route] instance for the GET route.
+ * @param T The type of the returned response body.
+ * @param I The type representing the authenticated user object.
+ * @param J The type of an optional path variable.
+ * @param K The type to derive query parameters from its properties.
+ * @param path The route path, optionally containing path variables in the form `{variableName}`. Defaults to an empty string.
+ * @param queryParam The class representing the query parameters to be deserialized.
+ * @param block A lambda function that processes the request. It receives the authenticated user of type `I`,
+ * the path variable of type `J`, the pagination object (`PageRequest`), and query parameters of type `K`, and returns a response of type `T`.
+ * @return The constructed `Route` after adding the GET handler.
  */
 inline fun <reified T : Any, reified I : Any, reified J : Any, K : Any> Route.get(
     path: String = "",
