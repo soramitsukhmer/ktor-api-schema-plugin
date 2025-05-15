@@ -1,10 +1,13 @@
-package me.learning.api_schema.common.extension
+package me.learning.api_schema.extension
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
+import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.dto.request.PageRequest
+import kotlin.collections.joinToString
 import kotlin.collections.mapOf
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -14,22 +17,41 @@ inline fun <reified T : Any> RoutingCall.getPathVariable(param: String): T {
     val value = this.parameters[param]
         ?: badRequest("Missing path variable: $param")
 
-    return when {
-        T::class == Long::class -> value.toLongOrNull()
+    return when (T::class) {
+        Long::class -> value.toLongOrNull()
             ?: throw BadRequestException("Invalid Long value for parameter: $param")
-        T::class == Int::class -> value.toIntOrNull()
+        Int::class -> value.toIntOrNull()
             ?: throw BadRequestException("Invalid Int value for parameter: $param")
-        T::class == String::class -> value
+        String::class -> value
         else -> badRequest("Unsupported type ${T::class} for path parameters")
     } as T
+}
+
+fun Throwable?.isMismatchException() = when (this) {
+    is MismatchedInputException -> {
+        val field = path.map { it.fieldName }.let { fields ->
+            if (fields.size > 1) fields.joinToString(", ", "[", "]") { it }
+            else fields.firstOrNull() ?: ""
+        }
+        badRequest("$field is missing")
+    }
+    else -> {}
 }
 
 suspend inline fun <reified T : Any> RoutingCall.requestBody(): T {
     return try {
         receive<T>()
     } catch (e: Exception) {
-        if (e is RequestValidationException) badRequest(e.reasons.minOf { it })
-        else badRequest("The body request is invalid: ${T::class.simpleName}")
+        when (e) {
+            is RequestValidationException -> badRequest(e.reasons.minOf { it })
+            else -> {
+                e.cause?.cause.isMismatchException()
+                e.cause.isMismatchException()
+
+                print(">>> Invalid body request: : ${T::class.simpleName}")
+                badRequest("The body request is invalid")
+            }
+        }
     }
 }
 

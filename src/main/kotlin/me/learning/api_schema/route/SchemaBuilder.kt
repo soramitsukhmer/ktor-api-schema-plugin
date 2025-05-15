@@ -1,10 +1,10 @@
 package me.learning.api_schema.route
 
 import me.learning.api_schema.common.Constant.SECURITY_BEARER_SCHEMA_NAME
-import me.learning.api_schema.common.Helper.asKType
-import me.learning.api_schema.common.Helper.getQueryParamInfo
 import io.github.smiley4.ktoropenapi.config.RouteConfig
 import io.ktor.http.HttpStatusCode
+import me.learning.api_schema.extension.asKType
+import me.learning.api_schema.extension.getQueryParamInfo
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 

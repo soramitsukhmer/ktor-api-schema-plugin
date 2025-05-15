@@ -50,6 +50,15 @@ install(ApiSchema) {
     redoc {
         enabled = true
     }
+
+    // Supported exception handler
+    handler {
+        config {
+            exception<BadRequestException> { call, cause ->
+                ...
+            }
+        }
+    }
 }
 ```
 
@@ -57,6 +66,7 @@ Provided security principle context
 ```
 inline fun <reified T : Any> ApplicationCall.auth(): T { /* compiled code */ }
 ```
+
 Supported request body validation
 ```
 import jakarta.validation.constraints.NotBlank
