@@ -25,7 +25,7 @@ inline fun <reified T> configBuilder(
     description: String = "",
     hasAuth: Boolean = true,
     hasPageRequest: Boolean = false,
-    variable: Map<String, KClass<*>> = mapOf(),
+    variable: Map<String, KClass<*>>? = null,
     param: KClass<*>? = null,
     requestBody: KType? = null,
 ): RouteConfig.() -> Unit = {
@@ -33,9 +33,11 @@ inline fun <reified T> configBuilder(
     if (hasAuth) securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
 
     request {
-        if (variable.isNotEmpty()) {
-            variable.forEach { (key, value) ->
-                pathParameter(key, value.asKType())
+        variable?.let { list ->
+            if (list.isNotEmpty()) {
+                list.forEach { (key, value) ->
+                    pathParameter(key, value.asKType())
+                }
             }
         }
 

@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.request.*
+import io.ktor.server.request.receive
 import io.ktor.server.routing.*
+import io.ktor.util.StringValuesImpl
 import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.dto.request.PageRequest
 import kotlin.collections.joinToString
@@ -13,18 +15,49 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.memberProperties
 
-inline fun <reified T : Any> RoutingCall.getPathVariable(param: String): T {
-    val value = this.parameters[param]
-        ?: badRequest("Missing path variable: $param")
-
-    return when (T::class) {
+@Suppress("UNCHECKED_CAST")
+fun <T : Any> KClass<T>.getDefaultValue(value: String, param: String): T {
+    return when (this) {
         Long::class -> value.toLongOrNull()
             ?: throw BadRequestException("Invalid Long value for parameter: $param")
         Int::class -> value.toIntOrNull()
             ?: throw BadRequestException("Invalid Int value for parameter: $param")
         String::class -> value
-        else -> badRequest("Unsupported type ${T::class} for path parameters")
+        else -> badRequest("Unsupported type $this for path parameters")
     } as T
+}
+
+suspend fun <T : Any> receiveRequestBody(clazzName: String?, block: suspend () -> T): T {
+    return try {
+        block()
+    } catch (e: Exception) {
+        when (e) {
+            is RequestValidationException -> badRequest(e.reasons.minOf { it })
+            else -> {
+                e.cause?.cause.isMismatchException()
+                e.cause.isMismatchException()
+
+                print(">>> Invalid body request: : $clazzName")
+                badRequest("The body request is invalid")
+            }
+        }
+    }
+}
+
+
+
+inline fun <reified T : Any> RoutingCall.getPathVariable(param: String): T {
+    val value = this.parameters[param]
+        ?: badRequest("Missing path variable: $param")
+
+    return T::class.getDefaultValue(value, param)
+}
+
+fun <T : Any> RoutingCall.getPathVariable(clazz: KClass<T>, param: String): T {
+    val value = this.parameters[param]
+        ?: badRequest("Missing path variable: $param")
+
+    return clazz.getDefaultValue(value, param)
 }
 
 fun Throwable?.isMismatchException() = when (this) {
@@ -39,20 +72,11 @@ fun Throwable?.isMismatchException() = when (this) {
 }
 
 suspend inline fun <reified T : Any> RoutingCall.requestBody(): T {
-    return try {
-        receive<T>()
-    } catch (e: Exception) {
-        when (e) {
-            is RequestValidationException -> badRequest(e.reasons.minOf { it })
-            else -> {
-                e.cause?.cause.isMismatchException()
-                e.cause.isMismatchException()
+    return receiveRequestBody(T::class.simpleName) { receive<T>() }
+}
 
-                print(">>> Invalid body request: : ${T::class.simpleName}")
-                badRequest("The body request is invalid")
-            }
-        }
-    }
+suspend fun <T : Any> RoutingCall.requestBody(clazz: KClass<T>): T {
+    return receiveRequestBody(clazz.simpleName) { receive(clazz) }
 }
 
 fun RoutingCall.pageRequest(): PageRequest {

@@ -1,0 +1,28 @@
+package me.learning.api_schema.api.dto.method
+
+import io.ktor.server.routing.Route
+import me.learning.api_schema.api.common.MethodEnum
+import me.learning.api_schema.api.common.RoutePropertyEnum
+import me.learning.api_schema.api.common.throwOnMultipleProp
+import kotlin.reflect.KClass
+
+data class MethodBuilderT5<T1 : Any, T2 : Any, T3 : Any, T4 : Any, T5 : Any>(
+    val route: Route,
+    val method: MethodEnum,
+    val path: String,
+    var hasAuth: Boolean,
+    val p1: Pair<KClass<T1>, RoutePropertyEnum>,
+    val p2: Pair<KClass<T2>, RoutePropertyEnum>,
+    val p3: Pair<KClass<T3>, RoutePropertyEnum>,
+    val p4: Pair<KClass<T4>, RoutePropertyEnum>,
+    val p5: Pair<KClass<T5>, RoutePropertyEnum>
+) {
+    init {
+        val properties = listOf(p1.second, p2.second, p3.second, p4.second, p5.second)
+
+        throwOnMultipleProp(path, method, properties, RoutePropertyEnum.AUTH, "auth")
+        throwOnMultipleProp(path, method, properties, RoutePropertyEnum.REQUEST_BODY, "request body")
+
+        if (!hasAuth) hasAuth = properties.any { it == RoutePropertyEnum.AUTH }
+    }
+}
