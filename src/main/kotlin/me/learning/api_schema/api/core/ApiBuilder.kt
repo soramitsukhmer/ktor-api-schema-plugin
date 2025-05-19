@@ -7,7 +7,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.api.common.MethodEnum
 import me.learning.api_schema.api.common.getApiSchemaBuilderProp
-import me.learning.api_schema.api.common.prop
 import me.learning.api_schema.api.dto.method.MethodBuilder
 import me.learning.api_schema.api.dto.method.MethodBuilderT1
 import me.learning.api_schema.api.dto.method.MethodBuilderT2
@@ -21,10 +20,11 @@ import me.learning.api_schema.api.dto.tuple.Tuple4
 import me.learning.api_schema.api.dto.tuple.Tuple5
 import me.learning.api_schema.api.dto.tuple.Tuple6
 import me.learning.api_schema.extension.ok
+import me.learning.api_schema.extension.prop
 import me.learning.api_schema.route.configBuilder
 
 inline fun <reified T1 : Any> MethodBuilder.map(crossinline block: suspend RoutingRequest.() -> T1): Route {
-    val (variable, requestBody) = getApiSchemaBuilderProp(path, listOf())
+    val (variable, requestBody) = path.getApiSchemaBuilderProp()
     val builder = configBuilder<T1>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
@@ -38,7 +38,7 @@ inline fun <reified T1 : Any, reified T2> MethodBuilderT1<T1>.map(
     crossinline block: suspend RoutingRequest.(T1) -> T2
 ): Route {
     val pair = this.p1
-    val (variable, requestBody) = getApiSchemaBuilderProp(path, listOf(pair))
+    val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair))
     val builder = configBuilder<T2>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
@@ -64,7 +64,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3> MethodBuilderT2<T1, 
 ): Route {
     val pair1 = this.p1
     val pair2 = this.p2
-    val (variable, requestBody) = getApiSchemaBuilderProp(path, listOf(pair1, pair2))
+    val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair1, pair2))
     val builder = configBuilder<T3>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
@@ -94,7 +94,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4> Me
     val pair1 = this.p1
     val pair2 = this.p2
     val pair3 = this.p3
-    val (variable, requestBody) = getApiSchemaBuilderProp(path, listOf(pair1, pair2, pair3))
+    val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair1, pair2, pair3))
     val builder = configBuilder<T4>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
@@ -128,7 +128,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4 : A
     val pair2 = this.p2
     val pair3 = this.p3
     val pair4 = this.p4
-    val (variable, requestBody) = getApiSchemaBuilderProp(path, listOf(pair1, pair2, pair3, pair4))
+    val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair1, pair2, pair3, pair4))
     val builder = configBuilder<T5>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
@@ -166,7 +166,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4 : A
     val pair3 = this.p3
     val pair4 = this.p4
     val pair5 = this.p5
-    val (variable, requestBody) = getApiSchemaBuilderProp(path, listOf(pair1, pair2, pair3, pair4, pair5))
+    val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair1, pair2, pair3, pair4, pair5))
     val builder = configBuilder<T6>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
@@ -208,7 +208,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4 : A
     val pair4 = this.p4
     val pair5 = this.p5
     val pair6 = this.p6
-    val (variable, requestBody) = getApiSchemaBuilderProp(path, listOf(pair1, pair2, pair3, pair4, pair5, pair6))
+    val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair1, pair2, pair3, pair4, pair5, pair6))
     val builder = configBuilder<T1>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
 
     return when (method) {

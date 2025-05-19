@@ -6,59 +6,30 @@ import io.ktor.http.HttpStatusCode
 import me.learning.api_schema.extension.asKType
 import me.learning.api_schema.extension.getQueryParamInfo
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
 
 /**
- * Configures a route with optional authentication, pagination, path variables,
- * query parameters, and request/response handling.
+ * Constructs a configuration block for a route to define authentication, path variables, request body, and response type.
  *
  * @param T The type of the response body.
- * @param description A description for the route's response. Default is an empty string.
- * @param hasAuth Indicates whether the route requires authentication. Default is true.
- * @param hasPageRequest Specifies if pagination query parameters should be included. Default is false.
- * @param variable A map of path variable names to their respective types, if any exist. Default is an empty map.
- * @param param An optional class to derive query parameters from its properties. Default is null.
- * @param requestBody An optional type representing the request body. If provided, it will be used to parse incoming requests. Default is null.
- * @return A lambda expression that applies the route configuration to the specified `RouteConfig`.
+ * @param hasAuth Indicates whether the route requires authentication. Defaults to true.
+ * @param pathVariable A map of path variable names to their respective types. Can be null if no path variables are required.
+ * @param requestBody The type of the request body. Can be null if no request body is required.
+ * @return A lambda configuration block that applies the specified settings to the route.
  */
 inline fun <reified T> configBuilder(
-    description: String = "",
     hasAuth: Boolean = true,
-    hasPageRequest: Boolean = false,
-    variable: Map<String, KClass<*>>? = null,
-    param: KClass<*>? = null,
-    requestBody: KType? = null,
+    pathVariable: Map<String, KClass<*>>? = null,
+    requestBody: KClass<*>? = null,
 ): RouteConfig.() -> Unit = {
 
     if (hasAuth) securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
 
-    request {
-        variable?.let { list ->
-            if (list.isNotEmpty()) {
-                list.forEach { (key, value) ->
-                    pathParameter(key, value.asKType())
-                }
-            }
-        }
+    request { pathVariable?.let { it.forEach { (key, value) -> pathParameter(key, value.asKType()) } } }
 
-        if (hasPageRequest) {
-            queryParameter<Int?>("size")
-            queryParameter<Int?>("page")
-            queryParameter<String?>("sort")
-        }
-
-        param?.getQueryParamInfo()?.forEach { (name, kType) ->
-            queryParameter(name, kType) {
-                require(kType.isMarkedNullable)
-            }
-        }
-
-        requestBody?.let(::body)
-    }
+    request { requestBody?.asKType()?.let(::body) }
 
     response {
         HttpStatusCode.OK to {
-            this.description = description
             body<T>()
         }
     }

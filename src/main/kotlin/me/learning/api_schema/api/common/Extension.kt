@@ -9,28 +9,12 @@ import me.learning.api_schema.api.dto.method.MethodBuilderT4
 import me.learning.api_schema.api.dto.method.MethodBuilderT5
 import me.learning.api_schema.api.dto.method.MethodBuilderT6
 import me.learning.api_schema.common.Helper.extractAllPathParameters
-import me.learning.api_schema.extension.auth
-import me.learning.api_schema.extension.getPathVariable
-import me.learning.api_schema.extension.requestBody
 import kotlin.reflect.KClass
 
-suspend fun <T : Any> RoutingCall.prop(pair: Pair<KClass<T>, RoutePropertyEnum>, path: String = "", pathVarIndex: Int = 0): Pair<T, Int> {
-    return when (pair.second) {
-        RoutePropertyEnum.AUTH -> auth(pair.first) to pathVarIndex
-        RoutePropertyEnum.REQUEST_BODY -> requestBody(pair.first) to pathVarIndex
-        RoutePropertyEnum.PATH_VARIABLE -> {
-            val allPathVar = extractAllPathParameters(path)
-            val param = allPathVar.getOrNull(pathVarIndex) ?: ""
-            getPathVariable(pair.first, param) to pathVarIndex.plus(1)
-        }
-    }
-}
-
-fun getApiSchemaBuilderProp(
-    path: String,
+fun String.getApiSchemaBuilderProp(
     pairs: List<Pair<KClass<*>, RoutePropertyEnum>> = emptyList()
 ): Pair<Map<String, KClass<*>>, KClass<*>?> {
-    val allPathVar = extractAllPathParameters(path)
+    val allPathVar = extractAllPathParameters(this)
     val variable = pairs.filter { it.second == RoutePropertyEnum.PATH_VARIABLE }
         .mapIndexed { index, pair -> (allPathVar.getOrNull(index) ?: "") to pair.first }
         .toMap()
@@ -38,11 +22,18 @@ fun getApiSchemaBuilderProp(
     return Pair(variable, requestBody)
 }
 
-fun throwOnMultipleProp(path: String, method: MethodEnum, properties: List<RoutePropertyEnum>, onProp: RoutePropertyEnum, tag: String) {
+fun MethodEnum.throwOnMultipleProp(path: String, properties: List<RoutePropertyEnum>, onProp: RoutePropertyEnum, tag: String) {
     properties
         .filter { it == onProp }
         .takeIf { it.size > 1 }
-        ?.let { throw IllegalArgumentException("Route path[$path], method[$method]: Unsupported multiple $tag") }
+        ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported multiple $tag") }
+}
+
+fun MethodEnum.throwOnMethodGetRequestBody(path: String, properties: List<RoutePropertyEnum>) {
+    if (this != MethodEnum.GET) return
+    properties
+        .find { it == RoutePropertyEnum.REQUEST_BODY }
+        ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported request body") }
 }
 
 

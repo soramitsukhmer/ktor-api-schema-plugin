@@ -1,15 +1,31 @@
-package me.learning.api_schema.route.methods
+package me.learning.api_schema.route.methods.inline
 
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
-import me.learning.api_schema.extension.asKType
 import me.learning.api_schema.extension.auth
 import me.learning.api_schema.extension.getPathVariable
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.requestBody
 import me.learning.api_schema.route.configBuilder
+
+/**
+ * Registers a POST route for the given path and executes the provided block for each incoming request.
+ *
+ * @param T The type of the response produced by the block.
+ * @param path The URL path for the route. Defaults to an empty string, meaning it will match the current route.
+ * @param block A suspendable lambda that handles the incoming request and produces a response.
+ * @return The created route.
+ */
+inline fun <reified T> Route.post(
+    path: String = "",
+    crossinline block: suspend RoutingRequest.() -> T
+): Route {
+    return this.post(path, configBuilder<T>(hasAuth = false)) {
+        call.ok(call.request.block())
+    }
+}
 
 /**
  * Defines a POST route with a specified path and a request body handling block.
@@ -26,7 +42,7 @@ inline fun <reified T, reified I : Any> Route.post(
     path: String = "",
     crossinline block: suspend RoutingRequest.(requestBody: I) -> T
 ): Route {
-    return this.post(path, configBuilder<T>(hasAuth = false, requestBody = I::class.asKType())) {
+    return this.post(path, configBuilder<T>(hasAuth = false, requestBody = I::class)) {
         val requestBody = call.requestBody<I>()
         call.ok(call.request.block(requestBody))
     }
@@ -49,7 +65,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.post(
     path: String = "",
     crossinline block: suspend  RoutingRequest.(auth: I, requestBody: J) -> T
 ): Route {
-    return this.post(path, configBuilder<T>(requestBody = I::class.asKType())) {
+    return this.post(path, configBuilder<T>(requestBody = I::class)) {
         val auth = call.auth<I>()
         val requestBody = call.requestBody<J>()
         call.ok(call.request.block(auth, requestBody))
@@ -80,7 +96,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVar = mapOf(pathVarJ to J::class)
 
-    return this.post(path, configBuilder<T>(variable = pathVar, requestBody = K::class.asKType())) {
+    return this.post(path, configBuilder<T>(pathVariable = pathVar, requestBody = K::class)) {
         val auth = call.auth<I>()
         val valueI = call.getPathVariable<J>(pathVarJ)
         val requestBody = call.requestBody<K>()
@@ -115,7 +131,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
         pathVarK to K::class,
     )
 
-    return this.post(path, configBuilder<T>(variable = pathVar, requestBody = L::class.asKType())) {
+    return this.post(path, configBuilder<T>(pathVariable = pathVar, requestBody = L::class)) {
         val auth = call.auth<I>()
         val valueJ = call.getPathVariable<J>(pathVarJ)
         val valueK = call.getPathVariable<K>(pathVarK)
