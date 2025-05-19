@@ -5,9 +5,11 @@ import me.learning.api_schema.dto.response.ResponseWrapper
 import me.learning.api_schema.dto.response.Status
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.response.*
 import me.learning.api_schema.common.Helper.invalidAuthentication
+import kotlin.reflect.KClass
 
 suspend inline fun <reified T> ApplicationCall.ok(message: T) {
     response.status(HttpStatusCode.OK)
@@ -22,7 +24,17 @@ suspend inline fun <reified T> ApplicationCall.ok(message: T) {
 
 inline fun <reified T : Any> ApplicationCall.auth(): T {
     return try {
-        principal<T>() ?: invalidAuthentication()
+        val principal = principal<JWTPrincipal>()?.getClaim("data", Map::class)
+        principal?.ct(T::class.java)  ?: invalidAuthentication()
+    } catch (e: Exception) {
+        invalidAuthentication()
+    }
+}
+
+fun <T : Any> ApplicationCall.auth(clazz: KClass<T>): T {
+    return try {
+        val principal = principal<JWTPrincipal>()?.getClaim("data", Map::class)
+        principal?.ct(clazz.java)  ?: invalidAuthentication()
     } catch (e: Exception) {
         invalidAuthentication()
     }

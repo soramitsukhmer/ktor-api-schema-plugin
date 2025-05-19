@@ -3,28 +3,55 @@ package me.learning.api_schema.extension
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.requestvalidation.*
-import io.ktor.server.request.*
+import io.ktor.server.request.receive
 import io.ktor.server.routing.*
+import me.learning.api_schema.api.common.RoutePropertyEnum
 import me.learning.api_schema.common.Helper.badRequest
-import me.learning.api_schema.dto.request.PageRequest
+import me.learning.api_schema.common.Helper.extractAllPathParameters
 import kotlin.collections.joinToString
-import kotlin.collections.mapOf
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
-import kotlin.reflect.full.memberProperties
 
-inline fun <reified T : Any> RoutingCall.getPathVariable(param: String): T {
-    val value = this.parameters[param]
-        ?: badRequest("Missing path variable: $param")
-
-    return when (T::class) {
+@Suppress("UNCHECKED_CAST")
+fun <T : Any> KClass<T>.getDefaultValue(value: String, param: String): T {
+    return when (this) {
         Long::class -> value.toLongOrNull()
             ?: throw BadRequestException("Invalid Long value for parameter: $param")
         Int::class -> value.toIntOrNull()
             ?: throw BadRequestException("Invalid Int value for parameter: $param")
         String::class -> value
-        else -> badRequest("Unsupported type ${T::class} for path parameters")
+        else -> badRequest("Unsupported type $this for path parameters")
     } as T
+}
+
+suspend fun <T : Any> receiveRequestBody(clazzName: String?, block: suspend () -> T): T {
+    return try {
+        block()
+    } catch (e: Exception) {
+        when (e) {
+            is RequestValidationException -> badRequest(e.reasons.minOf { it })
+            else -> {
+                e.cause?.cause.isMismatchException()
+                e.cause.isMismatchException()
+
+                print(">>> Invalid body request: : $clazzName")
+                badRequest("The body request is invalid")
+            }
+        }
+    }
+}
+
+inline fun <reified T : Any> RoutingCall.getPathVariable(param: String): T {
+    val value = this.parameters[param]
+        ?: badRequest("Missing path variable: $param")
+
+    return T::class.getDefaultValue(value, param)
+}
+
+fun <T : Any> RoutingCall.getPathVariable(clazz: KClass<T>, param: String): T {
+    val value = this.parameters[param]
+        ?: badRequest("Missing path variable: $param")
+
+    return clazz.getDefaultValue(value, param)
 }
 
 fun Throwable?.isMismatchException() = when (this) {
@@ -39,68 +66,21 @@ fun Throwable?.isMismatchException() = when (this) {
 }
 
 suspend inline fun <reified T : Any> RoutingCall.requestBody(): T {
-    return try {
-        receive<T>()
-    } catch (e: Exception) {
-        when (e) {
-            is RequestValidationException -> badRequest(e.reasons.minOf { it })
-            else -> {
-                e.cause?.cause.isMismatchException()
-                e.cause.isMismatchException()
-
-                print(">>> Invalid body request: : ${T::class.simpleName}")
-                badRequest("The body request is invalid")
-            }
-        }
-    }
+    return receiveRequestBody(T::class.simpleName) { receive<T>() }
 }
 
-fun RoutingCall.pageRequest(): PageRequest {
-    val page = this.parameters["page"]?.toLongOrNull() ?: 0
-    val size = this.parameters["size"]?.toIntOrNull() ?: 10
-
-    val direction = listOf("asc", "desc")
-
-    val sort: Map<String, String> = this.parameters.getAll("sort")?.associate {
-        val values = it.split(",")
-        val dir = values.last()
-        when (values.size) {
-            1 -> values.first() to direction.first()
-            2 -> direction.find { d -> d.equals(dir, ignoreCase = true) }?.let { d -> values.first() to d }
-                ?: badRequest("Invalid sort property[${values.last()}]")
-            else -> badRequest("Invalid sort property[$it]")
-        }
-    } ?: mapOf()
-
-    return PageRequest(
-        page = page,
-        size = size,
-        sort = sort,
-    )
+suspend fun <T : Any> RoutingCall.requestBody(clazz: KClass<T>): T {
+    return receiveRequestBody(clazz.simpleName) { receive(clazz) }
 }
 
-fun KType.getDefaultValue(): Any {
-    return when (this.classifier) {
-        Int::class -> 0
-        Long::class -> 0L
-        String::class -> ""
-        Map::class -> mapOf<Any, Any?>()
-        else -> badRequest("Unsupported class type[${this::class.java}]")
-    }
-}
-
-fun <T : Any> RoutingCall.queryParameter(kClass: KClass<T>): T {
-    val properties = kClass.memberProperties.associate { prop ->
-        val type = prop.returnType
-        val isNullable = type.isMarkedNullable
-
-        val value = this.parameters[prop.name]
-
-        prop.name to when {
-            isNullable -> value
-            else -> value ?: type.getDefaultValue()
+suspend fun <T : Any> RoutingCall.prop(pair: Pair<KClass<T>, RoutePropertyEnum>, path: String = "", pathVarIndex: Int = 0): Pair<T, Int> {
+    return when (pair.second) {
+        RoutePropertyEnum.AUTH -> auth(pair.first) to pathVarIndex
+        RoutePropertyEnum.REQUEST_BODY -> requestBody(pair.first) to pathVarIndex
+        RoutePropertyEnum.PATH_VARIABLE -> {
+            val allPathVar = extractAllPathParameters(path)
+            val param = allPathVar.getOrNull(pathVarIndex) ?: ""
+            getPathVariable(pair.first, param) to pathVarIndex.plus(1)
         }
     }
-
-    return properties.ct(kClass.java)
 }

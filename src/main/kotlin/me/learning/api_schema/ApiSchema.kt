@@ -71,6 +71,10 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
                     bearerFormat = "JWT"
                 }
             }
+
+            schemas {
+
+            }
         }
 
         val baseRoute = pluginConfig.getRouteBuilder()
