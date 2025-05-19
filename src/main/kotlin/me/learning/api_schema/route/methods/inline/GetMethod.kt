@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
  * @param block A suspendable lambda function that processes the request and produces a response of type [T].
  * @return The configured [Route] instance.
  */
-inline fun <reified T> Route.get(
+inline fun <reified T> Route.GET(
     path: String = "",
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
@@ -43,7 +43,7 @@ inline fun <reified T> Route.get(
  *              and returns a response of type [T].
  * @return The configured [Route] instance.
  */
-inline fun <reified T : Any, reified I : Any> Route.get(
+inline fun <reified T : Any, reified I : Any> Route.GET(
     path: String = "",
     pathI: KClass<I>,
     crossinline block: suspend RoutingRequest.(varI: I) -> T
@@ -69,7 +69,7 @@ inline fun <reified T : Any, reified I : Any> Route.get(
  * and returns the response object of type [T].
  * @return The configured [Route] instance.
  */
-inline fun <reified T : Any, reified I : Any> Route.get(
+inline fun <reified T : Any, reified I : Any> Route.GET(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I) -> T
 ): Route {
@@ -92,7 +92,7 @@ inline fun <reified T : Any, reified I : Any> Route.get(
  * and the path parameter of type [J], and returns the response object of type [T].
  * @return The configured [Route] instance.
  */
-inline fun <reified T : Any, reified I : Any, reified J : Any> Route.get(
+inline fun <reified T : Any, reified I : Any, reified J : Any> Route.GET(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J) -> T
 ): Route {
@@ -125,7 +125,7 @@ inline fun <reified T : Any, reified I : Any, reified J : Any> Route.get(
  *              as inputs and produces a response of type [T].
  * @return The configured [Route] instance.
  */
-inline fun <reified T : Any, reified I : Any, reified J : Any, reified K : Any> Route.get(
+inline fun <reified T : Any, reified I : Any, reified J : Any, reified K : Any> Route.GET(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, varK: K) -> T
 ): Route {
@@ -162,7 +162,7 @@ inline fun <reified T : Any, reified I : Any, reified J : Any, reified K : Any> 
  * ([J], [K], and [L]), and produces a response of type [T].
  * @return The configured [Route] instance.
  */
-inline fun <reified T : Any, reified I : Any, reified J : Any, reified K : Any, reified L : Any> Route.get(
+inline fun <reified T : Any, reified I : Any, reified J : Any, reified K : Any, reified L : Any> Route.GET(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, varK: K, varL: L) -> T
 ): Route {

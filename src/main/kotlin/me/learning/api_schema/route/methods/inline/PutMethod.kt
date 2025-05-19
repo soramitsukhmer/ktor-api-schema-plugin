@@ -21,7 +21,7 @@ import me.learning.api_schema.route.configBuilder
  * and request body of type [J], and returns the response object of type [T].
  * @return The configured [Route] instance.
  */
-inline fun <reified T, reified I : Any, reified J : Any> Route.put(
+inline fun <reified T, reified I : Any, reified J : Any> Route.PUT(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, requestBody: J) -> T
 ): Route {
@@ -46,7 +46,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.put(
  *              and the request body as inputs, and produces a response of type T.
  * @return The configured Route instance.
  */
-inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.put(
+inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.PUT(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, requestBody: K) -> T
 ): Route {
@@ -79,7 +79,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.
  * the request body ([L]), and returns a response of type [T].
  * @return The configured [Route] instance.
  */
-inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reified L : Any> Route.put(
+inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reified L : Any> Route.PUT(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, varK: K, requestBody: L) -> T
 ): Route {

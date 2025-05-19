@@ -18,7 +18,7 @@ import me.learning.api_schema.route.configBuilder
  * @param block A suspendable lambda that handles the incoming request and produces a response.
  * @return The created route.
  */
-inline fun <reified T> Route.post(
+inline fun <reified T> Route.POST(
     path: String = "",
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
@@ -38,7 +38,7 @@ inline fun <reified T> Route.post(
  * and returns a response of type `T`.
  * @return The configured `Route` instance.
  */
-inline fun <reified T, reified I : Any> Route.post(
+inline fun <reified T, reified I : Any> Route.POST(
     path: String = "",
     crossinline block: suspend RoutingRequest.(requestBody: I) -> T
 ): Route {
@@ -61,7 +61,7 @@ inline fun <reified T, reified I : Any> Route.post(
  * object of type [I] and the parsed request body of type [J], and returns a response of type [T].
  * @return An instance of [Route] configured with the POST route.
  */
-inline fun <reified T, reified I : Any, reified J : Any> Route.post(
+inline fun <reified T, reified I : Any, reified J : Any> Route.POST(
     path: String = "",
     crossinline block: suspend  RoutingRequest.(auth: I, requestBody: J) -> T
 ): Route {
@@ -88,7 +88,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.post(
  * Returns the response of type `T`.
  * @return The registered route.
  */
-inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.post(
+inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.POST(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varI: J, requestBody: K) -> T
 ): Route {
@@ -119,7 +119,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.
  * object, the values of the path variables, and the parsed request body, and returns a response of type T.
  * @return The configured POST route.
  */
-inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reified L : Any> Route.post(
+inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reified L : Any> Route.POST(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varI: J, varJ: K, requestBody: L) -> T
 ): Route {
