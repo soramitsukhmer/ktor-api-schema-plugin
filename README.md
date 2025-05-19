@@ -77,21 +77,38 @@ data class Request(
 )
 ```
 
-### Usage
+### Usage [Inline function]
 ```
 // Get Method
-import me.learning.api_schema.route.methods.get
-get { auth: UserAuth -> ... }
+import me.learning.api_schema.route.methods.inline.GET
+GET { auth: UserAuth -> ... }
 
 
 // Post Method
-import me.learning.api_schema.route.methods.post
-post { auth: UserAuth, request: Reauest -> ... }
+import me.learning.api_schema.route.methods.inline.POST
+POST { auth: UserAuth, request: Reauest -> ... }
 
 
 // Put Method
-import me.learning.api_schema.route.methods.put
-put { auth: UserAuth, requestBody: UserBodyUpdateReq -> ... }
+import me.learning.api_schema.route.methods.inline.PUT
+PUT { auth: UserAuth, requestBody: UserBodyUpdateReq -> ... }
+```
+
+### Usage [Extension function]
+```
+// Get Method
+import me.learning.api_schema.route.methods.extension.GET
+GET("/user").auth(UserAuth::class).map { auth -> ... }
+
+
+// Post Method
+import me.learning.api_schema.route.methods.extension.POST
+POST("/user").auth(UserAuth::class).map { auth -> ... }
+
+
+// Put Method
+import me.learning.api_schema.route.methods.extension.PUT
+PUT("/user/{id}").auth(UserAuth::class).pathVariable(Long::class).map { t2: Tuple2<UserAuth, Long> -> ... }
 ```
 
 ### Expose Default Endpoint:
