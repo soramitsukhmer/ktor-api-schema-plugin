@@ -1,14 +1,26 @@
 package me.learning.api_schema.route.methods.inline
 
 import io.github.smiley4.ktoropenapi.post
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.server.http.content.file
+import io.ktor.server.request.receiveMultipart
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
+import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.copyAndClose
+import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
+import me.learning.api_schema.dto.request.FileDataInfoReq
+import me.learning.api_schema.dto.request.FileInfoReq
 import me.learning.api_schema.extension.auth
 import me.learning.api_schema.extension.getPathVariable
+import me.learning.api_schema.extension.getRequest
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.requestBody
 import me.learning.api_schema.route.configBuilder
+import java.io.File
+import java.util.UUID
 
 /**
  * Registers a POST route for the given path and executes the provided block for each incoming request.
@@ -137,5 +149,65 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
         val valueK = call.getPathVariable<K>(pathVarK)
         val requestBody = call.requestBody<L>()
         call.ok(call.request.block(auth, valueJ, valueK, requestBody))
+    }
+}
+
+
+/**
+ *
+ */
+@JvmName("POSTFileInfo")
+inline fun <reified T> Route.POST(
+    path: String = "",
+    extensions: List<String> = emptyList(),
+    crossinline block: suspend RoutingRequest.(file: FileInfoReq) -> T
+): Route {
+//  System.getProperty("java.io.tmpdir") // to check file java temp dir storage
+
+    return this.post(path, configBuilder<T>(hasAuth = false)) {
+        var request: FileInfoReq? = null
+
+        call.receiveMultipart().forEachPart { part ->
+            when (part) {
+                is PartData.FileItem -> { request = part.getRequest(request != null, extensions) }
+                else -> {}
+            }
+            part.dispose()
+        }
+
+        request?.let { call.ok(call.request.block(it)) } ?: badRequest("Invalid request file cannot be empty")
+        request?.file?.delete()
+    }
+}
+
+
+@JvmName("POSTFileDataInfo")
+inline fun <reified T, reified I> Route.POST(
+    path: String = "",
+    extensions: List<String> = emptyList(),
+    crossinline block: suspend RoutingRequest.(file: FileDataInfoReq<I>) -> T
+): Route {
+    return this.post(path, configBuilder<T>(hasAuth = false)) {
+        val multipartData = call.receiveMultipart()
+
+        var fileReq: FileInfoReq? = null
+        var dataReq: I? = null
+
+        multipartData.forEachPart { part ->
+            when (part) {
+                is PartData.FileItem -> { fileReq = part.getRequest(fileReq != null, extensions) }
+                is PartData.FormItem -> { dataReq = part.getRequest(dataReq != null) }
+                else -> {}
+            }
+            part.dispose()
+        }
+
+        val request = FileDataInfoReq<I>(
+            file = fileReq ?: badRequest("Invalid request file cannot be empty"),
+            data = dataReq ?: badRequest("Invalid request data cannot be empty")
+        )
+
+        call.ok(call.request.block(request))
+        request.file.file.delete()
     }
 }

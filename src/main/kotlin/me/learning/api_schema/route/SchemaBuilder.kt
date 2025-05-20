@@ -4,7 +4,6 @@ import me.learning.api_schema.common.Constant.SECURITY_BEARER_SCHEMA_NAME
 import io.github.smiley4.ktoropenapi.config.RouteConfig
 import io.ktor.http.HttpStatusCode
 import me.learning.api_schema.extension.asKType
-import me.learning.api_schema.extension.getQueryParamInfo
 import kotlin.reflect.KClass
 
 /**
@@ -29,8 +28,6 @@ inline fun <reified T> configBuilder(
     request { requestBody?.asKType()?.let(::body) }
 
     response {
-        HttpStatusCode.OK to {
-            body<T>()
-        }
+        HttpStatusCode.OK to { body<T>() }
     }
 }
