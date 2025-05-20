@@ -1,8 +1,8 @@
 package me.learning.api_schema.route.methods.extension
 
 import io.ktor.server.routing.Route
-import me.learning.api_schema.api.common.MethodEnum
-import me.learning.api_schema.api.dto.method.MethodBuilder
+import me.learning.api_schema.common.MethodEnum
+import me.learning.api_schema.dto.api.method.MethodBuilder
 
 fun Route.GET(path: String = "", hasAuth: Boolean = false) : MethodBuilder {
     return MethodBuilder(this, MethodEnum.GET, path, hasAuth)

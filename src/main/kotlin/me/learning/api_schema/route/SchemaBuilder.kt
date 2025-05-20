@@ -19,6 +19,7 @@ inline fun <reified T> configBuilder(
     hasAuth: Boolean = true,
     pathVariable: Map<String, KClass<*>>? = null,
     requestBody: KClass<*>? = null,
+
 ): RouteConfig.() -> Unit = {
 
     if (hasAuth) securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)

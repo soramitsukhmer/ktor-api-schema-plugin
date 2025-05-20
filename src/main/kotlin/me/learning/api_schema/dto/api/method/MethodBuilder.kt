@@ -1,7 +1,7 @@
-package me.learning.api_schema.api.dto.method
+package me.learning.api_schema.dto.api.method
 
 import io.ktor.server.routing.Route
-import me.learning.api_schema.api.common.MethodEnum
+import me.learning.api_schema.common.MethodEnum
 
 data class MethodBuilder(
     val route: Route,

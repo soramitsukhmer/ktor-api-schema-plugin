@@ -3,12 +3,9 @@ package me.learning.api_schema.route.methods.inline
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
-import io.ktor.server.http.content.file
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.copyAndClose
 import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.dto.request.FileDataInfoReq
@@ -19,8 +16,6 @@ import me.learning.api_schema.extension.getRequest
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.requestBody
 import me.learning.api_schema.route.configBuilder
-import java.io.File
-import java.util.UUID
 
 /**
  * Registers a POST route for the given path and executes the provided block for each incoming request.
@@ -154,7 +149,15 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
 
 
 /**
+ * Handles a POST request to upload a file with specific extensions and processes it using
+ * the provided request handling block.
  *
+ * @param path The path of the route. Defaults to an empty string.
+ * @param extensions A list of acceptable file extensions. Defaults to an empty list, meaning
+ *                   any extension is allowed.
+ * @param block A coroutine block that receives the incoming file request data as a [FileInfoReq]
+ *              and performs processing, returning a result of type [T].
+ * @return The configured [Route] for the POST request handling.
  */
 @JvmName("POSTFileInfo")
 inline fun <reified T> Route.POST(
@@ -164,7 +167,7 @@ inline fun <reified T> Route.POST(
 ): Route {
 //  System.getProperty("java.io.tmpdir") // to check file java temp dir storage
 
-    return this.post(path, configBuilder<T>(hasAuth = false)) {
+    return this.post(path, configBuilder<T>()) {
         var request: FileInfoReq? = null
 
         call.receiveMultipart().forEachPart { part ->
@@ -181,13 +184,24 @@ inline fun <reified T> Route.POST(
 }
 
 
+/**
+ * Defines a POST route for handling multipart file and form-data submissions. This method processes the incoming
+ * request containing a file and associated form-data, validates the data, and invokes the supplied handler function
+ * with the data encapsulated in a [FileDataInfoReq] object.
+ *
+ * @param path The URI path of the route. Defaults to an empty string, which applies the route at the current path.
+ * @param extensions A list of valid file extensions for the uploaded file. If the uploaded file's extension is not in the list, a bad request will be returned.
+ * @param block A suspending lambda to process the request. The lambda receives a [FileDataInfoReq] object that includes the file as [FileInfoReq] and the parsed form-data as the
+ *  provided type [I]. It must return a value of type [T].
+ * @return The created [Route] instance.
+ */
 @JvmName("POSTFileDataInfo")
 inline fun <reified T, reified I> Route.POST(
     path: String = "",
     extensions: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(file: FileDataInfoReq<I>) -> T
 ): Route {
-    return this.post(path, configBuilder<T>(hasAuth = false)) {
+    return this.post(path, configBuilder<T>()) {
         val multipartData = call.receiveMultipart()
 
         var fileReq: FileInfoReq? = null

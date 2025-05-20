@@ -1,4 +1,4 @@
-package me.learning.api_schema.api.common
+package me.learning.api_schema.common
 
 enum class MethodEnum {
     GET,
@@ -10,4 +10,9 @@ enum class RoutePropertyEnum {
     AUTH,
     REQUEST_BODY,
     PATH_VARIABLE
+}
+
+enum class RequestBodyFormDataEnum {
+    FILE,
+    FILE_DATA
 }

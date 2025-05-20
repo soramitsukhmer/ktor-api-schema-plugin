@@ -1,10 +1,10 @@
-package me.learning.api_schema.api.dto.method
+package me.learning.api_schema.dto.api.method
 
 import io.ktor.server.routing.Route
-import me.learning.api_schema.api.common.MethodEnum
-import me.learning.api_schema.api.common.RoutePropertyEnum
-import me.learning.api_schema.api.common.throwOnMethodGetRequestBody
-import me.learning.api_schema.api.common.throwOnMultipleProp
+import me.learning.api_schema.common.MethodEnum
+import me.learning.api_schema.common.RoutePropertyEnum
+import me.learning.api_schema.extension.throwOnMethodGetRequestBody
+import me.learning.api_schema.extension.throwOnMultipleProp
 import kotlin.reflect.KClass
 
 data class MethodBuilderT5<T1 : Any, T2 : Any, T3 : Any, T4 : Any, T5 : Any>(

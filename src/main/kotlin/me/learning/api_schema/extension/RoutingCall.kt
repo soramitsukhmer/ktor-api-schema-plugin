@@ -5,7 +5,7 @@ import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.request.receive
 import io.ktor.server.routing.*
-import me.learning.api_schema.api.common.RoutePropertyEnum
+import me.learning.api_schema.common.RoutePropertyEnum
 import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
 import kotlin.collections.joinToString

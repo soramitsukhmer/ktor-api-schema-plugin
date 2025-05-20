@@ -1,4 +1,4 @@
-package me.learning.api_schema.api.dto.tuple
+package me.learning.api_schema.dto.api.tuple
 
 data class Tuple3<T1 : Any, T2 : Any, T3 : Any>(
     val t1: T1,

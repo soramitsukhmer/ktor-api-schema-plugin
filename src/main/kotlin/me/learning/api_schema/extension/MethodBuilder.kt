@@ -1,40 +1,14 @@
-package me.learning.api_schema.api.common
+package me.learning.api_schema.extension
 
-import io.ktor.server.routing.RoutingCall
-import me.learning.api_schema.api.dto.method.MethodBuilder
-import me.learning.api_schema.api.dto.method.MethodBuilderT1
-import me.learning.api_schema.api.dto.method.MethodBuilderT2
-import me.learning.api_schema.api.dto.method.MethodBuilderT3
-import me.learning.api_schema.api.dto.method.MethodBuilderT4
-import me.learning.api_schema.api.dto.method.MethodBuilderT5
-import me.learning.api_schema.api.dto.method.MethodBuilderT6
-import me.learning.api_schema.common.Helper.extractAllPathParameters
+import me.learning.api_schema.common.RoutePropertyEnum
+import me.learning.api_schema.dto.api.method.MethodBuilder
+import me.learning.api_schema.dto.api.method.MethodBuilderT1
+import me.learning.api_schema.dto.api.method.MethodBuilderT2
+import me.learning.api_schema.dto.api.method.MethodBuilderT3
+import me.learning.api_schema.dto.api.method.MethodBuilderT4
+import me.learning.api_schema.dto.api.method.MethodBuilderT5
+import me.learning.api_schema.dto.api.method.MethodBuilderT6
 import kotlin.reflect.KClass
-
-fun String.getApiSchemaBuilderProp(
-    pairs: List<Pair<KClass<*>, RoutePropertyEnum>> = emptyList()
-): Pair<Map<String, KClass<*>>, KClass<*>?> {
-    val allPathVar = extractAllPathParameters(this)
-    val variable = pairs.filter { it.second == RoutePropertyEnum.PATH_VARIABLE }
-        .mapIndexed { index, pair -> (allPathVar.getOrNull(index) ?: "") to pair.first }
-        .toMap()
-    val requestBody = pairs.find { it.second == RoutePropertyEnum.REQUEST_BODY }?.first
-    return Pair(variable, requestBody)
-}
-
-fun MethodEnum.throwOnMultipleProp(path: String, properties: List<RoutePropertyEnum>, onProp: RoutePropertyEnum, tag: String) {
-    properties
-        .filter { it == onProp }
-        .takeIf { it.size > 1 }
-        ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported multiple $tag") }
-}
-
-fun MethodEnum.throwOnMethodGetRequestBody(path: String, properties: List<RoutePropertyEnum>) {
-    if (this != MethodEnum.GET) return
-    properties
-        .find { it == RoutePropertyEnum.REQUEST_BODY }
-        ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported request body") }
-}
 
 
 fun <T1 : Any> MethodBuilder.auth(kClass: KClass<T1>): MethodBuilderT1<T1> {
