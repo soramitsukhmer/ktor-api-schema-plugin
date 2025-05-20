@@ -8,6 +8,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
+import me.learning.api_schema.common.RequestBodyFormDataEnum
 import me.learning.api_schema.dto.request.FileDataInfoReq
 import me.learning.api_schema.dto.request.FileInfoReq
 import me.learning.api_schema.extension.auth
@@ -72,7 +73,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.POST(
     path: String = "",
     crossinline block: suspend  RoutingRequest.(auth: I, requestBody: J) -> T
 ): Route {
-    return this.post(path, configBuilder<T>(requestBody = I::class)) {
+    return this.post(path, configBuilder<T>(requestBody = J::class)) {
         val auth = call.auth<I>()
         val requestBody = call.requestBody<J>()
         call.ok(call.request.block(auth, requestBody))
@@ -167,7 +168,7 @@ inline fun <reified T> Route.POST(
 ): Route {
 //  System.getProperty("java.io.tmpdir") // to check file java temp dir storage
 
-    return this.post(path, configBuilder<T>()) {
+    return this.post(path, configBuilder<T>(requestFormData = RequestBodyFormDataEnum.FILE)) {
         var request: FileInfoReq? = null
 
         call.receiveMultipart().forEachPart { part ->
@@ -201,7 +202,7 @@ inline fun <reified T, reified I> Route.POST(
     extensions: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(file: FileDataInfoReq<I>) -> T
 ): Route {
-    return this.post(path, configBuilder<T>()) {
+    return this.post(path, configBuilder<T>(requestBody = I::class, requestFormData = RequestBodyFormDataEnum.FILE_DATA)) {
         val multipartData = call.receiveMultipart()
 
         var fileReq: FileInfoReq? = null
