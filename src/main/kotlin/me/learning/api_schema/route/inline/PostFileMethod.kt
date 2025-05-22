@@ -27,6 +27,32 @@ import me.learning.api_schema.core.schemaBuilder
 // ================================================================================================================ //
 // ================================================================================================================ //
 
+
+inline fun <reified T> Route.POSTFILE(
+    path: String = "",
+    extensions: List<String> = emptyList(),
+    deleteAfterFinish: Boolean = false,
+    crossinline block: suspend RoutingRequest.(file: FileInfoReq) -> T
+): Route {
+    val builder = schemaBuilder<T>(requestFormData = RequestBodyFormDataEnum.FILE)
+
+    return this.post(path, builder) {
+        var request: FileInfoReq? = null
+
+        call.receiveMultipart().forEachPart { part ->
+            when (part) {
+                is PartData.FileItem -> { request = part.getRequest(request != null, extensions) }
+                else -> {}
+            }
+            part.dispose()
+        }
+
+        request?.let { call.ok(call.request.block(it)) } ?: badRequest("Invalid request file cannot be empty")
+
+        if (deleteAfterFinish) request?.file?.delete()
+    }
+}
+
 @JvmName("postFileInfoReq")
 inline fun <reified T, reified I : Any> Route.POSTFILE(
     path: String = "",
@@ -50,7 +76,7 @@ inline fun <reified T, reified I : Any> Route.POSTFILE(
 
         request?.let { call.ok(call.request.block(auth, it)) } ?: badRequest("Invalid request file cannot be empty")
 
-        if (deleteAfterFinish) { request?.file?.delete() }
+        if (deleteAfterFinish) request?.file?.delete()
     }
 }
 
@@ -86,7 +112,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.POSTFILE(
 
         call.ok(call.request.block(auth, request))
 
-        if (deleteAfterFinish) { request.file.file.delete() }
+        if (deleteAfterFinish) request.file.file.delete()
     }
 }
 
@@ -114,7 +140,7 @@ inline fun <reified T, reified I : Any> Route.POSTFILE(
 
         call.ok(call.request.block(auth, collection))
 
-        if (deleteAfterFinish) { collection.map { it.file.delete() } }
+        if (deleteAfterFinish) collection.map { it.file.delete() }
     }
 }
 
@@ -150,6 +176,6 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.POSTFILE(
 
         call.ok(call.request.block(auth, request))
 
-        if (deleteAfterFinish) {  collection.map { it.file.delete() } }
+        if (deleteAfterFinish) collection.map { it.file.delete() }
     }
 }
