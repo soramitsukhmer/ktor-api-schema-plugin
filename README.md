@@ -80,34 +80,41 @@ data class Request(
 ### Usage [Inline function]
 ```
 // Get Method
-import me.learning.api_schema.route.methods.inline.GET
+import me.learning.api_schema.route.inline.GET
+
 GET { auth: UserAuth -> ... }
 
 
 // Post Method
-import me.learning.api_schema.route.methods.inline.POST
+import me.learning.api_schema.route.inline.POST
+
 POST { auth: UserAuth, request: Reauest -> ... }
 
 
 // Put Method
-import me.learning.api_schema.route.methods.inline.PUT
+import me.learning.api_schema.route.inline.PUT
+
 PUT { auth: UserAuth, requestBody: UserBodyUpdateReq -> ... }
 ```
 
 ### Usage [Extension function]
 ```
 // Get Method
-import me.learning.api_schema.route.methods.extension.GET
+import me.learning.api_schema.route.extension.GET
+
 GET("/user").auth(UserAuth::class).map { auth -> ... }
 
 
 // Post Method
-import me.learning.api_schema.route.methods.extension.POST
+import me.learning.api_schema.route.extension.POST
+
 POST("/user").auth(UserAuth::class).map { auth -> ... }
 
 
 // Put Method
-import me.learning.api_schema.route.methods.extension.PUT
+import me.learning.api_schema.route.extension.PUT
+import me.learning.api_schema.route.extension.core.map
+
 PUT("/user/{id}").auth(UserAuth::class).pathVariable(Long::class).map { t2: Tuple2<UserAuth, Long> -> ... }
 ```
 
