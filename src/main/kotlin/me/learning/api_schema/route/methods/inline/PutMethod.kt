@@ -4,6 +4,8 @@ import io.github.smiley4.ktoropenapi.put
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
+import me.learning.api_schema.common.MethodEnum
+import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
 import me.learning.api_schema.extension.auth
 import me.learning.api_schema.extension.getPathVariable
 import me.learning.api_schema.extension.ok
@@ -25,6 +27,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.PUT(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, requestBody: J) -> T
 ): Route {
+    J::class.throwOnFileOrListTypeReqBody(MethodEnum.PUT, path)
     return this.put(path, configBuilder<T>(requestBody = J::class)) {
         val auth = call.auth<I>()
         val request = call.requestBody<J>()
@@ -50,6 +53,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, requestBody: K) -> T
 ): Route {
+    K::class.throwOnFileOrListTypeReqBody(MethodEnum.PUT, path)
     val allPathVar = extractAllPathParameters(path)
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVar = mapOf(pathVarJ to J::class)
@@ -83,6 +87,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, varK: K, requestBody: L) -> T
 ): Route {
+    L::class.throwOnFileOrListTypeReqBody(MethodEnum.PUT, path)
     val allPathVar = extractAllPathParameters(path)
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVarK = allPathVar.getOrNull(1) ?: ""

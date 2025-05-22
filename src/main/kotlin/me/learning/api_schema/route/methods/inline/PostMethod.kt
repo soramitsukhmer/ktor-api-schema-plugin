@@ -1,19 +1,13 @@
 package me.learning.api_schema.route.methods.inline
 
 import io.github.smiley4.ktoropenapi.post
-import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
-import io.ktor.server.request.receiveMultipart
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
-import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
-import me.learning.api_schema.common.RequestBodyFormDataEnum
-import me.learning.api_schema.dto.request.FileDataInfoReq
-import me.learning.api_schema.dto.request.FileInfoReq
+import me.learning.api_schema.common.MethodEnum
+import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
 import me.learning.api_schema.extension.auth
 import me.learning.api_schema.extension.getPathVariable
-import me.learning.api_schema.extension.getRequest
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.requestBody
 import me.learning.api_schema.route.configBuilder
@@ -50,6 +44,7 @@ inline fun <reified T, reified I : Any> Route.POST(
     path: String = "",
     crossinline block: suspend RoutingRequest.(requestBody: I) -> T
 ): Route {
+    I::class.throwOnFileOrListTypeReqBody(MethodEnum.POST, path)
     return this.post(path, configBuilder<T>(hasAuth = false, requestBody = I::class)) {
         val requestBody = call.requestBody<I>()
         call.ok(call.request.block(requestBody))
@@ -73,6 +68,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.POST(
     path: String = "",
     crossinline block: suspend  RoutingRequest.(auth: I, requestBody: J) -> T
 ): Route {
+    J::class.throwOnFileOrListTypeReqBody(MethodEnum.POST, path)
     return this.post(path, configBuilder<T>(requestBody = J::class)) {
         val auth = call.auth<I>()
         val requestBody = call.requestBody<J>()
@@ -100,6 +96,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varI: J, requestBody: K) -> T
 ): Route {
+    K::class.throwOnFileOrListTypeReqBody(MethodEnum.POST, path)
     val allPathVar = extractAllPathParameters(path)
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVar = mapOf(pathVarJ to J::class)
@@ -131,6 +128,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varI: J, varJ: K, requestBody: L) -> T
 ): Route {
+    L::class.throwOnFileOrListTypeReqBody(MethodEnum.POST, path)
     val allPathVar = extractAllPathParameters(path)
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVarK = allPathVar.getOrNull(1) ?: ""
@@ -145,73 +143,5 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
         val valueK = call.getPathVariable<K>(pathVarK)
         val requestBody = call.requestBody<L>()
         call.ok(call.request.block(auth, valueJ, valueK, requestBody))
-    }
-}
-
-
-
-
-
-// ================================================================================================================ //
-// ================================================================================================================ //
-// =====================                                                              ============================= //
-// =====================                    BLOCK POST WITH FILE                      ============================= //
-// ===================== to check local storage: System.getProperty("java.io.tmpdir") ============================= //
-// =====================                                                              ============================= //
-// ================================================================================================================ //
-// ================================================================================================================ //
-
-@JvmName("postFileInfoReq")
-inline fun <reified T, reified I : Any> Route.POST(
-    path: String = "",
-    extensions: List<String> = emptyList(),
-    crossinline block: suspend RoutingRequest.(auth: I, file: FileInfoReq) -> T
-): Route {
-    return this.post(path, configBuilder<T>(requestFormData = RequestBodyFormDataEnum.FILE)) {
-        val auth = call.auth<I>()
-        var request: FileInfoReq? = null
-
-        call.receiveMultipart().forEachPart { part ->
-            when (part) {
-                is PartData.FileItem -> { request = part.getRequest(request != null, extensions) }
-                else -> {}
-            }
-            part.dispose()
-        }
-
-        request?.let { call.ok(call.request.block(auth, it)) } ?: badRequest("Invalid request file cannot be empty")
-        request?.file?.delete()
-    }
-}
-
-@JvmName("postFileDataInfoReq")
-inline fun <reified T, reified I : Any> Route.POST(
-    path: String = "",
-    extensions: List<String> = emptyList(),
-    crossinline block: suspend RoutingRequest.(auth: I, file: FileDataInfoReq<I>) -> T
-): Route {
-    return this.post(path, configBuilder<T>(requestBody = I::class, requestFormData = RequestBodyFormDataEnum.FILE_DATA)) {
-        val auth = call.auth<I>()
-        val multipartData = call.receiveMultipart()
-
-        var fileReq: FileInfoReq? = null
-        var dataReq: I? = null
-
-        multipartData.forEachPart { part ->
-            when (part) {
-                is PartData.FileItem -> { fileReq = part.getRequest(fileReq != null, extensions) }
-                is PartData.FormItem -> { dataReq = part.getRequest(dataReq != null) }
-                else -> {}
-            }
-            part.dispose()
-        }
-
-        val request = FileDataInfoReq<I>(
-            file = fileReq ?: badRequest("Invalid request file cannot be empty"),
-            data = dataReq ?: badRequest("Invalid request data cannot be empty")
-        )
-
-        call.ok(call.request.block(auth, request))
-        request.file.file.delete()
     }
 }

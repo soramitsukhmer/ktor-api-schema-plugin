@@ -26,6 +26,7 @@ fun <T : Any> KClass<T>.asKType(): KType {
 suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<String>): FileInfoReq? {
     if (this.name != "file") return null
     if (existed) badRequest("Invalid request duplicate file")
+    if (this.contentType == null) badRequest("file must not empty")
 
     val extension = this.contentType?.contentSubtype ?: badRequest("Invalid file extension")
 
@@ -49,10 +50,8 @@ inline fun <reified T> PartData.FormItem.getRequest(existed: Boolean): T? {
     if (this.name != "data") return null
     if (existed) badRequest("Invalid request duplicate data")
 
-    val data = this.name ?: badRequest("data must not be empty")
-
     return try {
-        data.ct(T::class.java)
+        this.value.ct(T::class.java)
     } catch (e: Exception) {
         badRequest("Invalid data type, ${e.localizedMessage}")
     }

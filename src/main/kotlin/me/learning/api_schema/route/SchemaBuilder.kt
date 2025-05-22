@@ -17,13 +17,16 @@ import kotlin.reflect.KClass
  * @param pathVariable A map of path variable names to their respective types. Default is null.
  * @param requestBody The class type of the request body object, if applicable. Default is null.
  * @param requestFormData Specifies if the route handles multipart form data and the form type. Default is null.
+ * @param requestBodyFileAsList Information of a request file as a list
  * @return A lambda function to configure the route with the specified parameters.
  */
+
 inline fun <reified T> configBuilder(
     hasAuth: Boolean = true,
     pathVariable: Map<String, KClass<*>>? = null,
     requestBody: KClass<*>? = null,
-    requestFormData: RequestBodyFormDataEnum? = null
+    requestFormData: RequestBodyFormDataEnum? = null,
+    requestBodyFileAsList: Boolean = false,
 ): RouteConfig.() -> Unit = {
 
     if (hasAuth) securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
@@ -37,9 +40,14 @@ inline fun <reified T> configBuilder(
             // form-data
             multipartBody {
                 mediaTypes(ContentType.MultiPart.FormData)
-                part<File>("file") { required = true }
                 if (requestFormData == RequestBodyFormDataEnum.FILE_DATA) {
                     requestBody?.asKType()?.let { part("data", it) { required = !it.isMarkedNullable } }
+                }
+
+                if (requestBodyFileAsList) {
+                    part<Array<File>>("files") { required = true }
+                } else {
+                    part<File>("file") { required = true }
                 }
             }
         }
