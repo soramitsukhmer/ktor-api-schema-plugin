@@ -1,4 +1,4 @@
-package me.learning.api_schema.route.methods.inline
+package me.learning.api_schema.route.inline
 
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.server.routing.Route
@@ -10,7 +10,7 @@ import me.learning.api_schema.extension.auth
 import me.learning.api_schema.extension.getPathVariable
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.requestBody
-import me.learning.api_schema.route.configBuilder
+import me.learning.api_schema.core.schemaBuilder
 
 /**
  * Registers a POST route for the given path and executes the provided block for each incoming request.
@@ -24,7 +24,7 @@ inline fun <reified T> Route.POST(
     path: String = "",
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    return this.post(path, configBuilder<T>(hasAuth = false)) {
+    return this.post(path, schemaBuilder<T>()) {
         call.ok(call.request.block())
     }
 }
@@ -45,7 +45,7 @@ inline fun <reified T, reified I : Any> Route.POST(
     crossinline block: suspend RoutingRequest.(requestBody: I) -> T
 ): Route {
     I::class.throwOnFileOrListTypeReqBody(MethodEnum.POST, path)
-    return this.post(path, configBuilder<T>(hasAuth = false, requestBody = I::class)) {
+    return this.post(path, schemaBuilder<T>(requestBody = I::class)) {
         val requestBody = call.requestBody<I>()
         call.ok(call.request.block(requestBody))
     }
@@ -69,7 +69,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.POST(
     crossinline block: suspend  RoutingRequest.(auth: I, requestBody: J) -> T
 ): Route {
     J::class.throwOnFileOrListTypeReqBody(MethodEnum.POST, path)
-    return this.post(path, configBuilder<T>(requestBody = J::class)) {
+    return this.post(path, schemaBuilder<T>(requestBody = J::class)) {
         val auth = call.auth<I>()
         val requestBody = call.requestBody<J>()
         call.ok(call.request.block(auth, requestBody))
@@ -101,7 +101,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVar = mapOf(pathVarJ to J::class)
 
-    return this.post(path, configBuilder<T>(pathVariable = pathVar, requestBody = K::class)) {
+    return this.post(path, schemaBuilder<T>(pathVariable = pathVar, requestBody = K::class)) {
         val auth = call.auth<I>()
         val valueI = call.getPathVariable<J>(pathVarJ)
         val requestBody = call.requestBody<K>()
@@ -137,7 +137,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
         pathVarK to K::class
     )
 
-    return this.post(path, configBuilder<T>(pathVariable = pathVar, requestBody = L::class)) {
+    return this.post(path, schemaBuilder<T>(pathVariable = pathVar, requestBody = L::class)) {
         val auth = call.auth<I>()
         val valueJ = call.getPathVariable<J>(pathVarJ)
         val valueK = call.getPathVariable<K>(pathVarK)

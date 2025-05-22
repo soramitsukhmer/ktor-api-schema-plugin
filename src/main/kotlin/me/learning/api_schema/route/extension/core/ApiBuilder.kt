@@ -1,4 +1,4 @@
-package me.learning.api_schema.route.methods.extension.core
+package me.learning.api_schema.route.extension.core
 
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -21,11 +21,11 @@ import me.learning.api_schema.dto.api.tuple.Tuple6
 import me.learning.api_schema.extension.getApiSchemaBuilderProp
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.prop
-import me.learning.api_schema.route.configBuilder
+import me.learning.api_schema.core.schemaBuilder
 
 inline fun <reified T1 : Any> MethodBuilder.map(crossinline block: suspend RoutingRequest.() -> T1): Route {
     val (variable, requestBody) = path.getApiSchemaBuilderProp()
-    val builder = configBuilder<T1>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
+    val builder = route.schemaBuilder<T1>(pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
         MethodEnum.GET -> route.get(path = path, builder) { call.ok(call.request.block()) }
@@ -39,7 +39,7 @@ inline fun <reified T1 : Any, reified T2> MethodBuilderT1<T1>.map(
 ): Route {
     val pair = this.p1
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair))
-    val builder = configBuilder<T2>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
+    val builder = route.schemaBuilder<T2>(pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
         MethodEnum.GET -> route.get(path = path, builder) {
@@ -65,7 +65,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3> MethodBuilderT2<T1, 
     val pair1 = this.p1
     val pair2 = this.p2
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair1, pair2))
-    val builder = configBuilder<T3>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
+    val builder = route.schemaBuilder<T3>(pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
         MethodEnum.GET -> route.get(path = path, builder) {
@@ -95,7 +95,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4> Me
     val pair2 = this.p2
     val pair3 = this.p3
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair1, pair2, pair3))
-    val builder = configBuilder<T4>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
+    val builder = route.schemaBuilder<T4>(pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
         MethodEnum.GET -> route.get(path = path, builder) {
@@ -129,7 +129,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4 : A
     val pair3 = this.p3
     val pair4 = this.p4
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair1, pair2, pair3, pair4))
-    val builder = configBuilder<T5>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
+    val builder = route.schemaBuilder<T5>(pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
         MethodEnum.GET -> route.get(path = path, builder) {
@@ -167,7 +167,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4 : A
     val pair4 = this.p4
     val pair5 = this.p5
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair1, pair2, pair3, pair4, pair5))
-    val builder = configBuilder<T6>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
+    val builder = route.schemaBuilder<T6>(pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
         MethodEnum.GET -> route.get(path = path, builder) {
@@ -209,7 +209,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4 : A
     val pair5 = this.p5
     val pair6 = this.p6
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(pair1, pair2, pair3, pair4, pair5, pair6))
-    val builder = configBuilder<T1>(hasAuth = hasAuth, pathVariable = variable, requestBody = requestBody)
+    val builder = route.schemaBuilder<T1>(pathVariable = variable, requestBody = requestBody)
 
     return when (method) {
         MethodEnum.GET -> route.get(path = path, builder) {

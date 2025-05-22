@@ -1,13 +1,19 @@
-package me.learning.api_schema.route
+package me.learning.api_schema.core
 
 import me.learning.api_schema.common.Constant.SECURITY_BEARER_SCHEMA_NAME
 import io.github.smiley4.ktoropenapi.config.RouteConfig
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.routing.Route
 import me.learning.api_schema.common.RequestBodyFormDataEnum
 import me.learning.api_schema.extension.asKType
 import java.io.File
 import kotlin.reflect.KClass
+
+fun Route.hasAuth(): Boolean {
+    val uri = this.parent?.toString() ?: return false
+    return uri.startsWith("/(authenticate")
+}
 
 /**
  * Builds a configuration for a route based on provided parameters.
@@ -21,15 +27,14 @@ import kotlin.reflect.KClass
  * @return A lambda function to configure the route with the specified parameters.
  */
 
-inline fun <reified T> configBuilder(
-    hasAuth: Boolean = true,
+inline fun <reified T> Route.schemaBuilder(
     pathVariable: Map<String, KClass<*>>? = null,
     requestBody: KClass<*>? = null,
     requestFormData: RequestBodyFormDataEnum? = null,
     requestBodyFileAsList: Boolean = false,
 ): RouteConfig.() -> Unit = {
 
-    if (hasAuth) securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
+    if (hasAuth()) securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
 
     request {
         if (requestFormData == null) {

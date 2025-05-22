@@ -42,7 +42,7 @@ suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<Stri
         contentType = this.contentType?.toString() ?: "application/octet-stream",
         originalName = filename,
         extension = extension,
-        size = file.length(),
+        size = file.length()
     )
 }
 

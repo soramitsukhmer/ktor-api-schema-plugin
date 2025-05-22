@@ -1,4 +1,4 @@
-package me.learning.api_schema.route.methods.extension
+package me.learning.api_schema.route.extension
 
 import io.ktor.server.routing.Route
 import me.learning.api_schema.common.MethodEnum

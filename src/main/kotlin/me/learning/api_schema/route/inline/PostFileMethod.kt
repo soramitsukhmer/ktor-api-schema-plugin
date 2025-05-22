@@ -1,4 +1,4 @@
-package me.learning.api_schema.route.methods.inline
+package me.learning.api_schema.route.inline
 
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.content.PartData
@@ -16,8 +16,7 @@ import me.learning.api_schema.dto.request.FilesDataInfoReq
 import me.learning.api_schema.extension.auth
 import me.learning.api_schema.extension.getRequest
 import me.learning.api_schema.extension.ok
-import me.learning.api_schema.route.configBuilder
-
+import me.learning.api_schema.core.schemaBuilder
 
 // ================================================================================================================ //
 // ================================================================================================================ //
@@ -32,9 +31,10 @@ import me.learning.api_schema.route.configBuilder
 inline fun <reified T, reified I : Any> Route.POSTFILE(
     path: String = "",
     extensions: List<String> = emptyList(),
+    deleteAfterFinish: Boolean = false,
     crossinline block: suspend RoutingRequest.(auth: I, file: FileInfoReq) -> T
 ): Route {
-    val builder = configBuilder<T>(requestFormData = RequestBodyFormDataEnum.FILE)
+    val builder = schemaBuilder<T>(requestFormData = RequestBodyFormDataEnum.FILE)
 
     return this.post(path, builder) {
         val auth = call.auth<I>()
@@ -49,7 +49,8 @@ inline fun <reified T, reified I : Any> Route.POSTFILE(
         }
 
         request?.let { call.ok(call.request.block(auth, it)) } ?: badRequest("Invalid request file cannot be empty")
-        request?.file?.delete()
+
+        if (deleteAfterFinish) { request?.file?.delete() }
     }
 }
 
@@ -57,11 +58,12 @@ inline fun <reified T, reified I : Any> Route.POSTFILE(
 inline fun <reified T, reified I : Any, reified J : Any> Route.POSTFILE(
     path: String = "",
     extensions: List<String> = emptyList(),
+    deleteAfterFinish: Boolean = false,
     crossinline block: suspend RoutingRequest.(auth: I, file: FileDataInfoReq<J>) -> T
 ): Route {
     J::class.throwOnFileReqBody(MethodEnum.POST, path)
 
-    val builder = configBuilder<T>(requestBody = J::class, requestFormData = RequestBodyFormDataEnum.FILE_DATA)
+    val builder = schemaBuilder<T>(requestBody = J::class, requestFormData = RequestBodyFormDataEnum.FILE_DATA)
 
     return this.post(path, builder) {
         val auth = call.auth<I>()
@@ -83,7 +85,8 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.POSTFILE(
         )
 
         call.ok(call.request.block(auth, request))
-        request.file.file.delete()
+
+        if (deleteAfterFinish) { request.file.file.delete() }
     }
 }
 
@@ -92,9 +95,10 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.POSTFILE(
 inline fun <reified T, reified I : Any> Route.POSTFILE(
     path: String = "",
     extensions: List<String> = emptyList(),
+    deleteAfterFinish: Boolean = false,
     crossinline block: suspend RoutingRequest.(auth: I, file: List<FileInfoReq>) -> T
 ): Route {
-    val builder = configBuilder<I>(requestFormData = RequestBodyFormDataEnum.FILE_DATA, requestBodyFileAsList = true)
+    val builder = schemaBuilder<I>(requestFormData = RequestBodyFormDataEnum.FILE_DATA, requestBodyFileAsList = true)
 
     return this.post(path, builder) {
         val auth = call.auth<I>()
@@ -109,6 +113,8 @@ inline fun <reified T, reified I : Any> Route.POSTFILE(
         }
 
         call.ok(call.request.block(auth, collection))
+
+        if (deleteAfterFinish) { collection.map { it.file.delete() } }
     }
 }
 
@@ -117,11 +123,12 @@ inline fun <reified T, reified I : Any> Route.POSTFILE(
 inline fun <reified T, reified I : Any, reified J : Any> Route.POSTFILE(
     path: String = "",
     extensions: List<String> = emptyList(),
+    deleteAfterFinish: Boolean = false,
     crossinline block: suspend RoutingRequest.(auth: I, request: FilesDataInfoReq<J>) -> T
 ): Route {
     J::class.throwOnFileReqBody(MethodEnum.POST, path)
 
-    val builder = configBuilder<T>(requestBody = J::class, requestFormData = RequestBodyFormDataEnum.FILE_DATA, requestBodyFileAsList = true)
+    val builder = schemaBuilder<T>(requestBody = J::class, requestFormData = RequestBodyFormDataEnum.FILE_DATA, requestBodyFileAsList = true)
 
     return this.post(path, builder) {
         val auth = call.auth<I>()
@@ -142,5 +149,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.POSTFILE(
         )
 
         call.ok(call.request.block(auth, request))
+
+        if (deleteAfterFinish) {  collection.map { it.file.delete() } }
     }
 }

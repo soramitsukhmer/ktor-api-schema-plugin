@@ -1,4 +1,4 @@
-package me.learning.api_schema.route.methods.inline
+package me.learning.api_schema.route.inline
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.server.routing.Route
@@ -7,7 +7,7 @@ import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.extension.auth
 import me.learning.api_schema.extension.getPathVariable
 import me.learning.api_schema.extension.ok
-import me.learning.api_schema.route.configBuilder
+import me.learning.api_schema.core.schemaBuilder
 import kotlin.reflect.KClass
 
 
@@ -24,7 +24,7 @@ inline fun <reified T> Route.GET(
     path: String = "",
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    return this.get(path = path, configBuilder<T>(hasAuth = false)) {
+    return this.get(path = path, schemaBuilder<T>()) {
         call.ok(call.request.block())
     }
 }
@@ -52,7 +52,7 @@ inline fun <reified T : Any, reified I : Any> Route.GET(
     val pathVarI = allPathVar.firstOrNull() ?: ""
     val pathVar = mapOf(pathVarI to I::class)
 
-    return get(path, configBuilder<T>(hasAuth = false, pathVariable = pathVar)) {
+    return get(path, schemaBuilder<T>(pathVariable = pathVar)) {
         val valueI = call.getPathVariable(pathI, pathVarI)
         call.ok(call.request.block(valueI))
     }
@@ -73,7 +73,7 @@ inline fun <reified T : Any, reified I : Any> Route.GET(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I) -> T
 ): Route {
-    return get(path, configBuilder<T>()) {
+    return get(path, schemaBuilder<T>()) {
         val auth = call.auth<I>()
         call.ok(call.request.block(auth))
     }
@@ -100,7 +100,7 @@ inline fun <reified T : Any, reified I : Any, reified J : Any> Route.GET(
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVar = mapOf(pathVarJ to J::class)
 
-    return get(path, configBuilder<T>(pathVariable = pathVar)) {
+    return get(path, schemaBuilder<T>(pathVariable = pathVar)) {
         val auth = call.auth<I>()
         val valueJ = call.getPathVariable<J>(pathVarJ)
         call.ok(call.request.block(auth, valueJ))
@@ -137,7 +137,7 @@ inline fun <reified T : Any, reified I : Any, reified J : Any, reified K : Any> 
         pathVarK to K::class,
     )
 
-    return get(path, configBuilder<T>(pathVariable = pathVar)) {
+    return get(path, schemaBuilder<T>(pathVariable = pathVar)) {
         val auth = call.auth<I>()
         val valueJ = call.getPathVariable<J>(pathVarJ)
         val valueK = call.getPathVariable<K>(pathVarK)
@@ -176,7 +176,7 @@ inline fun <reified T : Any, reified I : Any, reified J : Any, reified K : Any, 
         pathVarL to L::class,
     )
 
-    return get(path, configBuilder<T>(pathVariable = pathVar)) {
+    return get(path, schemaBuilder<T>(pathVariable = pathVar)) {
         val auth = call.auth<I>()
         val valueJ = call.getPathVariable<J>(pathVarJ)
         val valueK = call.getPathVariable<K>(pathVarK)
