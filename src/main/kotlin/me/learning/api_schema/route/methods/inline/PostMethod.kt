@@ -136,7 +136,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
     val pathVarK = allPathVar.getOrNull(1) ?: ""
     val pathVar = mapOf(
         pathVarJ to J::class,
-        pathVarK to K::class,
+        pathVarK to K::class
     )
 
     return this.post(path, configBuilder<T>(pathVariable = pathVar, requestBody = L::class)) {
@@ -149,26 +149,26 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
 }
 
 
-/**
- * Handles a POST request to upload a file with specific extensions and processes it using
- * the provided request handling block.
- *
- * @param path The path of the route. Defaults to an empty string.
- * @param extensions A list of acceptable file extensions. Defaults to an empty list, meaning
- *                   any extension is allowed.
- * @param block A coroutine block that receives the incoming file request data as a [FileInfoReq]
- *              and performs processing, returning a result of type [T].
- * @return The configured [Route] for the POST request handling.
- */
-@JvmName("POSTFileInfo")
-inline fun <reified T> Route.POST(
+
+
+
+// ================================================================================================================ //
+// ================================================================================================================ //
+// =====================                                                              ============================= //
+// =====================                    BLOCK POST WITH FILE                      ============================= //
+// ===================== to check local storage: System.getProperty("java.io.tmpdir") ============================= //
+// =====================                                                              ============================= //
+// ================================================================================================================ //
+// ================================================================================================================ //
+
+@JvmName("postFileInfoReq")
+inline fun <reified T, reified I : Any> Route.POST(
     path: String = "",
     extensions: List<String> = emptyList(),
-    crossinline block: suspend RoutingRequest.(file: FileInfoReq) -> T
+    crossinline block: suspend RoutingRequest.(auth: I, file: FileInfoReq) -> T
 ): Route {
-//  System.getProperty("java.io.tmpdir") // to check file java temp dir storage
-
     return this.post(path, configBuilder<T>(requestFormData = RequestBodyFormDataEnum.FILE)) {
+        val auth = call.auth<I>()
         var request: FileInfoReq? = null
 
         call.receiveMultipart().forEachPart { part ->
@@ -179,30 +179,19 @@ inline fun <reified T> Route.POST(
             part.dispose()
         }
 
-        request?.let { call.ok(call.request.block(it)) } ?: badRequest("Invalid request file cannot be empty")
+        request?.let { call.ok(call.request.block(auth, it)) } ?: badRequest("Invalid request file cannot be empty")
         request?.file?.delete()
     }
 }
 
-
-/**
- * Defines a POST route for handling multipart file and form-data submissions. This method processes the incoming
- * request containing a file and associated form-data, validates the data, and invokes the supplied handler function
- * with the data encapsulated in a [FileDataInfoReq] object.
- *
- * @param path The URI path of the route. Defaults to an empty string, which applies the route at the current path.
- * @param extensions A list of valid file extensions for the uploaded file. If the uploaded file's extension is not in the list, a bad request will be returned.
- * @param block A suspending lambda to process the request. The lambda receives a [FileDataInfoReq] object that includes the file as [FileInfoReq] and the parsed form-data as the
- *  provided type [I]. It must return a value of type [T].
- * @return The created [Route] instance.
- */
-@JvmName("POSTFileDataInfo")
-inline fun <reified T, reified I> Route.POST(
+@JvmName("postFileDataInfoReq")
+inline fun <reified T, reified I : Any> Route.POST(
     path: String = "",
     extensions: List<String> = emptyList(),
-    crossinline block: suspend RoutingRequest.(file: FileDataInfoReq<I>) -> T
+    crossinline block: suspend RoutingRequest.(auth: I, file: FileDataInfoReq<I>) -> T
 ): Route {
     return this.post(path, configBuilder<T>(requestBody = I::class, requestFormData = RequestBodyFormDataEnum.FILE_DATA)) {
+        val auth = call.auth<I>()
         val multipartData = call.receiveMultipart()
 
         var fileReq: FileInfoReq? = null
@@ -222,7 +211,7 @@ inline fun <reified T, reified I> Route.POST(
             data = dataReq ?: badRequest("Invalid request data cannot be empty")
         )
 
-        call.ok(call.request.block(request))
+        call.ok(call.request.block(auth, request))
         request.file.file.delete()
     }
 }
