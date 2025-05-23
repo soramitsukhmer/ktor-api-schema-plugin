@@ -12,13 +12,13 @@ import kotlin.reflect.KClass
 
 
 fun <T1 : Any> MethodBuilder.auth(kClass: KClass<T1>): MethodBuilderT1<T1> {
-    return MethodBuilderT1(this.route, this.method, this.path, true, kClass to RoutePropertyEnum.AUTH)
+    return MethodBuilderT1(this.route, this.method, this.path, kClass to RoutePropertyEnum.AUTH)
 }
 fun <T1 : Any> MethodBuilder.requestBody(kClass: KClass<T1>): MethodBuilderT1<T1> {
-    return MethodBuilderT1(this.route, this.method, this.path, this.hasAuth, kClass to RoutePropertyEnum.REQUEST_BODY)
+    return MethodBuilderT1(this.route, this.method, this.path, kClass to RoutePropertyEnum.REQUEST_BODY)
 }
 fun <T1 : Any> MethodBuilder.pathVariable(kClass: KClass<T1>): MethodBuilderT1<T1> {
-    return MethodBuilderT1(this.route, this.method, this.path, this.hasAuth, kClass to RoutePropertyEnum.PATH_VARIABLE)
+    return MethodBuilderT1(this.route, this.method, this.path, kClass to RoutePropertyEnum.PATH_VARIABLE)
 }
 
 
@@ -26,7 +26,6 @@ fun <T1 : Any, T2 : Any> MethodBuilderT1<T1>.auth(kClass: KClass<T2>) = MethodBu
     this.route,
     this.method,
     this.path,
-    this.hasAuth,
     this.p1,
     kClass to RoutePropertyEnum.AUTH
 )
@@ -34,7 +33,6 @@ fun <T1 : Any, T2 : Any> MethodBuilderT1<T1>.requestBody(kClass: KClass<T2>) = M
     this.route,
     this.method,
     this.path,
-    this.hasAuth,
     this.p1,
     kClass to RoutePropertyEnum.REQUEST_BODY
 )
@@ -42,7 +40,6 @@ fun <T1 : Any, T2 : Any> MethodBuilderT1<T1>.pathVariable(kClass: KClass<T2>) = 
     this.route,
     this.method,
     this.path,
-    this.hasAuth,
     this.p1,
     kClass to RoutePropertyEnum.PATH_VARIABLE
 )
@@ -52,7 +49,6 @@ fun <T1 : Any, T2 : Any, T3: Any> MethodBuilderT2<T1, T2>.auth(kClass: KClass<T3
     this.route,
     this.method,
     this.path,
-    this.hasAuth,
     this.p1,
     this.p2,
     kClass to RoutePropertyEnum.AUTH
@@ -61,7 +57,6 @@ fun <T1 : Any, T2 : Any, T3: Any> MethodBuilderT2<T1, T2>.requestBody(kClass: KC
     this.route,
     this.method,
     this.path,
-    this.hasAuth,
     this.p1,
     this.p2,
     kClass to RoutePropertyEnum.REQUEST_BODY
@@ -70,7 +65,6 @@ fun <T1 : Any, T2 : Any, T3: Any> MethodBuilderT2<T1, T2>.pathVariable(kClass: K
     this.route,
     this.method,
     this.path,
-    this.hasAuth,
     this.p1,
     this.p2,
     kClass to RoutePropertyEnum.PATH_VARIABLE
@@ -81,7 +75,6 @@ fun <T1 : Any, T2 : Any, T3: Any, T4: Any> MethodBuilderT3<T1, T2, T3>.auth(kCla
     this.route,
     this.method,
     this.path,
-    this.hasAuth,
     this.p1,
     this.p2,
     this.p3,
@@ -91,7 +84,6 @@ fun <T1 : Any, T2 : Any, T3: Any, T4: Any> MethodBuilderT3<T1, T2, T3>.requestBo
     this.route,
     this.method,
     this.path,
-    this.hasAuth,
     this.p1,
     this.p2,
     this.p3,
@@ -101,7 +93,6 @@ fun <T1 : Any, T2 : Any, T3: Any, T4: Any> MethodBuilderT3<T1, T2, T3>.pathVaria
     this.route,
     this.method,
     this.path,
-    this.hasAuth,
     this.p1,
     this.p2,
     this.p3,
@@ -114,7 +105,6 @@ fun <T1 : Any, T2 : Any, T3: Any, T4: Any, T5: Any> MethodBuilderT4<T1, T2, T3, 
         this.route,
         this.method,
         this.path,
-        this.hasAuth,
         this.p1,
         this.p2,
         this.p3,
@@ -126,7 +116,6 @@ fun <T1 : Any, T2 : Any, T3: Any, T4: Any, T5: Any> MethodBuilderT4<T1, T2, T3, 
         this.route,
         this.method,
         this.path,
-        this.hasAuth,
         this.p1,
         this.p2,
         this.p3,
@@ -138,7 +127,6 @@ fun <T1 : Any, T2 : Any, T3: Any, T4: Any, T5: Any> MethodBuilderT4<T1, T2, T3, 
         this.route,
         this.method,
         this.path,
-        this.hasAuth,
         this.p1,
         this.p2,
         this.p3,
@@ -152,7 +140,6 @@ fun <T1 : Any, T2 : Any, T3: Any, T4: Any, T5: Any, T6: Any> MethodBuilderT5<T1,
         this.route,
         this.method,
         this.path,
-        this.hasAuth,
         this.p1,
         this.p2,
         this.p3,
@@ -165,7 +152,6 @@ fun <T1 : Any, T2 : Any, T3: Any, T4: Any, T5: Any, T6: Any> MethodBuilderT5<T1,
         this.route,
         this.method,
         this.path,
-        this.hasAuth,
         this.p1,
         this.p2,
         this.p3,
@@ -178,7 +164,6 @@ fun <T1 : Any, T2 : Any, T3: Any, T4: Any, T5: Any, T6: Any> MethodBuilderT5<T1,
         this.route,
         this.method,
         this.path,
-        this.hasAuth,
         this.p1,
         this.p2,
         this.p3,

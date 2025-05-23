@@ -6,6 +6,5 @@ import me.learning.api_schema.common.MethodEnum
 data class MethodBuilder(
     val route: Route,
     val method: MethodEnum,
-    val path: String,
-    val hasAuth: Boolean = false,
+    val path: String
 )

@@ -10,13 +10,9 @@ data class MethodBuilderT1<T1 : Any>(
     val route: Route,
     val method: MethodEnum,
     val path: String,
-    var hasAuth: Boolean,
     val p1: Pair<KClass<T1>, RoutePropertyEnum>
 ) {
     init {
         method.throwOnMethodGetRequestBody(path, listOf(p1.second))
-        if (!hasAuth) {
-            hasAuth = p1.second == RoutePropertyEnum.AUTH
-        }
     }
 }
