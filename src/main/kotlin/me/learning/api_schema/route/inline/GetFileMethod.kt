@@ -12,6 +12,15 @@ import me.learning.api_schema.extension.getPathVariable
 import java.io.File
 import kotlin.reflect.KClass
 
+/**
+ * Adds a GET route that serves a file as a downloadable attachment.
+ * The response includes a `Content-Disposition` header, specifying the file's name.
+ *
+ * @param path The URI path for the route. Defaults to an empty string.
+ * @param deleteAfterFinish If true, the file will be deleted from the server after it is sent. Defaults to false.
+ * @param block A lambda function that returns the file to be served. This block is executed for each request.
+ * @return The configured route.
+ */
 inline fun Route.GETFILE(
     path: String = "",
     deleteAfterFinish: Boolean = false,
@@ -29,6 +38,16 @@ inline fun Route.GETFILE(
     }
 }
 
+
+/**
+ * Adds a GET route that serves a file as a downloadable attachment.
+ * The response includes a `Content-Disposition` header, specifying the file's name.
+ *
+ * @param path The URI path for the route. Defaults to an empty string.
+ * @param withAuth If true, the route will be secured with authentication. Defaults to false will return path variable.
+ * @param deleteAfterFinish If true, the file will be deleted from the server after it is sent. Defaults to false.
+ * @param block A lambda function that returns the file to be served. This block is executed for each request.
+*/
 inline fun <reified T : Any> Route.GETFILE(
     path: String = "",
     withAuth: Boolean = false,
@@ -60,6 +79,15 @@ inline fun <reified T : Any> Route.GETFILE(
     }
 }
 
+
+/**
+ * Adds a GET route that serves a file as a downloadable attachment.
+ * The response includes a `Content-Disposition` header, specifying the file's name.
+ *
+ * @param path The URI path for the route. Defaults to an empty string.
+ * @param deleteAfterFinish If true, the file will be deleted from the server after it is sent. Defaults to false.
+ * @param block A lambda function that returns the file to be served. This block is executed for each request.
+*/
 inline fun <reified T : Any, reified I : Any> Route.GETFILE(
     path: String = "",
     deleteAfterFinish: Boolean = false,
