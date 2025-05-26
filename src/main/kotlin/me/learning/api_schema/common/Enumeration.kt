@@ -9,10 +9,6 @@ enum class MethodEnum {
 enum class RoutePropertyEnum {
     AUTH,
     REQUEST_BODY,
+    REQUEST_FILE,
     PATH_VARIABLE
-}
-
-enum class RequestBodyFormDataEnum {
-    FILE,
-    FILE_DATA
 }

@@ -2,10 +2,10 @@ package me.learning.api_schema.dto.request
 
 import java.io.File
 
-data class FileInfoReq(
+data class FileInfo(
     val file: File,
     val contentType: String,
     val originalName: String,
     val extension: String,
-    val size: Long,
+    val size: Long
 )

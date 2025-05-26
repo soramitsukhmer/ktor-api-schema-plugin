@@ -1,10 +1,12 @@
 package me.learning.api_schema.extension
 
 import io.ktor.http.content.PartData
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.util.cio.writeChannel
+import io.ktor.util.reflect.typeInfo
 import io.ktor.utils.io.copyAndClose
 import me.learning.api_schema.common.Helper.badRequest
-import me.learning.api_schema.dto.request.FileInfoReq
+import me.learning.api_schema.dto.request.FileInfo
 import me.learning.api_schema.utils.JacksonObjMapper.objectMapper
 import me.learning.api_schema.utils.fromMapToClass
 import java.io.File
@@ -12,8 +14,6 @@ import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
-
-inline fun <reified T> Map<*, *>.ct(): T = objectMapper.fromMapToClass<T>(this)
 
 fun <T> Map<*, *>.ct(clazz: Class<T>): T = objectMapper.fromMapToClass(clazz, this)
 
@@ -23,8 +23,15 @@ fun <T : Any> KClass<T>.asKType(): KType {
     return this.java.kotlin.createType()
 }
 
-suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<String>): FileInfoReq? {
-    if (this.name != "file") return null
+inline fun <reified T> ifTypeListOFFileInfoReq(): Boolean {
+    val fileTypeAsList = typeInfo<List<FileInfo>>()
+    val requestType = typeInfo<T>()
+    return requestType == fileTypeAsList
+}
+
+suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<String>, asList: Boolean): FileInfo? {
+    if (asList && this.name != "files") return null
+    if (!asList && this.name != "file") return null
     if (existed) badRequest("Invalid request duplicate file")
     if (this.contentType == null) badRequest("file must not empty")
 
@@ -37,7 +44,7 @@ suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<Stri
     val filename = this.originalFileName ?: badRequest("Invalid file name")
     val file = File.createTempFile("tfs-tmp--", "--${UUID.randomUUID()}.$extension")
     this.provider().copyAndClose(file.writeChannel())
-    return FileInfoReq(
+    return FileInfo(
         file = file,
         contentType = this.contentType?.toString() ?: "application/octet-stream",
         originalName = filename,
@@ -49,10 +56,8 @@ suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<Stri
 inline fun <reified T> PartData.FormItem.getRequest(existed: Boolean): T? {
     if (this.name != "data") return null
     if (existed) badRequest("Invalid request duplicate data")
+    if ((null is T) && value.isEmpty()) return null
+    if (value.isEmpty()) badRequest("Invalid data must not empty")
 
-    return try {
-        this.value.ct(T::class.java)
-    } catch (e: Exception) {
-        badRequest("Invalid data type, ${e.localizedMessage}")
-    }
+    return try { value.ct(T::class.java) } catch (e: Exception) { badRequest("Invalid data type, ${e.localizedMessage}") }
 }

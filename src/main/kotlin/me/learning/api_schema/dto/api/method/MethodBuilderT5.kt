@@ -23,5 +23,6 @@ data class MethodBuilderT5<T1 : Any, T2 : Any, T3 : Any, T4 : Any, T5 : Any>(
         method.throwOnMethodGetRequestBody(path, properties)
         method.throwOnMultipleProp(path, properties, RoutePropertyEnum.AUTH, "auth")
         method.throwOnMultipleProp(path, properties, RoutePropertyEnum.REQUEST_BODY, "request body")
+        method.throwOnMultipleProp(path, properties, RoutePropertyEnum.REQUEST_FILE, "request file")
     }
 }

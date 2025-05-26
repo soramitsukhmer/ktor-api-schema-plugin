@@ -44,7 +44,7 @@ inline fun <reified T, reified I : Any> Route.POST(
     path: String = "",
     crossinline block: suspend RoutingRequest.(requestBody: I) -> T
 ): Route {
-    I::class.throwOnFileOrListTypeReqBody(MethodEnum.POST, path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<I>(path)
     return this.post(path, schemaBuilder<T>(requestBody = I::class)) {
         val requestBody = call.requestBody<I>()
         call.ok(call.request.block(requestBody))
@@ -68,7 +68,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.POST(
     path: String = "",
     crossinline block: suspend  RoutingRequest.(auth: I, requestBody: J) -> T
 ): Route {
-    J::class.throwOnFileOrListTypeReqBody(MethodEnum.POST, path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<J>(path)
     return this.post(path, schemaBuilder<T>(requestBody = J::class)) {
         val auth = call.auth<I>()
         val requestBody = call.requestBody<J>()
@@ -96,7 +96,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varI: J, requestBody: K) -> T
 ): Route {
-    K::class.throwOnFileOrListTypeReqBody(MethodEnum.POST, path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<K>(path)
     val allPathVar = extractAllPathParameters(path)
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVar = mapOf(pathVarJ to J::class)
@@ -128,7 +128,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varI: J, varJ: K, requestBody: L) -> T
 ): Route {
-    L::class.throwOnFileOrListTypeReqBody(MethodEnum.POST, path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<L>(path)
     val allPathVar = extractAllPathParameters(path)
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVarK = allPathVar.getOrNull(1) ?: ""

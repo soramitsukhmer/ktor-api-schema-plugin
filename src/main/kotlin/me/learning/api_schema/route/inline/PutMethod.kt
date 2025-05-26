@@ -11,6 +11,7 @@ import me.learning.api_schema.extension.getPathVariable
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.requestBody
 import me.learning.api_schema.core.schemaBuilder
+import me.learning.api_schema.dto.handler.throwOnFileReqBody
 
 /**
  * Defines a PUT route with optional authentication and request body handling.
@@ -27,7 +28,7 @@ inline fun <reified T, reified I : Any, reified J : Any> Route.PUT(
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, requestBody: J) -> T
 ): Route {
-    J::class.throwOnFileOrListTypeReqBody(MethodEnum.PUT, path)
+    MethodEnum.PUT.throwOnFileOrListTypeReqBody<J>(path)
     return this.put(path, schemaBuilder<T>(requestBody = J::class)) {
         val auth = call.auth<I>()
         val request = call.requestBody<J>()
@@ -53,7 +54,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, requestBody: K) -> T
 ): Route {
-    K::class.throwOnFileOrListTypeReqBody(MethodEnum.PUT, path)
+    MethodEnum.PUT.throwOnFileOrListTypeReqBody<K>(path)
     val allPathVar = extractAllPathParameters(path)
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVar = mapOf(pathVarJ to J::class)
@@ -87,7 +88,7 @@ inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reifie
     path: String = "",
     crossinline block: suspend RoutingRequest.(auth: I, varJ: J, varK: K, requestBody: L) -> T
 ): Route {
-    L::class.throwOnFileOrListTypeReqBody(MethodEnum.PUT, path)
+    MethodEnum.PUT.throwOnFileOrListTypeReqBody<L>(path)
     val allPathVar = extractAllPathParameters(path)
     val pathVarJ = allPathVar.firstOrNull() ?: ""
     val pathVarK = allPathVar.getOrNull(1) ?: ""

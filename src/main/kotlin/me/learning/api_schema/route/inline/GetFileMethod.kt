@@ -5,6 +5,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.server.response.header
 import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.extension.auth
 import me.learning.api_schema.core.schemaBuilder
@@ -24,10 +25,10 @@ import kotlin.reflect.KClass
 inline fun Route.GETFILE(
     path: String = "",
     deleteAfterFinish: Boolean = false,
-    crossinline block: suspend Route.() -> File
+    crossinline block: suspend RoutingRequest.() -> File
 ): Route {
     return this.get(path, schemaBuilder<Void>()) {
-        val file = block()
+        val file = call.request.block()
         call.response.header(
             HttpHeaders.ContentDisposition,
             "attachment; filename=\"${file.name}\""
@@ -52,7 +53,7 @@ inline fun <reified T : Any> Route.GETFILE(
     path: String = "",
     withAuth: Boolean = false,
     deleteAfterFinish: Boolean = false,
-    crossinline block: suspend Route.(param: T) -> File
+    crossinline block: suspend RoutingRequest.(param: T) -> File
 ): Route {
     var pathVar: Map<String, KClass<T>>? = null
     var pathVarT = ""
@@ -68,7 +69,7 @@ inline fun <reified T : Any> Route.GETFILE(
             true -> call.auth<T>()
             false -> call.getPathVariable<T>(pathVarT)
         }
-        val file = block(param)
+        val file = call.request.block(param)
         call.response.header(
             HttpHeaders.ContentDisposition,
             "attachment; filename=\"${file.name}\""
@@ -91,7 +92,7 @@ inline fun <reified T : Any> Route.GETFILE(
 inline fun <reified T : Any, reified I : Any> Route.GETFILE(
     path: String = "",
     deleteAfterFinish: Boolean = false,
-    crossinline block: suspend Route.(auth: T, varI: I) -> File
+    crossinline block: suspend RoutingRequest.(auth: T, varI: I) -> File
 ): Route {
     val allPathVar = extractAllPathParameters(path)
     val pathVarI = allPathVar.firstOrNull() ?: ""
@@ -100,7 +101,7 @@ inline fun <reified T : Any, reified I : Any> Route.GETFILE(
     return this.get(path, schemaBuilder<Void>(pathVariable = pathVar)) {
         val auth = call.auth<T>()
         val valueI = call.getPathVariable<I>(pathVarI)
-        val file = block(auth, valueI)
+        val file = call.request.block(auth, valueI)
         call.response.header(
             HttpHeaders.ContentDisposition,
             "attachment; filename=\"${file.name}\""
