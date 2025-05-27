@@ -1,4 +1,4 @@
-package me.learning.api_schema.dto.route.file.post
+package me.learning.api_schema.dto.route.file
 
 import io.ktor.server.routing.Route
 import me.learning.api_schema.common.RouteFormDataPropEnum

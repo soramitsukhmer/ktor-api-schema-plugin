@@ -18,13 +18,13 @@ import kotlin.reflect.KClass
  * The response includes a `Content-Disposition` header, specifying the file's name.
  *
  * @param path The URI path for the route. Defaults to an empty string.
- * @param deleteAfterFinish If true, the file will be deleted from the server after it is sent. Defaults to false.
+ * @param removeFileAfterProcessing If true, the file will be deleted from the server after it is sent. Defaults to false.
  * @param block A lambda function that returns the file to be served. This block is executed for each request.
  * @return The configured route.
  */
 inline fun Route.GETFILE(
     path: String = "",
-    deleteAfterFinish: Boolean = false,
+    removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
     return this.get(path, schemaBuilder<Void>()) {
@@ -35,7 +35,7 @@ inline fun Route.GETFILE(
         )
         call.respondFile(file)
 
-        if (deleteAfterFinish) file.delete()
+        if (removeFileAfterProcessing) file.delete()
     }
 }
 
@@ -46,13 +46,13 @@ inline fun Route.GETFILE(
  *
  * @param path The URI path for the route. Defaults to an empty string.
  * @param withAuth If true, the route will be secured with authentication. Defaults to false will return path variable.
- * @param deleteAfterFinish If true, the file will be deleted from the server after it is sent. Defaults to false.
+ * @param removeFileAfterProcessing If true, the file will be deleted from the server after it is sent. Defaults to false.
  * @param block A lambda function that returns the file to be served. This block is executed for each request.
 */
 inline fun <reified T : Any> Route.GETFILE(
     path: String = "",
     withAuth: Boolean = false,
-    deleteAfterFinish: Boolean = false,
+    removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(param: T) -> File
 ): Route {
     var pathVar: Map<String, KClass<T>>? = null
@@ -76,7 +76,7 @@ inline fun <reified T : Any> Route.GETFILE(
         )
         call.respondFile(file)
 
-        if (deleteAfterFinish) file.delete()
+        if (removeFileAfterProcessing) file.delete()
     }
 }
 
@@ -86,12 +86,12 @@ inline fun <reified T : Any> Route.GETFILE(
  * The response includes a `Content-Disposition` header, specifying the file's name.
  *
  * @param path The URI path for the route. Defaults to an empty string.
- * @param deleteAfterFinish If true, the file will be deleted from the server after it is sent. Defaults to false.
+ * @param removeFileAfterProcessing If true, the file will be deleted from the server after it is sent. Defaults to false.
  * @param block A lambda function that returns the file to be served. This block is executed for each request.
 */
 inline fun <reified T : Any, reified I : Any> Route.GETFILE(
     path: String = "",
-    deleteAfterFinish: Boolean = false,
+    removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(auth: T, varI: I) -> File
 ): Route {
     val allPathVar = extractAllPathParameters(path)
@@ -108,6 +108,6 @@ inline fun <reified T : Any, reified I : Any> Route.GETFILE(
         )
         call.respondFile(file)
 
-        if (deleteAfterFinish) file.delete()
+        if (removeFileAfterProcessing) file.delete()
     }
 }

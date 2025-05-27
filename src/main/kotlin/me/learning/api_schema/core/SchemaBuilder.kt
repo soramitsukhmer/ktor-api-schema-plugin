@@ -58,6 +58,7 @@ inline fun <reified T> Route.schemaBuilder(
 
     response {
         when (T::class) {
+            Nothing::class -> {}
             Unit::class -> {}
             Void::class -> {}
             else -> code(HttpStatusCode.OK) { body<T>() }

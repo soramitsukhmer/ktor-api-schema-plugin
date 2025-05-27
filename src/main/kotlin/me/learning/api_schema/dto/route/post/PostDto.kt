@@ -6,7 +6,7 @@ import me.learning.api_schema.common.RouteFormDataPropEnum
 import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
 import me.learning.api_schema.dto.handler.throwOnNotFileInfoReqBody
-import me.learning.api_schema.dto.route.file.post.PostFileDtoT1
+import me.learning.api_schema.dto.route.file.PostFileDtoT1
 import kotlin.reflect.KClass
 
 data class PostDto(

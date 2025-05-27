@@ -5,9 +5,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.core.schemaBuilder
 import me.learning.api_schema.dto.request.FileInfoReq
-import me.learning.api_schema.dto.route.file.post.PostFileDtoT1
-import me.learning.api_schema.dto.route.file.post.PostFileDtoT2
-import me.learning.api_schema.dto.route.file.post.PostFileDtoT3
+import me.learning.api_schema.dto.route.file.PostFileDtoT1
+import me.learning.api_schema.dto.route.file.PostFileDtoT2
+import me.learning.api_schema.dto.route.file.PostFileDtoT3
 import me.learning.api_schema.dto.route.post.PostDto
 import me.learning.api_schema.dto.route.post.PostDtoT1
 import me.learning.api_schema.dto.route.post.PostDtoT2
