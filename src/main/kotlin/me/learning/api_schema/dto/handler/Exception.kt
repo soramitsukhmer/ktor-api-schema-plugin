@@ -1,10 +1,8 @@
 package me.learning.api_schema.dto.handler
 
 import me.learning.api_schema.common.MethodEnum
-import me.learning.api_schema.common.RoutePropertyEnum
-import me.learning.api_schema.dto.request.FileDataReq
-import me.learning.api_schema.dto.request.FileInfo
-import me.learning.api_schema.dto.request.FilesDataReq
+import me.learning.api_schema.common.RoutePropEnum
+import me.learning.api_schema.dto.request.FileInfoReq
 import me.learning.api_schema.extension.ifTypeListOFFileInfoReq
 import java.io.File
 
@@ -12,21 +10,27 @@ class UnauthorizedAuthException(override val message: String) : RuntimeException
 
 class InvalidAuthException(override val message: String) : RuntimeException(message)
 
-fun MethodEnum.throwOnMultipleProp(path: String, properties: List<RoutePropertyEnum>, onProp: RoutePropertyEnum, tag: String) {
+fun MethodEnum.throwOnMultipleProp(path: String, properties: List<RoutePropEnum>, onProp: RoutePropEnum, tag: String) {
     properties
         .filter { it == onProp }
         .takeIf { it.size > 1 }
         ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported multiple $tag") }
 }
 
-fun MethodEnum.throwOnMethodGetRequestBody(path: String, properties: List<RoutePropertyEnum>) {
+fun MethodEnum.throwOnMethodGetRequestBody(path: String, properties: List<RoutePropEnum>) {
     if (this != MethodEnum.GET) return
     properties
-        .find { it == RoutePropertyEnum.REQUEST_BODY }
+        .find { it == RoutePropEnum.REQUEST_BODY }
         ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported request body") }
 }
 
-inline fun <reified T : Any> MethodEnum.throwOnFileOrListTypeReqBody(path: String) {
+fun MethodEnum.throwUnsupportedWhenPropExistedOnMethod(path: String, properties: List<RoutePropEnum>, onProp: RoutePropEnum) {
+    properties
+        .find { it == onProp }
+        ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported $onProp") }
+}
+
+inline fun <reified T> MethodEnum.throwOnFileOrListTypeReqBody(path: String) {
     throwOnFileReqBody<T>(path)
     when (T::class) {
         List::class -> "list type"
@@ -34,21 +38,17 @@ inline fun <reified T : Any> MethodEnum.throwOnFileOrListTypeReqBody(path: Strin
     }.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported request body $it") }
 }
 
-inline fun <reified T : Any> MethodEnum.throwOnFileReqBody(path: String) {
+inline fun <reified T> MethodEnum.throwOnFileReqBody(path: String) {
     when (T::class) {
-        FilesDataReq::class -> "file type"
-        FileDataReq::class -> "file type"
-        FileInfo::class -> "file type"
+        FileInfoReq::class -> "file type"
         File::class -> "file type"
         else -> return
     }.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported request body $it") }
 }
 
-inline fun <reified T : Any> MethodEnum.throwOnNotFileReqBody(path: String) {
+inline fun <reified T : Any> MethodEnum.throwOnNotFileInfoReqBody(path: String) {
     when (T::class) {
-        FileDataReq::class -> return
-        FilesDataReq::class -> return
-        FileInfo::class -> return
+        FileInfoReq::class -> return
         else -> {
             if (ifTypeListOFFileInfoReq<T>()) return
 

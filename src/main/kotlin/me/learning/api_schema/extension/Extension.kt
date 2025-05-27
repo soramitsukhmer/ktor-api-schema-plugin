@@ -1,12 +1,11 @@
 package me.learning.api_schema.extension
 
 import io.ktor.http.content.PartData
-import io.ktor.server.plugins.BadRequestException
 import io.ktor.util.cio.writeChannel
 import io.ktor.util.reflect.typeInfo
 import io.ktor.utils.io.copyAndClose
 import me.learning.api_schema.common.Helper.badRequest
-import me.learning.api_schema.dto.request.FileInfo
+import me.learning.api_schema.dto.request.FileInfoReq
 import me.learning.api_schema.utils.JacksonObjMapper.objectMapper
 import me.learning.api_schema.utils.fromMapToClass
 import java.io.File
@@ -24,12 +23,12 @@ fun <T : Any> KClass<T>.asKType(): KType {
 }
 
 inline fun <reified T> ifTypeListOFFileInfoReq(): Boolean {
-    val fileTypeAsList = typeInfo<List<FileInfo>>()
+    val fileTypeAsList = typeInfo<List<FileInfoReq>>()
     val requestType = typeInfo<T>()
     return requestType == fileTypeAsList
 }
 
-suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<String>, asList: Boolean): FileInfo? {
+suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<String>, asList: Boolean): FileInfoReq? {
     if (asList && this.name != "files") return null
     if (!asList && this.name != "file") return null
     if (existed) badRequest("Invalid request duplicate file")
@@ -44,7 +43,7 @@ suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<Stri
     val filename = this.originalFileName ?: badRequest("Invalid file name")
     val file = File.createTempFile("tfs-tmp--", "--${UUID.randomUUID()}.$extension")
     this.provider().copyAndClose(file.writeChannel())
-    return FileInfo(
+    return FileInfoReq(
         file = file,
         contentType = this.contentType?.toString() ?: "application/octet-stream",
         originalName = filename,

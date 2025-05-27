@@ -4,37 +4,32 @@ import io.ktor.server.routing.Route
 import me.learning.api_schema.common.RouteFormDataPropEnum
 import kotlin.reflect.KClass
 
-data class PostFileBuilderT2<T1 : Any, T2 : Any>(
+data class PostFileDtoT1<T1 : Any>(
     val route: Route,
     val path: String,
     val extensions: List<String>,
     val removeFileAfterProcessing: Boolean = false,
-    val p1: Pair<KClass<T1>, RouteFormDataPropEnum>,
-    val p2: Pair<KClass<T2>, RouteFormDataPropEnum>
+    val p1: Pair<KClass<T1>, RouteFormDataPropEnum>
 ) {
 
     init {
-        val properties = listOf(p1.second, p2.second)
-        properties.groupBy { it }.filter { it.value.size > 1 }
-            .let { throw IllegalArgumentException("Unsupported multiple properties found: $it") }
-        val hasFile = RouteFormDataPropEnum.FILE in properties
-        val hasFiles = RouteFormDataPropEnum.FILES in properties
-        if (hasFiles && hasFile) throw IllegalArgumentException("Unsupported multiple properties found: FILE")
+        val hasFile = RouteFormDataPropEnum.FILE == p1.second
+        val hasFiles = RouteFormDataPropEnum.FILES == p1.second
+        if (!hasFiles && !hasFile) throw IllegalArgumentException("Unsupported property type not file")
     }
 
-    fun <T : Any> addProp(pair: Pair<KClass<T>, RouteFormDataPropEnum>, extensions: List<String>): PostFileBuilderT3<T1, T2, T> {
+    fun <T : Any> addProp(pair: Pair<KClass<T>, RouteFormDataPropEnum>, extensions: List<String>): PostFileDtoT2<T1, T> {
         val ext = when (true) {
             this.extensions.isNotEmpty() -> this.extensions
             else -> extensions
         }
 
-        return PostFileBuilderT3(
+        return PostFileDtoT2(
             route,
             path,
             ext,
             removeFileAfterProcessing,
             p1,
-            p2,
             pair
         )
     }

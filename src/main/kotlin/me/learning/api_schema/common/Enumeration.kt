@@ -9,12 +9,23 @@ enum class MethodEnum {
 enum class RoutePropEnum {
     AUTH,
     REQUEST_BODY,
-    PATH_VARIABLE
+    PATH_VARIABLE;
+
+    fun isRequestBody() = this == REQUEST_BODY
+    fun isPathVariable() = this == PATH_VARIABLE
+    fun isAuth() = this == AUTH
 }
 
 enum class RouteFormDataPropEnum {
+    AUTH,
     FILE,
     FILES,
-    TEXT,
-    AUTH
+    TEXT;
+
+    fun isText() = this == TEXT
+    fun isFileAsList() = when (this) {
+        FILES -> true
+        FILE -> false
+        else -> throw IllegalArgumentException("Invalid file type")
+    }
 }

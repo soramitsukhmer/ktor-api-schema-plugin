@@ -1,6 +1,6 @@
 package me.learning.api_schema.extension
 
-import me.learning.api_schema.common.RoutePropertyEnum
+import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.common.Helper.extractAllPathParameters
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
@@ -49,12 +49,12 @@ fun String.mergeRoute(baseRoute: String, defaultPath: String): String {
 
 
 fun String.getApiSchemaBuilderProp(
-    pairs: List<Pair<KClass<*>, RoutePropertyEnum>> = emptyList()
+    pairs: List<Pair<KClass<*>, RoutePropEnum>> = emptyList()
 ): Pair<Map<String, KClass<*>>, KClass<*>?> {
     val allPathVar = extractAllPathParameters(this)
-    val variable = pairs.filter { it.second == RoutePropertyEnum.PATH_VARIABLE }
+    val variable = pairs.filter { it.second == RoutePropEnum.PATH_VARIABLE }
         .mapIndexed { index, pair -> (allPathVar.getOrNull(index) ?: "") to pair.first }
         .toMap()
-    val requestBody = pairs.find { it.second == RoutePropertyEnum.REQUEST_BODY }?.first
+    val requestBody = pairs.find { it.second == RoutePropEnum.REQUEST_BODY }?.first
     return Pair(variable, requestBody)
 }

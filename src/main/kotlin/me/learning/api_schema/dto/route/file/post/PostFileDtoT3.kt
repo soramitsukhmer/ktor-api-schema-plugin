@@ -4,7 +4,7 @@ import io.ktor.server.routing.Route
 import me.learning.api_schema.common.RouteFormDataPropEnum
 import kotlin.reflect.KClass
 
-data class PostFileBuilderT3<T1 : Any, T2 : Any, T3 : Any>(
+data class PostFileDtoT3<T1 : Any, T2 : Any, T3 : Any>(
     val route: Route,
     val path: String,
     val extensions: List<String>,
