@@ -21,7 +21,7 @@ fun Route.hasAuth(): Boolean {
  * @param T The response type for the defined schema.
  * @param pathVariable A map specifying the path variables and their respective classes. Default is null.
  * @param requestBody The class type of the request body if required. Default is null.
- * @param requestBodyAsFormData Whether the request body should be treated as multipart form-data. Default is false.
+ * @param bodyAsFormData Whether the request body should be treated as multipart form-data. Default is false.
  * @param bodyFileAsList Determines if the multipart form-data should treat the file as a list of `File` objects. Default is false.
  * @return A lambda function to configure the route's schema.
  */
@@ -29,14 +29,14 @@ fun Route.hasAuth(): Boolean {
 inline fun <reified T> Route.schemaBuilder(
     pathVariable: Map<String, KClass<*>>? = null,
     requestBody: KClass<*>? = null,
-    requestBodyAsFormData: Boolean = false,
+    bodyAsFormData: Boolean = false,
     bodyFileAsList: Boolean = false,
 ): RouteConfig.() -> Unit = {
 
     if (hasAuth()) securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
 
     request {
-        if (!requestBodyAsFormData) {
+        if (!bodyAsFormData) {
             // raw
             pathVariable?.let { it.forEach { (key, value) -> pathParameter(key, value.asKType()) } }
             requestBody?.asKType()?.let(::body)
@@ -58,6 +58,7 @@ inline fun <reified T> Route.schemaBuilder(
 
     response {
         when (T::class) {
+            Unit::class -> {}
             Void::class -> {}
             else -> code(HttpStatusCode.OK) { body<T>() }
         }

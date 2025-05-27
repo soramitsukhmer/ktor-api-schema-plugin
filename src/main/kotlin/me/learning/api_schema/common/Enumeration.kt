@@ -6,9 +6,15 @@ enum class MethodEnum {
     PUT
 }
 
-enum class RoutePropertyEnum {
+enum class RoutePropEnum {
     AUTH,
     REQUEST_BODY,
-    REQUEST_FILE,
     PATH_VARIABLE
+}
+
+enum class RouteFormDataPropEnum {
+    FILE,
+    FILES,
+    TEXT,
+    AUTH
 }
