@@ -25,9 +25,7 @@ fun MethodEnum.throwOnInvalidTypeOfPathVariable(path: String, kClass: KClass<*>)
 
 fun MethodEnum.throwOnMethodGetRequestBody(path: String, properties: List<RoutePropEnum>) {
     if (this != MethodEnum.GET) return
-    properties
-        .find { it == RoutePropEnum.REQUEST_BODY }
-        ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported request body") }
+    throwUnsupportedWhenPropExistedOnMethod(path, properties, RoutePropEnum.REQUEST_BODY)
 }
 
 fun MethodEnum.throwUnsupportedWhenPropExistedOnMethod(path: String, properties: List<RoutePropEnum>, onProp: RoutePropEnum) {
