@@ -1,7 +1,6 @@
 package me.learning.api_schema.route.inline
 
 import io.github.smiley4.ktoropenapi.post
-import io.ktor.server.http.content.file
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.common.MethodEnum

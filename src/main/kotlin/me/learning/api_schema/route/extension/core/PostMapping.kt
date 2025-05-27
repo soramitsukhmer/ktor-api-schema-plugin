@@ -41,14 +41,14 @@ inline fun <reified T, reified T1 : Any> PostDtoT1<T1>.map(
 }
 
 inline fun <reified T, reified T1 : Any, reified T2 : Any> PostDtoT2<T1, T2>.map(
-    crossinline block: suspend RoutingRequest.(v1: T1, v2: T2) -> T
+    crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> T
 ): Route {
     val requestBody = p2.first.takeIf { p2.second.isRequestBody() } ?: p1.first.takeIf { p1.second.isRequestBody() }
     val builder = route.schemaBuilder<T>(requestBody = requestBody)
     return route.post(path, builder) {
         val v1 = call.prop(p1, path).first
         val v2 = call.prop(p2, path).first
-        call.ok(call.request.block(v1, v2))
+        call.ok(call.request.block(Tuple2(v1, v2)))
     }
 }
 

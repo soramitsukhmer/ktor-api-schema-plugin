@@ -50,7 +50,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> PutBuilderT2<T1, T2>.
 }
 
 inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> PutBuilderT3<T1, T2, T3>.map(
-    crossinline block: suspend RoutingRequest.(t2: Tuple3<T1, T2, T3>) -> T
+    crossinline block: suspend RoutingRequest.(t3: Tuple3<T1, T2, T3>) -> T
 ): Route {
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(p1, p2, p3))
     val builder = route.schemaBuilder<T>(pathVariable = variable, requestBody = requestBody)
@@ -64,7 +64,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Put
 }
 
 inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4 : Any> PutBuilderT4<T1, T2, T3, T4>.map(
-    crossinline block: suspend RoutingRequest.(t2: Tuple4<T1, T2, T3, T4>) -> T
+    crossinline block: suspend RoutingRequest.(t4: Tuple4<T1, T2, T3, T4>) -> T
 ): Route {
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(p1, p2, p3, p4))
     val builder = route.schemaBuilder<T>(pathVariable = variable, requestBody = requestBody)
