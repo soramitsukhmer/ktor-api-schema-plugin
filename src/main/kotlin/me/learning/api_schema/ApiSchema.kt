@@ -18,6 +18,7 @@ import me.learning.api_schema.config.ApiSchemaConfig
 import me.learning.api_schema.plugin.configureSerialization
 import me.learning.api_schema.plugin.exceptionConfigPlugin
 import me.learning.api_schema.plugin.requestValidatorConfigPlugin
+import me.learning.api_schema.route.docs.download
 
 /**
  * Configures an API schema plugin for a Ktor application. This plugin integrates a variety of features
@@ -52,7 +53,7 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
         application.install(OpenApi) {
             pluginConfig.info.let { config ->
                 info {
-                    config.title?.let { title = it }
+                    config.title.let { title = it }
                     config.version?.let { version = it }
                     config.description?.let { description = it }
                     config.summary?.let { summary = it }
@@ -92,6 +93,14 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
             route(baseRoute) {
                 println(">>> expose endpoint json api schema: $baseRoute")
                 openApi()
+            }
+
+            if (pluginConfig.download.enabled) {
+                val route = pluginConfig.download.path.mergeRoute(baseRoute, pluginConfig.defaultDownloadPath)
+                route(route) {
+                    println(">>> expose endpoint download json api schema: $route")
+                    download(pluginConfig.info.title)
+                }
             }
 
             if (pluginConfig.swagger.enabled) {

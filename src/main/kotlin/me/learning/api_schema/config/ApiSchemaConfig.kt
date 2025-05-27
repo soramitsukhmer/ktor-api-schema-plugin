@@ -8,6 +8,7 @@ import me.learning.api_schema.config.schema.ServerSchemaConfig
 
 class ApiSchemaConfig internal constructor() {
     val defaultRoute = "/api/v1/schema"
+    val defaultDownloadPath = "/download"
     val defaultSwaggerPath = "/swagger"
     val defaultRedocPath = "/redoc"
 
@@ -17,6 +18,7 @@ class ApiSchemaConfig internal constructor() {
     var info: InfoSchemaConfig = InfoSchemaConfig()
     var server: ServerSchemaConfig = ServerSchemaConfig()
 
+    var download: RouteSchemaConfig = RouteSchemaConfig(defaultDownloadPath)
     var swagger: RouteSchemaConfig = RouteSchemaConfig(defaultSwaggerPath)
     var redoc: RouteSchemaConfig = RouteSchemaConfig(defaultRedocPath)
 
@@ -28,6 +30,10 @@ class ApiSchemaConfig internal constructor() {
 
     fun server(block: ServerSchemaConfig.() -> Unit) {
         server = ServerSchemaConfig().apply(block)
+    }
+
+    fun download(block: RouteSchemaConfig.() -> Unit) {
+        download = RouteSchemaConfig(defaultDownloadPath).apply(block)
     }
 
     fun swagger(block: RouteSchemaConfig.() -> Unit) {
