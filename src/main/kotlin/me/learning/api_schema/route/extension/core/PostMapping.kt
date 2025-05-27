@@ -17,7 +17,7 @@ import me.learning.api_schema.extension.auth
 import me.learning.api_schema.extension.getFileDataRequest
 import me.learning.api_schema.extension.getFileRequest
 import me.learning.api_schema.extension.ok
-import me.learning.api_schema.extension.requestBody
+import me.learning.api_schema.extension.prop
 
 
 inline fun <reified T> PostDto.map(
@@ -29,34 +29,25 @@ inline fun <reified T> PostDto.map(
     }
 }
 
-inline fun <reified T, reified I : Any> PostDtoT1<I>.map(
-    crossinline block: suspend RoutingRequest.(v1: I) -> T
+inline fun <reified T, reified T1 : Any> PostDtoT1<T1>.map(
+    crossinline block: suspend RoutingRequest.(v1: T1) -> T
 ): Route {
     val requestBody = p1.first.takeIf { p1.second.isRequestBody() }
     val builder = route.schemaBuilder<T>(requestBody = requestBody)
     return route.post(path, builder) {
-        val v1 = when (p1.second.isRequestBody()) {
-            true -> call.requestBody<I>()
-            false -> call.auth<I>()
-        }
+        val v1 = call.prop(p1, path).first
         call.ok(call.request.block(v1))
     }
 }
 
-inline fun <reified T, reified I : Any, reified J : Any> PostDtoT2<I, J>.map(
-    crossinline block: suspend RoutingRequest.(v1: I, v2: J) -> T
+inline fun <reified T, reified T1 : Any, reified T2 : Any> PostDtoT2<T1, T2>.map(
+    crossinline block: suspend RoutingRequest.(v1: T1, v2: T2) -> T
 ): Route {
     val requestBody = p2.first.takeIf { p2.second.isRequestBody() } ?: p1.first.takeIf { p1.second.isRequestBody() }
     val builder = route.schemaBuilder<T>(requestBody = requestBody)
     return route.post(path, builder) {
-        val v1 = when (p1.second.isRequestBody()) {
-            true -> call.requestBody<I>()
-            false -> call.auth<I>()
-        }
-        val v2 = when (p2.second.isRequestBody()) {
-            true -> call.requestBody<J>()
-            false -> call.auth<J>()
-        }
+        val v1 = call.prop(p1, path).first
+        val v2 = call.prop(p2, path).first
         call.ok(call.request.block(v1, v2))
     }
 }

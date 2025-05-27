@@ -1,0 +1,46 @@
+package me.learning.api_schema.dto.route.put
+
+import io.ktor.server.routing.Route
+import me.learning.api_schema.common.MethodEnum
+import me.learning.api_schema.common.RoutePropEnum
+import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
+import me.learning.api_schema.dto.handler.throwOnInvalidTypeOfPathVariable
+import me.learning.api_schema.dto.handler.throwOnMethodGetRequestBody
+import me.learning.api_schema.dto.handler.throwOnMultipleProp
+import kotlin.reflect.KClass
+
+data class PutBuilderT2<T1 : Any, T2 : Any>(
+    val route: Route,
+    val path: String,
+    val p1: Pair<KClass<T1>, RoutePropEnum>,
+    val p2: Pair<KClass<T2>, RoutePropEnum>
+) {
+    init {
+        val properties = listOf(p1.second, p2.second)
+
+        MethodEnum.GET.throwOnMethodGetRequestBody(path, properties)
+        MethodEnum.GET.throwOnMultipleProp(path, properties, RoutePropEnum.AUTH, "auth")
+        MethodEnum.GET.throwOnMultipleProp(path, properties, RoutePropEnum.REQUEST_BODY, "request body")
+    }
+
+    fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>): PutBuilderT3<T1, T2, T> =
+        PutBuilderT3(
+            route,
+            path,
+            p1,
+            p2,
+            pair
+        )
+
+    inline fun <reified T : Any> auth() = addProp(Pair(T::class, RoutePropEnum.AUTH))
+
+    inline fun <reified T : Any> pathVariable(): PutBuilderT3<T1, T2, T> {
+        MethodEnum.PUT.throwOnInvalidTypeOfPathVariable(path, T::class)
+        return addProp(Pair(T::class, RoutePropEnum.PATH_VARIABLE))
+    }
+
+    inline fun <reified T : Any> requestBody(): PutBuilderT3<T1, T2, T> {
+        MethodEnum.PUT.throwOnFileOrListTypeReqBody<T>(path)
+        return addProp(Pair(T::class, RoutePropEnum.REQUEST_BODY))
+    }
+}

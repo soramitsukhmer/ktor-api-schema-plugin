@@ -16,7 +16,8 @@ data class PostFileDtoT2<T1 : Any, T2 : Any>(
     init {
         val properties = listOf(p1.second, p2.second)
         properties.groupBy { it }.filter { it.value.size > 1 }
-            .let { throw IllegalArgumentException("Unsupported multiple properties found: $it") }
+            .takeIf { it.size > 1 }
+            ?.let { throw IllegalArgumentException("Unsupported multiple properties found: ${it.keys}") }
         val hasFile = RouteFormDataPropEnum.FILE in properties
         val hasFiles = RouteFormDataPropEnum.FILES in properties
         if (hasFiles && hasFile) throw IllegalArgumentException("Unsupported multiple properties found: FILE")

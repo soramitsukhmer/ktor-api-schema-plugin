@@ -5,6 +5,7 @@ import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.dto.request.FileInfoReq
 import me.learning.api_schema.extension.ifTypeListOFFileInfoReq
 import java.io.File
+import kotlin.reflect.KClass
 
 class UnauthorizedAuthException(override val message: String) : RuntimeException(message)
 
@@ -15,6 +16,11 @@ fun MethodEnum.throwOnMultipleProp(path: String, properties: List<RoutePropEnum>
         .filter { it == onProp }
         .takeIf { it.size > 1 }
         ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported multiple $tag") }
+}
+
+fun MethodEnum.throwOnInvalidTypeOfPathVariable(path: String, kClass: KClass<*>) {
+    val clazz = listOf(Long::class, Int::class, String::class)
+    if (kClass !in clazz) throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported path variable class type ${kClass.simpleName}")
 }
 
 fun MethodEnum.throwOnMethodGetRequestBody(path: String, properties: List<RoutePropEnum>) {
