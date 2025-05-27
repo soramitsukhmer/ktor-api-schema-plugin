@@ -44,9 +44,7 @@ inline fun <reified T> Route.schemaBuilder(
             // form-data
             multipartBody {
                 mediaTypes(ContentType.MultiPart.FormData)
-                requestBody?.let { req ->
-                    if (req != Void::class) { part("data", req.asKType()) }
-                }
+                requestBody?.let { req -> part("data", req.asKType()) }
                 if (bodyFileAsList) {
                     part<Array<File>>("files") { required = true }
                 } else {

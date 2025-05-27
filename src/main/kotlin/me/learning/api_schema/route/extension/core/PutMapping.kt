@@ -4,11 +4,11 @@ import io.github.smiley4.ktoropenapi.put
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.core.schemaBuilder
-import me.learning.api_schema.dto.route.put.PutBuilder
-import me.learning.api_schema.dto.route.put.PutBuilderT1
-import me.learning.api_schema.dto.route.put.PutBuilderT2
-import me.learning.api_schema.dto.route.put.PutBuilderT3
-import me.learning.api_schema.dto.route.put.PutBuilderT4
+import me.learning.api_schema.dto.route.put.PutDto
+import me.learning.api_schema.dto.route.put.PutDtoT1
+import me.learning.api_schema.dto.route.put.PutDtoT2
+import me.learning.api_schema.dto.route.put.PutDtoT3
+import me.learning.api_schema.dto.route.put.PutDtoT4
 import me.learning.api_schema.dto.route.tuple.Tuple2
 import me.learning.api_schema.dto.route.tuple.Tuple3
 import me.learning.api_schema.dto.route.tuple.Tuple4
@@ -16,7 +16,7 @@ import me.learning.api_schema.extension.getApiSchemaBuilderProp
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.prop
 
-inline fun <reified T> PutBuilder.map(
+inline fun <reified T> PutDto.map(
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
     val builder = route.schemaBuilder<T>()
@@ -25,7 +25,7 @@ inline fun <reified T> PutBuilder.map(
     }
 }
 
-inline fun <reified T, reified T1 : Any> PutBuilderT1<T1>.map(
+inline fun <reified T, reified T1 : Any> PutDtoT1<T1>.map(
     crossinline block: suspend RoutingRequest.(v1: T1) -> T
 ): Route {
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(p1))
@@ -36,7 +36,7 @@ inline fun <reified T, reified T1 : Any> PutBuilderT1<T1>.map(
     }
 }
 
-inline fun <reified T, reified T1 : Any, reified T2 : Any> PutBuilderT2<T1, T2>.map(
+inline fun <reified T, reified T1 : Any, reified T2 : Any> PutDtoT2<T1, T2>.map(
     crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> T
 ): Route {
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(p1, p2))
@@ -49,7 +49,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> PutBuilderT2<T1, T2>.
     }
 }
 
-inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> PutBuilderT3<T1, T2, T3>.map(
+inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> PutDtoT3<T1, T2, T3>.map(
     crossinline block: suspend RoutingRequest.(t3: Tuple3<T1, T2, T3>) -> T
 ): Route {
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(p1, p2, p3))
@@ -63,7 +63,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Put
     }
 }
 
-inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4 : Any> PutBuilderT4<T1, T2, T3, T4>.map(
+inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4 : Any> PutDtoT4<T1, T2, T3, T4>.map(
     crossinline block: suspend RoutingRequest.(t4: Tuple4<T1, T2, T3, T4>) -> T
 ): Route {
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(p1, p2, p3, p4))

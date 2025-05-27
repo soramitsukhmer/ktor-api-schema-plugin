@@ -138,7 +138,7 @@ inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<List<Fi
     crossinline block: RoutingRequest.(t2: Tuple3<List<FileInfoReq>, T2, T3>) -> T
 ): Route {
     val requestBody = p2.first.takeIf { p2.second.isText() } ?: p3.first.takeIf { p3.second.isText() }
-    val builder = route.schemaBuilder<T>(requestBody = requestBody, bodyAsFormData = true, bodyFileAsList = false)
+    val builder = route.schemaBuilder<T>(requestBody = requestBody, bodyAsFormData = true, bodyFileAsList = true)
     return route.post(path, builder) {
         val tuple3 = when (p2.second.isText()) {
             true -> call.getFileDataRequest<T2>(false, extensions)

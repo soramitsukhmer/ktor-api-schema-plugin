@@ -52,11 +52,11 @@ suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<Stri
     )
 }
 
-inline fun <reified T> PartData.FormItem.getRequest(existed: Boolean): T? {
+suspend inline fun <reified T> PartData.FormItem.getRequest(existed: Boolean): T? {
     if (this.name != "data") return null
     if (existed) badRequest("Invalid request duplicate data")
     if ((null is T) && value.isEmpty()) return null
     if (value.isEmpty()) badRequest("Invalid data must not empty")
 
-    return try { value.ct(T::class.java) } catch (e: Exception) { badRequest("Invalid data type, ${e.localizedMessage}") }
+    return receiveRequestBody(T::class.simpleName) { value.ct(T::class.java) }
 }

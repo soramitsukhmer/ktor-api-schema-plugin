@@ -9,7 +9,7 @@ import me.learning.api_schema.dto.handler.throwOnMethodGetRequestBody
 import me.learning.api_schema.dto.handler.throwOnMultipleProp
 import kotlin.reflect.KClass
 
-data class PutBuilderT3<T1 : Any, T2 : Any, T3 : Any>(
+data class PutDtoT3<T1 : Any, T2 : Any, T3 : Any>(
     val route: Route,
     val path: String,
     val p1: Pair<KClass<T1>, RoutePropEnum>,
@@ -24,8 +24,8 @@ data class PutBuilderT3<T1 : Any, T2 : Any, T3 : Any>(
         MethodEnum.GET.throwOnMultipleProp(path, properties, RoutePropEnum.REQUEST_BODY, "request body")
     }
 
-    fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>): PutBuilderT4<T1, T2, T3, T> =
-        PutBuilderT4(
+    fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>): PutDtoT4<T1, T2, T3, T> =
+        PutDtoT4(
             route,
             path,
             p1,
@@ -36,12 +36,12 @@ data class PutBuilderT3<T1 : Any, T2 : Any, T3 : Any>(
 
     inline fun <reified T : Any> auth() = addProp(Pair(T::class, RoutePropEnum.AUTH))
 
-    inline fun <reified T : Any> pathVariable(): PutBuilderT4<T1, T2, T3, T> {
+    inline fun <reified T : Any> pathVariable(): PutDtoT4<T1, T2, T3, T> {
         MethodEnum.PUT.throwOnInvalidTypeOfPathVariable(path, T::class)
         return addProp(Pair(T::class, RoutePropEnum.PATH_VARIABLE))
     }
 
-    inline fun <reified T : Any> requestBody(): PutBuilderT4<T1, T2, T3, T> {
+    inline fun <reified T : Any> requestBody(): PutDtoT4<T1, T2, T3, T> {
         MethodEnum.PUT.throwOnFileOrListTypeReqBody<T>(path)
         return addProp(Pair(T::class, RoutePropEnum.REQUEST_BODY))
     }

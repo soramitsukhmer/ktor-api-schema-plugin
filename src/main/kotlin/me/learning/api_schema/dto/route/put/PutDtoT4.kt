@@ -7,7 +7,7 @@ import me.learning.api_schema.dto.handler.throwOnMethodGetRequestBody
 import me.learning.api_schema.dto.handler.throwOnMultipleProp
 import kotlin.reflect.KClass
 
-data class PutBuilderT4<T1 : Any, T2 : Any, T3 : Any, T4 : Any>(
+data class PutDtoT4<T1 : Any, T2 : Any, T3 : Any, T4 : Any>(
     val route: Route,
     val path: String,
     val p1: Pair<KClass<T1>, RoutePropEnum>,

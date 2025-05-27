@@ -6,11 +6,11 @@ import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.dto.handler.throwOnInvalidTypeOfPathVariable
 import kotlin.reflect.KClass
 
-data class GetBuilder(
+data class GetDto(
     val route: Route,
     val path: String
 ) {
-    fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>) = GetBuilderT1(
+    fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>) = GetDtoT1(
         route,
         path,
         pair
@@ -18,7 +18,7 @@ data class GetBuilder(
 
     inline fun <reified T : Any> auth() = addProp(Pair(T::class, RoutePropEnum.AUTH))
 
-    inline fun <reified T : Any> pathVariable(): GetBuilderT1<T> {
+    inline fun <reified T : Any> pathVariable(): GetDtoT1<T> {
         MethodEnum.GET.throwOnInvalidTypeOfPathVariable(path, T::class)
         return addProp(Pair(T::class, RoutePropEnum.PATH_VARIABLE))
     }

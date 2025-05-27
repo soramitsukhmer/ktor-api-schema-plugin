@@ -29,7 +29,7 @@ fun <T : Any> KClass<T>.getDefaultValue(value: String, param: String): T {
     } as T
 }
 
-suspend fun <T : Any> receiveRequestBody(clazzName: String?, block: suspend () -> T): T {
+suspend fun <T> receiveRequestBody(clazzName: String?, block: suspend () -> T): T {
     return try {
         block()
     } catch (e: Exception) {
@@ -38,6 +38,7 @@ suspend fun <T : Any> receiveRequestBody(clazzName: String?, block: suspend () -
             else -> {
                 e.cause?.cause.isMismatchException()
                 e.cause.isMismatchException()
+                e.isMismatchException()
 
                 print(">>> Invalid body request: : $clazzName")
                 badRequest("The body request is invalid")
@@ -78,7 +79,6 @@ suspend inline fun <reified T : Any> RoutingCall.requestBody(): T {
 suspend fun <T : Any> RoutingCall.requestBody(clazz: KClass<T>): T {
     return receiveRequestBody(clazz.simpleName) { receive(clazz) }
 }
-
 
 suspend fun RoutingCall.getFileRequest(fileAsList: Boolean, extensions: List<String>): List<FileInfoReq> {
     val files = mutableListOf<FileInfoReq>()

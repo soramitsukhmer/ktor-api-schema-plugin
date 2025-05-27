@@ -7,10 +7,10 @@ import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.core.schemaBuilder
-import me.learning.api_schema.dto.route.get.GetBuilder
-import me.learning.api_schema.dto.route.get.GetBuilderT1
-import me.learning.api_schema.dto.route.get.GetBuilderT2
-import me.learning.api_schema.dto.route.get.GetBuilderT3
+import me.learning.api_schema.dto.route.get.GetDto
+import me.learning.api_schema.dto.route.get.GetDtoT1
+import me.learning.api_schema.dto.route.get.GetDtoT2
+import me.learning.api_schema.dto.route.get.GetDtoT3
 import me.learning.api_schema.dto.route.tuple.Tuple2
 import me.learning.api_schema.dto.route.tuple.Tuple3
 import me.learning.api_schema.extension.getApiSchemaBuilderProp
@@ -18,7 +18,7 @@ import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.prop
 import java.io.File
 
-inline fun <reified T> GetBuilder.map(
+inline fun <reified T> GetDto.map(
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
     val builder = route.schemaBuilder<T>()
@@ -27,7 +27,7 @@ inline fun <reified T> GetBuilder.map(
     }
 }
 
-inline fun <reified T, reified T1 : Any> GetBuilderT1<T1>.map(
+inline fun <reified T, reified T1 : Any> GetDtoT1<T1>.map(
     crossinline block: suspend RoutingRequest.(v1: T1) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
@@ -38,7 +38,7 @@ inline fun <reified T, reified T1 : Any> GetBuilderT1<T1>.map(
     }
 }
 
-inline fun <reified T, reified T1 : Any, reified T2 : Any> GetBuilderT2<T1, T2>.map(
+inline fun <reified T, reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
     crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2)).first
@@ -50,7 +50,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> GetBuilderT2<T1, T2>.
     }
 }
 
-inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> GetBuilderT3<T1, T2, T3>.map(
+inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> GetDtoT3<T1, T2, T3>.map(
     crossinline block: suspend RoutingRequest.(t3: Tuple3<T1, T2, T3>) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2, p3)).first
@@ -65,7 +65,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Get
 
 // ============== File Builder ==============
 
-inline fun GetBuilder.map(
+inline fun GetDto.map(
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
@@ -83,7 +83,7 @@ inline fun GetBuilder.map(
     }
 }
 
-inline fun <reified T1 : Any> GetBuilderT1<T1>.map(
+inline fun <reified T1 : Any> GetDtoT1<T1>.map(
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(v1: T1) -> File
 ): Route {
@@ -103,7 +103,7 @@ inline fun <reified T1 : Any> GetBuilderT1<T1>.map(
     }
 }
 
-inline fun <reified T1 : Any, reified T2 : Any> GetBuilderT2<T1, T2>.map(
+inline fun <reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> File
 ): Route {
@@ -124,7 +124,7 @@ inline fun <reified T1 : Any, reified T2 : Any> GetBuilderT2<T1, T2>.map(
     }
 }
 
-inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any> GetBuilderT3<T1, T2, T3>.map(
+inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any> GetDtoT3<T1, T2, T3>.map(
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(t3: Tuple3<T1, T2, T3>) -> File
 ): Route {
