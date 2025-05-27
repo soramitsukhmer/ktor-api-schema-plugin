@@ -1,7 +1,7 @@
 # Ktor Api Schema Plugin
 This guide will help you integrate the `Open Api Schema` Plugin into your service.
 
-[#Smiley4](https://github.com/SMILEY4/ktor-openapi-tools)
+[#ktor-openapi-tools](https://github.com/SMILEY4/ktor-openapi-tools)
 
 ### Add SoramitsuKhmer GitHub Repository
 Add the following repository configuration to your `build.gradle.kts` file:
@@ -41,6 +41,10 @@ install(ApiSchema) {
     server {
         url = "http://0.0.0.0:8080"
         description = "This is the development server"
+    }
+    
+    download {
+        enabled = true
     }
 
     swagger {
@@ -120,5 +124,6 @@ PUT("/user/{id}").auth(UserAuth::class).pathVariable(Long::class).map { t2: Tupl
 
 ### Expose Default Endpoint:
 - Json data: `/api/v1/schema`
+- Download: `/api/v1/schema/download`
 - Swagger-UI: `/api/v1/schema/swagger`
 - Redoc: `/api/v1/schema/redoc`
