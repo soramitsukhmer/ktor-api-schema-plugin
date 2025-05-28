@@ -9,14 +9,15 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.header
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
+import me.learning.api_schema.config.schema.DownloadSchemaConfig
 
-fun Route.download(projectFile: String?) {
-    get({ hidden = true }) {
+fun Route.download(property: DownloadSchemaConfig, projectTitle: String? = null) {
+    get({ hidden = property.hidden }) {
         val content = OpenApiPlugin.getOpenApiSpec(OpenApiPluginConfig.DEFAULT_SPEC_ID)
-        val title = projectFile?.let { "$it openapi-schema" } ?: "openapi-schema"
+        val filename = property.getFilename(projectTitle)
         call.response.header(
             HttpHeaders.ContentDisposition,
-            "attachment; filename=\"$title.json\""
+            "attachment; filename=\"$filename\""
         )
         call.respondText(ContentType.Application.Json, HttpStatusCode.OK) { content }
     }

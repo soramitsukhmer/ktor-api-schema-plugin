@@ -96,10 +96,10 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
             }
 
             if (pluginConfig.download.enabled) {
-                val route = pluginConfig.download.path.mergeRoute(baseRoute, pluginConfig.defaultDownloadPath)
+                val route = pluginConfig.download.getFullPath(baseRoute)
                 route(route) {
                     println(">>> expose endpoint download json api schema: $route")
-                    download(pluginConfig.info.title)
+                    download(pluginConfig.download, pluginConfig.info.title)
                 }
             }
 
