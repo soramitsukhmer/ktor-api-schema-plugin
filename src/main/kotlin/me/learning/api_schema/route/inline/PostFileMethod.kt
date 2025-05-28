@@ -98,7 +98,7 @@ inline fun <reified T, reified I : Any> Route.POSTFILE(
  * @return The configured `Route` for this POST operation.
  */
 @JvmName("POST_List_FileInfoReq")
-inline fun <reified T> Route.POSTFILE(
+inline fun <reified T> Route.POSTFILES(
     path: String = "",
     extensions: List<String> = emptyList(),
     removeFileAfterProcessing: Boolean = false,
@@ -125,7 +125,7 @@ inline fun <reified T> Route.POSTFILE(
  * @return The configured route for this POST operation.
  */
 @JvmName("POST_Auth_List_FileInfoReq")
-inline fun <reified T, reified I : Any> Route.POSTFILE(
+inline fun <reified T, reified I : Any> Route.POSTFILES(
     path: String = "",
     extensions: List<String> = emptyList(),
     removeFileAfterProcessing: Boolean = false,
@@ -214,7 +214,7 @@ inline fun <reified T, reified I : Any, reified J> Route.POSTFILE(
  *
  */
 @JvmName("POST_List_FilesInfoReq_Data")
-inline fun <reified T, reified I> Route.POSTFILE(
+inline fun <reified T, reified I> Route.POSTFILES(
     path: String = "",
     extensions: List<String> = emptyList(),
     removeFileAfterProcessing: Boolean = false,
@@ -247,7 +247,7 @@ inline fun <reified T, reified I> Route.POSTFILE(
  * @return The configured Route instance with the defined POST endpoint.
  */
 @JvmName("POST_Auth_List_FilesInfoReq_Data")
-inline fun <reified T, reified I : Any, reified J> Route.POSTFILE(
+inline fun <reified T, reified I : Any, reified J> Route.POSTFILES(
     path: String = "",
     extensions: List<String> = emptyList(),
     removeFileAfterProcessing: Boolean = false,

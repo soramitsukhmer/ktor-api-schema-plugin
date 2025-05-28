@@ -5,9 +5,10 @@ import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.common.RouteFormDataPropEnum
 import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
-import me.learning.api_schema.dto.handler.throwOnNotFileInfoReqBody
+import me.learning.api_schema.dto.request.FileInfoReq
 import me.learning.api_schema.dto.route.file.PostFileDtoT1
 import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
 
 data class PostDto(
     val route: Route,
@@ -26,18 +27,20 @@ data class PostDto(
         return addProp(Pair(T::class, RoutePropEnum.REQUEST_BODY))
     }
 
-    inline fun <reified T : Any> file(extension: List<String> = emptyList(), removeFileAfterProcessing: Boolean = false): PostFileDtoT1<T> {
-        MethodEnum.POST.throwOnNotFileInfoReqBody<T>(path)
-        val enum = when (T::class) {
-            List::class -> RouteFormDataPropEnum.FILES
-            else -> RouteFormDataPropEnum.FILE
-        }
-        return PostFileDtoT1(
-            route,
-            path,
-            extension,
-            removeFileAfterProcessing,
-            Pair(T::class, enum)
-        )
-    }
+    fun file(extension: List<String> = emptyList(), removeFileAfterProcessing: Boolean = false) = PostFileDtoT1(
+        route,
+        path,
+        extension,
+        removeFileAfterProcessing,
+        FileInfoReq::class to RouteFormDataPropEnum.FILE
+    )
+
+    @Suppress("UNCHECKED_CAST")
+    fun files(extension: List<String> = emptyList(), removeFileAfterProcessing: Boolean = false) = PostFileDtoT1(
+        route,
+        path,
+        extension,
+        removeFileAfterProcessing,
+        (typeOf<List<FileInfoReq>>().classifier as KClass<List<FileInfoReq>>) to RouteFormDataPropEnum.FILES
+    )
 }
