@@ -1,7 +1,7 @@
 # Ktor Api Schema Plugin
 This guide will help you integrate the `Open Api Schema` Plugin into your service.
 
-[#Smiley4](https://github.com/SMILEY4/ktor-openapi-tools)
+[#ktor-openapi-tools](https://github.com/SMILEY4/ktor-openapi-tools)
 
 ### Add SoramitsuKhmer GitHub Repository
 Add the following repository configuration to your `build.gradle.kts` file:
@@ -42,6 +42,10 @@ install(ApiSchema) {
         url = "http://0.0.0.0:8080"
         description = "This is the development server"
     }
+    
+    download {
+        enabled = true
+    }
 
     swagger {
         enabled = true
@@ -80,38 +84,46 @@ data class Request(
 ### Usage [Inline function]
 ```
 // Get Method
-import me.learning.api_schema.route.methods.inline.GET
+import me.learning.api_schema.route.inline.GET
+
 GET { auth: UserAuth -> ... }
 
 
 // Post Method
-import me.learning.api_schema.route.methods.inline.POST
+import me.learning.api_schema.route.inline.POST
+
 POST { auth: UserAuth, request: Reauest -> ... }
 
 
 // Put Method
-import me.learning.api_schema.route.methods.inline.PUT
+import me.learning.api_schema.route.inline.PUT
+
 PUT { auth: UserAuth, requestBody: UserBodyUpdateReq -> ... }
 ```
 
 ### Usage [Extension function]
 ```
 // Get Method
-import me.learning.api_schema.route.methods.extension.GET
+import me.learning.api_schema.route.extension.GET
+
 GET("/user").auth(UserAuth::class).map { auth -> ... }
 
 
 // Post Method
-import me.learning.api_schema.route.methods.extension.POST
+import me.learning.api_schema.route.extension.POST
+
 POST("/user").auth(UserAuth::class).map { auth -> ... }
 
 
 // Put Method
-import me.learning.api_schema.route.methods.extension.PUT
+import me.learning.api_schema.route.extension.PUT
+import me.learning.api_schema.route.extension.core.map
+
 PUT("/user/{id}").auth(UserAuth::class).pathVariable(Long::class).map { t2: Tuple2<UserAuth, Long> -> ... }
 ```
 
 ### Expose Default Endpoint:
 - Json data: `/api/v1/schema`
+- Download: `/api/v1/schema/download`
 - Swagger-UI: `/api/v1/schema/swagger`
 - Redoc: `/api/v1/schema/redoc`

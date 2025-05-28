@@ -25,3 +25,11 @@ fun <T> ObjectMapper.fromMapToClass(clazz: Class<T>, map: Map<*, *>): T {
     val str = writeValueAsString(map)
     return readValue(str, clazz)
 }
+
+fun <T> ObjectMapper.fromMapToClass(clazz: Class<T>, value: Any): T {
+    val str = when (value) {
+        is String -> value
+        else -> writeValueAsString(value)
+    }
+    return readValue(str, clazz)
+}

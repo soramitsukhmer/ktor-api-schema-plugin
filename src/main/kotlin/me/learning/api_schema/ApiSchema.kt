@@ -3,6 +3,7 @@ package me.learning.api_schema
 import io.github.smiley4.ktoropenapi.OpenApi
 import io.github.smiley4.ktoropenapi.config.AuthScheme
 import io.github.smiley4.ktoropenapi.config.AuthType
+import io.github.smiley4.ktoropenapi.config.SchemaGenerator
 import io.github.smiley4.ktoropenapi.openApi
 import io.github.smiley4.ktorredoc.redoc
 import io.github.smiley4.ktorswaggerui.swaggerUI
@@ -17,28 +18,30 @@ import me.learning.api_schema.config.ApiSchemaConfig
 import me.learning.api_schema.plugin.configureSerialization
 import me.learning.api_schema.plugin.exceptionConfigPlugin
 import me.learning.api_schema.plugin.requestValidatorConfigPlugin
+import me.learning.api_schema.route.docs.download
 
 /**
- * A server-side application plugin named `ApiSchema`, used to enhance the application with API schema-related configuration and support.
+ * Configures an API schema plugin for a Ktor application. This plugin integrates a variety of features
+ * including request validation, exception handling, content serialization, and OpenAPI documentation generation.
  *
- * This plugin performs the following:
- * - Sets up request validation using a `RequestValidation` plugin if not already installed.
- * - Configures serialization with `ContentNegotiation` and utilizes a Jackson serializer.
- * - Configures global exception handling via status pages based on provided configuration.
+ * When enabled, the plugin sets up APIs for serving OpenAPI specifications, Swagger UI, and ReDoc
+ * documentation based on the configuration provided via `ApiSchemaConfig`.
  *
- * If enabled in the configuration (`ApiSchemaConfig.enabled`), and if the `OpenApi` plugin is not already installed,
- * it will install and configure `OpenApi` with the following set of options:
+ * The plugin automatically:
+ * - Validates incoming requests using a RequestValidation plugin.
+ * - Configures JSON serialization with specific handling for Java and Kotlin data types.
+ * - Sets up exception handling using the `StatusPages` plugin to manage custom or common HTTP status responses.
+ * - Installs and configures the OpenAPI plugin if it is not already installed, allowing the application
+ *   to expose API schema information in a standard OpenAPI format.
+ * - Adds endpoints for serving OpenAPI schema (`json`), Swagger UI, and ReDoc documentation
+ *   based on the specified or default routing paths.
  *
- * - OpenAPI metadata such as title, version, description, and summary, as defined in `ApiSchemaConfig.info`.
- * - Server information like URL and description sourced from `ApiSchemaConfig.server`.
- * - Security scheme configuration for bearer tokens (JWT).
+ * Security is configured using a bearer token scheme with JWT support. The OpenAPI schema generation is
+ * enhanced with additional type overwrites for common Kotlin/Java types.
  *
- * Furthermore, the plugin sets up routing for exposing API schema routes as follows:
- * - A base route for the OpenAPI schema is derived from the configuration.
- * - If Swagger support is enabled (`ApiSchemaConfig.swagger.enabled`), a route for Swagger UI is configured.
- * - If ReDoc support is enabled (`ApiSchemaConfig.redoc.enabled`), a route for ReDoc UI is configured.
- *
- * The plugin's behavior can be customized via `ApiSchemaConfig`.
+ * This plugin is controlled by the `enabled` flag and will only take effect if explicitly enabled in
+ * the `pluginConfig`. Additionally, users can configure route paths, information metadata, server details,
+ * and exception handling strategies through the `ApiSchemaConfig`.
  */
 
 val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
@@ -50,7 +53,7 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
         application.install(OpenApi) {
             pluginConfig.info.let { config ->
                 info {
-                    config.title?.let { title = it }
+                    config.title.let { title = it }
                     config.version?.let { version = it }
                     config.description?.let { description = it }
                     config.summary?.let { summary = it }
@@ -73,7 +76,14 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
             }
 
             schemas {
-
+                generator = SchemaGenerator.reflection {
+                    overwrite(SchemaGenerator.TypeOverwrites.LocalDateTime())
+                    overwrite(SchemaGenerator.TypeOverwrites.LocalDate())
+                    overwrite(SchemaGenerator.TypeOverwrites.JavaUuid())
+                    overwrite(SchemaGenerator.TypeOverwrites.KotlinUuid())
+                    overwrite(SchemaGenerator.TypeOverwrites.File())
+                    overwrite(SchemaGenerator.TypeOverwrites.Instant())
+                }
             }
         }
 
@@ -83,6 +93,14 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
             route(baseRoute) {
                 println(">>> expose endpoint json api schema: $baseRoute")
                 openApi()
+            }
+
+            if (pluginConfig.download.enabled) {
+                val route = pluginConfig.download.getFullPath(baseRoute)
+                route(route) {
+                    println(">>> expose endpoint download json api schema: $route")
+                    download(pluginConfig.download, pluginConfig.info.title)
+                }
             }
 
             if (pluginConfig.swagger.enabled) {

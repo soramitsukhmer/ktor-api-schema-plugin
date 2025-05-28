@@ -1,6 +1,7 @@
 package me.learning.api_schema.config
 
 import me.learning.api_schema.config.exception.ExceptionConfig
+import me.learning.api_schema.config.schema.DownloadSchemaConfig
 import me.learning.api_schema.extension.cleanRoute
 import me.learning.api_schema.config.schema.InfoSchemaConfig
 import me.learning.api_schema.config.schema.RouteSchemaConfig
@@ -11,16 +12,17 @@ class ApiSchemaConfig internal constructor() {
     val defaultSwaggerPath = "/swagger"
     val defaultRedocPath = "/redoc"
 
-    var enabled: Boolean = true
-    var route: String = ""
+    var enabled = true
+    var route = ""
 
-    var info: InfoSchemaConfig = InfoSchemaConfig()
-    var server: ServerSchemaConfig = ServerSchemaConfig()
+    var info = InfoSchemaConfig()
+    var server = ServerSchemaConfig()
 
-    var swagger: RouteSchemaConfig = RouteSchemaConfig(defaultSwaggerPath)
-    var redoc: RouteSchemaConfig = RouteSchemaConfig(defaultRedocPath)
+    var download = DownloadSchemaConfig()
+    var swagger = RouteSchemaConfig(defaultSwaggerPath)
+    var redoc = RouteSchemaConfig(defaultRedocPath)
 
-    var handler: ExceptionConfig = ExceptionConfig()
+    var handler = ExceptionConfig()
 
     fun info(block: InfoSchemaConfig.() -> Unit) {
         info = InfoSchemaConfig().apply(block)
@@ -28,6 +30,10 @@ class ApiSchemaConfig internal constructor() {
 
     fun server(block: ServerSchemaConfig.() -> Unit) {
         server = ServerSchemaConfig().apply(block)
+    }
+
+    fun download(block: DownloadSchemaConfig.() -> Unit) {
+        download = DownloadSchemaConfig().apply(block)
     }
 
     fun swagger(block: RouteSchemaConfig.() -> Unit) {
