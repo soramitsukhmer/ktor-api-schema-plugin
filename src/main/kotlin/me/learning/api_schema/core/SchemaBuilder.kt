@@ -5,6 +5,7 @@ import io.github.smiley4.ktoropenapi.config.RouteConfig
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.Route
+import me.learning.api_schema.dto.response.ResponseWrapper
 import me.learning.api_schema.extension.asKType
 import java.io.File
 import kotlin.reflect.KClass
@@ -18,7 +19,7 @@ fun Route.hasAuth(): Boolean {
  * Configures a schema for the given route using the specified parameters.
  * The schema can include path variables, request bodies, and multipart form-data handling.
  *
- * @param T The response type for the defined schema.
+ * @param T The response type for the defined schema ResponseWrapper<T>.
  * @param pathVariable A map specifying the path variables and their respective classes. Default is null.
  * @param requestBody The class type of the request body if required. Default is null.
  * @param bodyAsFormData Whether the request body should be treated as multipart form-data. Default is false.
@@ -59,7 +60,7 @@ inline fun <reified T> Route.schemaBuilder(
             Nothing::class -> {}
             Unit::class -> {}
             Void::class -> {}
-            else -> code(HttpStatusCode.OK) { body<T>() }
+            else -> code(HttpStatusCode.OK) { body<ResponseWrapper<T>>() }
         }
     }
 }
