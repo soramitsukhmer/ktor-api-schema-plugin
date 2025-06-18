@@ -3,14 +3,13 @@ package me.learning.api_schema.route.inline
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
-import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.common.MethodEnum
-import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
-import me.learning.api_schema.extension.auth
-import me.learning.api_schema.extension.getPathVariable
 import me.learning.api_schema.extension.ok
-import me.learning.api_schema.extension.requestBody
 import me.learning.api_schema.core.schemaBuilder
+import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
+import me.learning.api_schema.dto.route.inline.RouteProp
+import me.learning.api_schema.dto.route.inline.SchemaBuilderProp
+import me.learning.api_schema.extension.prop
 
 /**
  * Registers a POST route for the given path and executes the provided block for each incoming request.
@@ -29,119 +28,146 @@ inline fun <reified T> Route.POST(
     }
 }
 
-/**
- * Defines a POST route with a specified path and a request body handling block.
- * This method configures the route with a request body of type `I` and handles the response of type `T`.
- *
- * @param T The type of the response body.
- * @param I The type of the request body.
- * @param path The endpoint path for the POST route. Defaults to an empty string.
- * @param block A suspend lambda that processes the request body of type `I`
- * and returns a response of type `T`.
- * @return The configured `Route` instance.
- */
-inline fun <reified T, reified I : Any> Route.POST(
+
+inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POST(
     path: String = "",
-    crossinline block: suspend RoutingRequest.(requestBody: I) -> T
+    crossinline block: suspend RoutingRequest.(T1) -> T
 ): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<I>(path)
-    return this.post(path, schemaBuilder<T>(requestBody = I::class)) {
-        val requestBody = call.requestBody<I>()
-        call.ok(call.request.block(requestBody))
-    }
-}
-
-
-/**
- * Defines a POST route that processes a request with authentication and a request body,
- * and responds with a specified type.
- *
- * @param T The type of the response body.
- * @param I The type of the authentication object.
- * @param J The type of the request body.
- * @param path The path of the route. Optional, defaults to an empty string.
- * @param block A suspend function that handles the request. It receives the authentication
- * object of type [I] and the parsed request body of type [J], and returns a response of type [T].
- * @return An instance of [Route] configured with the POST route.
- */
-inline fun <reified T, reified I : Any, reified J : Any> Route.POST(
-    path: String = "",
-    crossinline block: suspend  RoutingRequest.(auth: I, requestBody: J) -> T
-): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<J>(path)
-    return this.post(path, schemaBuilder<T>(requestBody = J::class)) {
-        val auth = call.auth<I>()
-        val requestBody = call.requestBody<J>()
-        call.ok(call.request.block(auth, requestBody))
-    }
-}
-
-
-/**
- * Registers a POST route with the specified endpoint, handling authentication,
- * path variables, and a request body. The response is processed via the provided
- * block, which gets invoked for handling the request.
- *
- * @param T The type of the response body returned by the route.
- * @param I The type of the authentication object used by the route.
- * @param J The type of the path variable extracted from the route.
- * @param K The type of the request body parsed by the route.
- * @param path The endpoint of the route. It can include path variables in the format `{variableName}`.
- * @param block A suspendable block that processes the request. Takes `auth` of type `I`,
- * `varI` of type `J` (path variable), and `requestBody` of type `K` as parameters.
- * Returns the response of type `T`.
- * @return The registered route.
- */
-inline fun <reified T, reified I : Any, reified J : Any, reified K : Any> Route.POST(
-    path: String = "",
-    crossinline block: suspend RoutingRequest.(auth: I, varI: J, requestBody: K) -> T
-): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<K>(path)
-    val allPathVar = extractAllPathParameters(path)
-    val pathVarJ = allPathVar.firstOrNull() ?: ""
-    val pathVar = mapOf(pathVarJ to J::class)
-
-    return this.post(path, schemaBuilder<T>(pathVariable = pathVar, requestBody = K::class)) {
-        val auth = call.auth<I>()
-        val valueI = call.getPathVariable<J>(pathVarJ)
-        val requestBody = call.requestBody<K>()
-        call.ok(call.request.block(auth, valueI, requestBody))
-    }
-}
-
-
-/**
- * Defines a POST route with optional path variables and a request body, and handles
- * authentication and response generation dynamically based on the given parameters.
- *
- * @param T The type of the response body.
- * @param I The type of the authentication object.
- * @param J The type of the first path variable.
- * @param K The type of the second path variable.
- * @param L The type of the request body.
- * @param path The path defining the route, optionally including placeholders for path variables.
- * @param block A suspend lambda that processes the route's logic. It receives the authentication
- * object, the values of the path variables, and the parsed request body, and returns a response of type T.
- * @return The configured POST route.
- */
-inline fun <reified T, reified I : Any, reified J : Any, reified K : Any, reified L : Any> Route.POST(
-    path: String = "",
-    crossinline block: suspend RoutingRequest.(auth: I, varI: J, varJ: K, requestBody: L) -> T
-): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<L>(path)
-    val allPathVar = extractAllPathParameters(path)
-    val pathVarJ = allPathVar.firstOrNull() ?: ""
-    val pathVarK = allPathVar.getOrNull(1) ?: ""
-    val pathVar = mapOf(
-        pathVarJ to J::class,
-        pathVarK to K::class
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, listOf(V1::class to T1::class))
+    val builder = schemaBuilder<T>(
+        pathVariable = prop.pathVariable,
+        requestBody = prop.requestBody,
+        bodyAsFormData = prop.bodyAsFormData,
+        bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.post(path, schemaBuilder<T>(pathVariable = pathVar, requestBody = L::class)) {
-        val auth = call.auth<I>()
-        val valueJ = call.getPathVariable<J>(pathVarJ)
-        val valueK = call.getPathVariable<K>(pathVarK)
-        val requestBody = call.requestBody<L>()
-        call.ok(call.request.block(auth, valueJ, valueK, requestBody))
+    return this.post(path, builder) {
+        val p1 = call.prop<V1, T1>(path).first
+        call.ok(call.request.block(p1))
+    }
+}
+
+
+inline fun <reified T,
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>
+        > Route.POST(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2) -> T
+): Route {
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V2>(path)
+    val collection = listOf(V1::class to T1::class, V2::class to T2::class)
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
+    val builder = schemaBuilder<T>(
+        pathVariable = prop.pathVariable,
+        requestBody = prop.requestBody,
+        bodyAsFormData = prop.bodyAsFormData,
+        bodyFileAsList = prop.bodyFileAsList
+    )
+
+    return this.post(path, builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val p2 = call.prop<V2, T2>(path, idx).first
+        call.ok(call.request.block(p1, p2))
+    }
+}
+
+
+inline fun <reified T,
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>,
+        reified V3 : Any, reified T3 : RouteProp<V3>
+        > Route.POST(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
+): Route {
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V2>(path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V3>(path)
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class
+    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
+    val builder = schemaBuilder<T>(
+        pathVariable = prop.pathVariable,
+        requestBody = prop.requestBody,
+        bodyAsFormData = prop.bodyAsFormData,
+        bodyFileAsList = prop.bodyFileAsList
+    )
+
+    return this.post(path, builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val (p2, idx2) = call.prop<V2, T2>(path, idx)
+        val p3 = call.prop<V3, T3>(path, idx2).first
+        call.ok(call.request.block(p1, p2, p3))
+    }
+}
+
+
+inline fun <reified T,
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>,
+        reified V3 : Any, reified T3 : RouteProp<V3>,
+        reified V4 : Any, reified T4 : RouteProp<V4>
+        > Route.POST(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
+): Route {
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V2>(path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V3>(path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V4>(path)
+    val collection = listOf(V1::class to T1::class, V2::class to T2::class, V3::class to T3::class, V4::class to T4::class)
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
+    val builder = schemaBuilder<T>(
+        pathVariable = prop.pathVariable,
+        requestBody = prop.requestBody,
+        bodyAsFormData = prop.bodyAsFormData,
+        bodyFileAsList = prop.bodyFileAsList
+    )
+
+    return this.post(path, builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val (p2, idx2) = call.prop<V2, T2>(path, idx)
+        val (p3, idx3) = call.prop<V3, T3>(path, idx2)
+        val p4 = call.prop<V4, T4>(path, idx3).first
+        call.ok(call.request.block(p1, p2, p3, p4))
+    }
+}
+
+
+inline fun <reified T,
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>,
+        reified V3 : Any, reified T3 : RouteProp<V3>,
+        reified V4 : Any, reified T4 : RouteProp<V4>,
+        reified V5 : Any, reified T5 : RouteProp<V5>
+        > Route.POST(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
+): Route {
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V2>(path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V3>(path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V4>(path)
+    MethodEnum.POST.throwOnFileOrListTypeReqBody<V5>(path)
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class,
+        V4::class to T4::class,
+        V5::class to T5::class
+    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
+    val builder = schemaBuilder<T>(
+        pathVariable = prop.pathVariable,
+        requestBody = prop.requestBody,
+        bodyAsFormData = prop.bodyAsFormData,
+        bodyFileAsList = prop.bodyFileAsList
+    )
+
+    return this.post(path, builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val (p2, idx2) = call.prop<V2, T2>(path, idx)
+        val (p3, idx3) = call.prop<V3, T3>(path, idx2)
+        val (p4, idx4) = call.prop<V4, T4>(path, idx3)
+        val p5 = call.prop<V5, T5>(path, idx4).first
+        call.ok(call.request.block(p1, p2, p3, p4, p5))
     }
 }

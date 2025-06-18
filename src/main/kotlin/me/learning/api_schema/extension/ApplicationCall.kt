@@ -9,6 +9,8 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.*
+import io.ktor.server.routing.RoutingCall
+import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.common.Helper.invalidAuthentication
 import me.learning.api_schema.dto.route.inline.RouteProp
@@ -107,7 +109,21 @@ suspend fun <T : Any> ApplicationCall.requestBody(clazz: KClass<T>): T {
     return receiveRequestBody(clazz.simpleName) { receive(clazz) }
 }
 
-suspend inline fun <reified T : Any, reified I : RouteProp<T>> ApplicationCall.propOf(path: String, pathVarIndex: Int = 0): Pair<I, Int> {
+inline fun <reified T : Any> ApplicationCall.getPathVariable(param: String): T {
+    val value = this.parameters[param]
+        ?: badRequest("Missing path variable: $param")
+
+    return T::class.getDefaultValue(value, param)
+}
+
+fun <T : Any> ApplicationCall.getPathVariable(clazz: KClass<T>, param: String): T {
+    val value = this.parameters[param]
+        ?: badRequest("Missing path variable: $param")
+
+    return clazz.getDefaultValue(value, param)
+}
+
+suspend inline fun <reified T : Any, reified I : RouteProp<T>> ApplicationCall.prop(path: String, pathVarIndex: Int = 0): Pair<I, Int> {
     var idx = pathVarIndex
     return when (I::class) {
         Auth::class -> Auth(this.auth<T>())
@@ -115,9 +131,9 @@ suspend inline fun <reified T : Any, reified I : RouteProp<T>> ApplicationCall.p
         PathVariable::class -> {
             val allPathVar = extractAllPathParameters(path)
             val param = allPathVar.getOrNull(pathVarIndex) ?: ""
+            val value = getPathVariable<T>(param)
             idx++
-
-            PathVariable(param)
+            PathVariable(value)
         }
         else -> throw IllegalArgumentException("Unsupported RouteProp type: ${I::class}")
     } as I to idx
