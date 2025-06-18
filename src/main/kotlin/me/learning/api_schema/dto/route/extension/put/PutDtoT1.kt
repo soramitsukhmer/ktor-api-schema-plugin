@@ -1,4 +1,4 @@
-package me.learning.api_schema.dto.route.put
+package me.learning.api_schema.dto.route.extension.put
 
 import io.ktor.server.routing.Route
 import me.learning.api_schema.common.MethodEnum
@@ -7,24 +7,27 @@ import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
 import me.learning.api_schema.dto.handler.throwOnInvalidTypeOfPathVariable
 import kotlin.reflect.KClass
 
-data class PutDto(
+data class PutDtoT1<T1 : Any>(
     val route: Route,
-    val path: String
+    val path: String,
+    val p1: Pair<KClass<T1>, RoutePropEnum>
 ) {
-    fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>) = PutDtoT1(
-        route,
-        path,
-        pair
-    )
+    fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>): PutDtoT2<T1, T> =
+        PutDtoT2(
+            route,
+            path,
+            p1,
+            pair
+        )
 
     inline fun <reified T : Any> auth() = addProp(Pair(T::class, RoutePropEnum.AUTH))
 
-    inline fun <reified T : Any> pathVariable(): PutDtoT1<T> {
+    inline fun <reified T : Any> pathVariable(): PutDtoT2<T1, T> {
         MethodEnum.PUT.throwOnInvalidTypeOfPathVariable(path, T::class)
         return addProp(Pair(T::class, RoutePropEnum.PATH_VARIABLE))
     }
 
-    inline fun <reified T : Any> requestBody(): PutDtoT1<T> {
+    inline fun <reified T : Any> requestBody(): PutDtoT2<T1, T> {
         MethodEnum.PUT.throwOnFileOrListTypeReqBody<T>(path)
         return addProp(Pair(T::class, RoutePropEnum.REQUEST_BODY))
     }
