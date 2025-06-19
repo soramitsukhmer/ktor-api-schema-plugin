@@ -15,6 +15,7 @@ import me.learning.api_schema.dto.route.extension.tuple.Tuple5
 import me.learning.api_schema.dto.route.inline.RouteProp
 import me.learning.api_schema.dto.route.inline.SchemaBuilderProp
 import me.learning.api_schema.dto.route.inline.impl.RequestBody
+import me.learning.api_schema.extension.cleanRoutePath
 import me.learning.api_schema.extension.getFileRequest
 import me.learning.api_schema.extension.getFileDataRequest
 import me.learning.api_schema.extension.isRequestBody
@@ -38,7 +39,7 @@ inline fun <reified T> Route.POSTFILE(
 ): Route {
     val builder = schemaBuilder<T>(bodyAsFormData = true)
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val request = call.getFileRequest(false, extensions).first()
         call.ok(call.request.block(request))
         if (removeFileAfterProcessing) request.file.delete()
@@ -54,7 +55,7 @@ inline fun <reified T> Route.POSTFILES(
 ): Route {
     val builder = schemaBuilder<T>(bodyAsFormData = true, bodyFileAsList = true)
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val files = call.getFileRequest(true, extensions)
         call.ok(call.request.block(files))
         if (removeFileAfterProcessing) files.forEach { it.file.delete() }
@@ -78,7 +79,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POSTF
         bodyFileAsList = false
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val (file, p1) = when (isRequestBody<T1>()) {
             true -> call.getFileDataRequest<V1>(false, extensions).let { it.first.first() to RequestBody(it.second) }
             false -> call.getFileRequest(false, extensions).first() to call.prop<V1, T1>(path).first
@@ -106,7 +107,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POSTF
         bodyFileAsList = true
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val (files, p1) = when (isRequestBody<T1>()) {
             true -> call.getFileDataRequest<V1>(false, extensions).let { it.first to RequestBody(it.second) }
             false -> call.getFileRequest(false, extensions) to call.prop<V1, T1>(path).first
@@ -140,7 +141,7 @@ inline fun <reified T,
         bodyFileAsList = false
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions)
                 .let { Tuple3(RequestBody(it.second), call.prop<V2, T2>(path).first, it.first.first()) }
@@ -177,7 +178,7 @@ inline fun <reified T,
         bodyFileAsList = true
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions)
                 .let { Tuple3(RequestBody(it.second), call.prop<V2, T2>(path).first, it.first) }
@@ -216,7 +217,7 @@ inline fun <reified T,
         bodyFileAsList = false
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions).let {
                 val (p2, idx) = call.prop<V2, T2>(path)
@@ -271,7 +272,7 @@ inline fun <reified T,
         bodyFileAsList = true
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions).let {
                 val (p2, idx) = call.prop<V2, T2>(path)
@@ -328,7 +329,7 @@ inline fun <reified T,
         bodyFileAsList = false
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions).let {
                 val (p2, idx2) = call.prop<V2, T2>(path)
@@ -395,7 +396,7 @@ inline fun <reified T,
         bodyFileAsList = true
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions).let {
                 val (p2, idx2) = call.prop<V2, T2>(path)

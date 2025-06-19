@@ -6,18 +6,14 @@ import io.ktor.server.response.header
 import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
-import io.ktor.server.routing.param
-import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.common.MethodEnum
-import me.learning.api_schema.extension.auth
 import me.learning.api_schema.core.schemaBuilder
 import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
 import me.learning.api_schema.dto.route.inline.RouteProp
 import me.learning.api_schema.dto.route.inline.SchemaBuilderProp
-import me.learning.api_schema.extension.getPathVariable
+import me.learning.api_schema.extension.cleanRoutePath
 import me.learning.api_schema.extension.prop
 import java.io.File
-import kotlin.reflect.KClass
 
 
 inline fun Route.GETFILE(
@@ -25,7 +21,7 @@ inline fun Route.GETFILE(
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
-    return this.get(path, schemaBuilder<Unit>()) {
+    return this.get(path.cleanRoutePath(), schemaBuilder<Unit>()) {
         val file = call.request.block()
         call.response.header(
             HttpHeaders.ContentDisposition,
@@ -52,7 +48,7 @@ inline fun <reified V : Any, reified T : RouteProp<V>> Route.GETFILE(
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.get(path, builder) {
+    return this.get(path.cleanRoutePath(), builder) {
         val p1 = call.prop<V, T>(path).first
         val file = call.request.block(p1)
         call.response.header(
@@ -85,7 +81,7 @@ inline fun <
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.get(path, builder) {
+    return this.get(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val p2 = call.prop<V2, T2>(path, idx).first
         val file = call.request.block(p1, p2)
@@ -122,7 +118,7 @@ inline fun <
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.get(path, builder) {
+    return this.get(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val p3 = call.prop<V3, T3>(path, idx2).first
@@ -163,7 +159,7 @@ inline fun <
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.get(path, builder) {
+    return this.get(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)

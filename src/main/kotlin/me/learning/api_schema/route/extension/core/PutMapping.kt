@@ -12,6 +12,7 @@ import me.learning.api_schema.dto.route.extension.put.PutDtoT4
 import me.learning.api_schema.dto.route.extension.tuple.Tuple2
 import me.learning.api_schema.dto.route.extension.tuple.Tuple3
 import me.learning.api_schema.dto.route.extension.tuple.Tuple4
+import me.learning.api_schema.extension.cleanRoutePath
 import me.learning.api_schema.extension.getApiSchemaBuilderProp
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.prop
@@ -20,7 +21,7 @@ inline fun <reified T> PutDto.map(
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
     val builder = route.schemaBuilder<T>()
-    return route.put(path, builder) {
+    return route.put(path.cleanRoutePath(), builder) {
         call.ok(call.request.block())
     }
 }
@@ -30,7 +31,7 @@ inline fun <reified T, reified T1 : Any> PutDtoT1<T1>.map(
 ): Route {
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(p1))
     val builder = route.schemaBuilder<T>(pathVariable = variable, requestBody = requestBody)
-    return route.put(path, builder) {
+    return route.put(path.cleanRoutePath(), builder) {
         val v1 = call.prop(p1, path).first
         call.ok(call.request.block(v1))
     }
@@ -42,7 +43,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> PutDtoT2<T1, T2>.map(
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(p1, p2))
     val builder = route.schemaBuilder<T>(pathVariable = variable, requestBody = requestBody)
 
-    return route.put(path, builder) {
+    return route.put(path.cleanRoutePath(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val v2 = call.prop(p2, path, idx1).first
         call.ok(call.request.block(Tuple2(v1, v2)))
@@ -55,7 +56,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Put
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(p1, p2, p3))
     val builder = route.schemaBuilder<T>(pathVariable = variable, requestBody = requestBody)
 
-    return route.put(path, builder) {
+    return route.put(path.cleanRoutePath(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val (v2, idx2) = call.prop(p2, path, idx1)
         val v3 = call.prop(p3, path, idx2).first
@@ -69,7 +70,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any, rei
     val (variable, requestBody) = path.getApiSchemaBuilderProp(listOf(p1, p2, p3, p4))
     val builder = route.schemaBuilder<T>(pathVariable = variable, requestBody = requestBody)
 
-    return route.put(path, builder) {
+    return route.put(path.cleanRoutePath(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val (v2, idx2) = call.prop(p2, path, idx1)
         val (v3, idx3) = call.prop(p3, path, idx2)

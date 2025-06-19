@@ -58,3 +58,8 @@ fun String.getApiSchemaBuilderProp(
     val requestBody = pairs.find { it.second == RoutePropEnum.REQUEST_BODY }?.first
     return Pair(variable, requestBody)
 }
+
+fun String.cleanRoutePath() = when (endsWith("/")) {
+    true -> substringBeforeLast("/")
+    false -> this
+}

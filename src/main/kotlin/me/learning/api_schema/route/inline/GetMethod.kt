@@ -1,27 +1,23 @@
 package me.learning.api_schema.route.inline
 
 import io.github.smiley4.ktoropenapi.get
-import io.github.smiley4.ktoropenapi.put
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
-import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.common.MethodEnum
-import me.learning.api_schema.extension.auth
-import me.learning.api_schema.extension.getPathVariable
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.core.schemaBuilder
 import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
 import me.learning.api_schema.dto.route.inline.RouteProp
 import me.learning.api_schema.dto.route.inline.SchemaBuilderProp
+import me.learning.api_schema.extension.cleanRoutePath
 import me.learning.api_schema.extension.prop
-import kotlin.reflect.KClass
 
 
 inline fun <reified T> Route.GET(
     path: String = "",
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    return this.get(path, schemaBuilder<T>()) {
+    return this.get(path.cleanRoutePath(), schemaBuilder<T>()) {
         call.ok(call.request.block())
     }
 }
@@ -40,7 +36,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.GET(
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.get(path, builder) {
+    return this.get(path.cleanRoutePath(), builder) {
         val p1 = call.prop<V1, T1>(path).first
         call.ok(call.request.block(p1))
     }
@@ -63,7 +59,7 @@ inline fun <reified T,
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.get(path, builder) {
+    return this.get(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val p2 = call.prop<V2, T2>(path, idx).first
         call.ok(call.request.block(p1, p2))
@@ -93,7 +89,7 @@ inline fun <reified T,
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.get(path, builder) {
+    return this.get(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val p3 = call.prop<V3, T3>(path, idx2).first
@@ -122,7 +118,7 @@ inline fun <reified T,
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.get(path, builder) {
+    return this.get(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)
@@ -160,7 +156,7 @@ inline fun <reified T,
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.get(path, builder) {
+    return this.get(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)

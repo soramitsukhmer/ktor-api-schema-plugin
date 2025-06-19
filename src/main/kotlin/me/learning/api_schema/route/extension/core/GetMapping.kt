@@ -13,6 +13,7 @@ import me.learning.api_schema.dto.route.extension.get.GetDtoT2
 import me.learning.api_schema.dto.route.extension.get.GetDtoT3
 import me.learning.api_schema.dto.route.extension.tuple.Tuple2
 import me.learning.api_schema.dto.route.extension.tuple.Tuple3
+import me.learning.api_schema.extension.cleanRoutePath
 import me.learning.api_schema.extension.getApiSchemaBuilderProp
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.prop
@@ -22,7 +23,7 @@ inline fun <reified T> GetDto.map(
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
     val builder = route.schemaBuilder<T>()
-    return route.get(path, builder) {
+    return route.get(path.cleanRoutePath(), builder) {
         call.ok(call.request.block())
     }
 }
@@ -32,7 +33,7 @@ inline fun <reified T, reified T1 : Any> GetDtoT1<T1>.map(
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = route.schemaBuilder<T>(pathVariable = variable)
-    return route.get(path, builder) {
+    return route.get(path.cleanRoutePath(), builder) {
         val v1 = call.prop(p1, path).first
         call.ok(call.request.block(v1))
     }
@@ -43,7 +44,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2)).first
     val builder = route.schemaBuilder<T>(pathVariable = variable)
-    return route.get(path, builder) {
+    return route.get(path.cleanRoutePath(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val v2 = call.prop(p2, path, idx1).first
         call.ok(call.request.block(Tuple2(v1, v2)))
@@ -55,7 +56,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Get
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2, p3)).first
     val builder = route.schemaBuilder<T>(pathVariable = variable)
-    return route.get(path, builder) {
+    return route.get(path.cleanRoutePath(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val (v2, idx2) = call.prop(p2, path, idx1)
         val v3 = call.prop(p3, path, idx2).first
@@ -71,7 +72,7 @@ inline fun GetDto.map(
 ): Route {
     val builder = route.schemaBuilder<Unit>()
 
-    return route.get(path, builder) {
+    return route.get(path.cleanRoutePath(), builder) {
         val file = call.request.block()
         call.response.header(
             HttpHeaders.ContentDisposition,
@@ -90,7 +91,7 @@ inline fun <reified T1 : Any> GetDtoT1<T1>.map(
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = route.schemaBuilder<Unit>(pathVariable = variable)
-    return route.get(path, builder) {
+    return route.get(path.cleanRoutePath(), builder) {
         val v1 = call.prop(p1, path).first
         val file = call.request.block(v1)
         call.response.header(
@@ -110,7 +111,7 @@ inline fun <reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2)).first
     val builder = route.schemaBuilder<Unit>(pathVariable = variable)
-    return route.get(path, builder) {
+    return route.get(path.cleanRoutePath(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val v2 = call.prop(p2, path, idx1).first
         val file = call.request.block(Tuple2(v1, v2))
@@ -131,7 +132,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any> GetDtoT3<T1, T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2, p3)).first
     val builder = route.schemaBuilder<Unit>(pathVariable = variable)
-    return route.get(path, builder) {
+    return route.get(path.cleanRoutePath(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val (v2, idx2) = call.prop(p2, path, idx1)
         val v3 = call.prop(p3, path, idx2).first

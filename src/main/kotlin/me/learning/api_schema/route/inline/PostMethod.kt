@@ -9,21 +9,15 @@ import me.learning.api_schema.core.schemaBuilder
 import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
 import me.learning.api_schema.dto.route.inline.RouteProp
 import me.learning.api_schema.dto.route.inline.SchemaBuilderProp
+import me.learning.api_schema.extension.cleanRoutePath
 import me.learning.api_schema.extension.prop
 
-/**
- * Registers a POST route for the given path and executes the provided block for each incoming request.
- *
- * @param T The type of the response produced by the block.
- * @param path The URL path for the route. Defaults to an empty string, meaning it will match the current route.
- * @param block A suspendable lambda that handles the incoming request and produces a response.
- * @return The created route.
- */
+
 inline fun <reified T> Route.POST(
     path: String = "",
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    return this.post(path, schemaBuilder<T>()) {
+    return this.post(path.cleanRoutePath(), schemaBuilder<T>()) {
         call.ok(call.request.block())
     }
 }
@@ -42,7 +36,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POST(
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val p1 = call.prop<V1, T1>(path).first
         call.ok(call.request.block(p1))
     }
@@ -65,7 +59,7 @@ inline fun <reified T,
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val p2 = call.prop<V2, T2>(path, idx).first
         call.ok(call.request.block(p1, p2))
@@ -95,7 +89,7 @@ inline fun <reified T,
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val p3 = call.prop<V3, T3>(path, idx2).first
@@ -124,7 +118,7 @@ inline fun <reified T,
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)
@@ -162,7 +156,7 @@ inline fun <reified T,
         bodyFileAsList = prop.bodyFileAsList
     )
 
-    return this.post(path, builder) {
+    return this.post(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)
