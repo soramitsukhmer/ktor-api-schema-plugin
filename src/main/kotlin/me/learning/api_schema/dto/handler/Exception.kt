@@ -3,7 +3,9 @@ package me.learning.api_schema.dto.handler
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.dto.request.FileInfoReq
+import me.learning.api_schema.dto.route.inline.RouteProp
 import me.learning.api_schema.extension.ifTypeListOFFileInfoReq
+import me.learning.api_schema.extension.isRequestBody
 import java.io.File
 import kotlin.reflect.KClass
 
@@ -50,14 +52,8 @@ inline fun <reified T> MethodEnum.throwOnFileReqBody(path: String) {
     }.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported request body $it") }
 }
 
-inline fun <reified T : Any> MethodEnum.throwOnNotFileInfoReqBody(path: String) {
-    when (T::class) {
-        FileInfoReq::class -> return
-        else -> {
-            if (ifTypeListOFFileInfoReq<T>()) return
-
-            val clazz = listOf("FilesDataInfoReq", "FileDataInfoReq", "FileInfoReq", "List<FileInfoReq>")
-            throw IllegalArgumentException("Route path[$path], method[$this]: Supported only class type $clazz")
-        }
-    }
+fun MethodEnum.throwOnMultipleDataRequestBody(path: String, collection: List<KClass<*>>) {
+    collection.map(::isRequestBody).filter { it }
+        .takeIf { it.size > 1 }
+        .let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported multiple request body $it") }
 }

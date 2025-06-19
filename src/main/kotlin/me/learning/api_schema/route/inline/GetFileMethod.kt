@@ -19,21 +19,13 @@ import me.learning.api_schema.extension.prop
 import java.io.File
 import kotlin.reflect.KClass
 
-/**
- * Adds a GET route that serves a file as a downloadable attachment.
- * The response includes a `Content-Disposition` header, specifying the file's name.
- *
- * @param path The URI path for the route. Defaults to an empty string.
- * @param removeFileAfterProcessing If true, the file will be deleted from the server after it is sent. Defaults to false.
- * @param block A lambda function that returns the file to be served. This block is executed for each request.
- * @return The configured route.
- */
+
 inline fun Route.GETFILE(
     path: String = "",
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
-    return this.get(path, schemaBuilder<Void>()) {
+    return this.get(path, schemaBuilder<Unit>()) {
         val file = call.request.block()
         call.response.header(
             HttpHeaders.ContentDisposition,
@@ -74,7 +66,10 @@ inline fun <reified V : Any, reified T : RouteProp<V>> Route.GETFILE(
 }
 
 
-inline fun <reified V1 : Any, reified T1 : RouteProp<V1>, reified V2 : Any, reified T2 : RouteProp<V2>> Route.GETFILE(
+inline fun <
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>
+        > Route.GETFILE(
     path: String = "",
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, T2) -> File
@@ -132,6 +127,48 @@ inline fun <
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val p3 = call.prop<V3, T3>(path, idx2).first
         val file = call.request.block(p1, p2, p3)
+        call.response.header(
+            HttpHeaders.ContentDisposition,
+            "attachment; filename=\"${file.name}\""
+        )
+        call.respondFile(file)
+
+        if (removeFileAfterProcessing) file.delete()
+    }
+}
+
+
+inline fun <
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>,
+        reified V3 : Any, reified T3 : RouteProp<V3>,
+        reified V4 : Any, reified T4 : RouteProp<V4>
+        > Route.GETFILE(path: String = "", removeFileAfterProcessing: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> File
+): Route {
+    MethodEnum.GET.throwOnFileOrListTypeReqBody<V1>(path)
+    MethodEnum.GET.throwOnFileOrListTypeReqBody<V2>(path)
+    MethodEnum.GET.throwOnFileOrListTypeReqBody<V3>(path)
+    MethodEnum.GET.throwOnFileOrListTypeReqBody<V4>(path)
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class,
+        V4::class to T4::class,
+    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
+    val builder = schemaBuilder<Void>(
+        pathVariable = prop.pathVariable,
+        requestBody = prop.requestBody,
+        bodyAsFormData = prop.bodyAsFormData,
+        bodyFileAsList = prop.bodyFileAsList
+    )
+
+    return this.get(path, builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val (p2, idx2) = call.prop<V2, T2>(path, idx)
+        val (p3, idx3) = call.prop<V3, T3>(path, idx2)
+        val p4 = call.prop<V4, T4>(path, idx3).first
+        val file = call.request.block(p1, p2, p3, p4)
         call.response.header(
             HttpHeaders.ContentDisposition,
             "attachment; filename=\"${file.name}\""
