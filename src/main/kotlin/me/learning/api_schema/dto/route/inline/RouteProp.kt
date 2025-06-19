@@ -4,5 +4,5 @@ import me.learning.api_schema.common.RoutePropEnum
 
 interface RouteProp<T> {
     val type: RoutePropEnum
-    val dto: T
+    val body: T
 }
