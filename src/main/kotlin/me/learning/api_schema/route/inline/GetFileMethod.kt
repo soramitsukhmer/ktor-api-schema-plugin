@@ -8,10 +8,10 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.core.schemaBuilder
-import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
 import me.learning.api_schema.dto.route.inline.RouteProp
 import me.learning.api_schema.dto.route.inline.SchemaBuilderProp
 import me.learning.api_schema.extension.cleanRoutePath
+import me.learning.api_schema.extension.isRequestBody
 import me.learning.api_schema.extension.prop
 import java.io.File
 
@@ -21,7 +21,7 @@ inline fun Route.GETFILE(
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
-    return this.get(path.cleanRoutePath(), schemaBuilder<Unit>()) {
+    return this.get(path.cleanRoutePath(), schemaBuilder<Unit, Unit>()) {
         val file = call.request.block()
         call.response.header(
             HttpHeaders.ContentDisposition,
@@ -39,14 +39,11 @@ inline fun <reified V : Any, reified T : RouteProp<V>> Route.GETFILE(
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T) -> File
 ): Route {
-    MethodEnum.GET.throwOnFileOrListTypeReqBody<V>(path)
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, listOf(V::class to T::class))
-    val builder = schemaBuilder<Void>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = prop.bodyAsFormData,
-        bodyFileAsList = prop.bodyFileAsList
-    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, listOf(V::class to T::class))
+    val builder = when (true) {
+        isRequestBody<T>() -> schemaBuilder<Unit, V>()
+        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+    }
 
     return this.get(path.cleanRoutePath(), builder) {
         val p1 = call.prop<V, T>(path).first
@@ -70,16 +67,13 @@ inline fun <
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, T2) -> File
 ): Route {
-    MethodEnum.GET.throwOnFileOrListTypeReqBody<V1>(path)
-    MethodEnum.GET.throwOnFileOrListTypeReqBody<V2>(path)
     val collection = listOf(V1::class to T1::class, V2::class to T2::class)
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
-    val builder = schemaBuilder<Void>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = prop.bodyAsFormData,
-        bodyFileAsList = prop.bodyFileAsList
-    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(prop.pathVariable)
+        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(prop.pathVariable)
+        else -> schemaBuilder<Unit, Unit>(prop.pathVariable)
+    }
 
     return this.get(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
@@ -102,21 +96,18 @@ inline fun <
         reified V3 : Any, reified T3 : RouteProp<V3>
         > Route.GETFILE(path: String = "", removeFileAfterProcessing: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> File
 ): Route {
-    MethodEnum.GET.throwOnFileOrListTypeReqBody<V1>(path)
-    MethodEnum.GET.throwOnFileOrListTypeReqBody<V2>(path)
-    MethodEnum.GET.throwOnFileOrListTypeReqBody<V3>(path)
     val collection = listOf(
         V1::class to T1::class,
         V2::class to T2::class,
         V3::class to T3::class,
     )
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
-    val builder = schemaBuilder<Void>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = prop.bodyAsFormData,
-        bodyFileAsList = prop.bodyFileAsList
-    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(prop.pathVariable)
+        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(prop.pathVariable)
+        isRequestBody<T3>() -> schemaBuilder<Unit, V3>(prop.pathVariable)
+        else -> schemaBuilder<Unit, Unit>(prop.pathVariable)
+    }
 
     return this.get(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
@@ -141,23 +132,20 @@ inline fun <
         reified V4 : Any, reified T4 : RouteProp<V4>
         > Route.GETFILE(path: String = "", removeFileAfterProcessing: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> File
 ): Route {
-    MethodEnum.GET.throwOnFileOrListTypeReqBody<V1>(path)
-    MethodEnum.GET.throwOnFileOrListTypeReqBody<V2>(path)
-    MethodEnum.GET.throwOnFileOrListTypeReqBody<V3>(path)
-    MethodEnum.GET.throwOnFileOrListTypeReqBody<V4>(path)
     val collection = listOf(
         V1::class to T1::class,
         V2::class to T2::class,
         V3::class to T3::class,
         V4::class to T4::class,
     )
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
-    val builder = schemaBuilder<Void>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = prop.bodyAsFormData,
-        bodyFileAsList = prop.bodyFileAsList
-    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(prop.pathVariable)
+        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(prop.pathVariable)
+        isRequestBody<T3>() -> schemaBuilder<Unit, V3>(prop.pathVariable)
+        isRequestBody<T4>() -> schemaBuilder<Unit, V4>(prop.pathVariable)
+        else -> schemaBuilder<Unit, Unit>(prop.pathVariable)
+    }
 
     return this.get(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)

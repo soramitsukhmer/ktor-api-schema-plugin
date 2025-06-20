@@ -23,9 +23,4 @@ enum class RouteFormDataPropEnum {
     TEXT;
 
     fun isText() = this == TEXT
-    fun isFileAsList() = when (this) {
-        FILES -> true
-        FILE -> false
-        else -> throw IllegalArgumentException("Invalid file type")
-    }
 }

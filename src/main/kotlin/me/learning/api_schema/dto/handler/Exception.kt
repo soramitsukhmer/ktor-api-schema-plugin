@@ -3,8 +3,6 @@ package me.learning.api_schema.dto.handler
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.dto.request.FileInfoReq
-import me.learning.api_schema.dto.route.inline.RouteProp
-import me.learning.api_schema.extension.ifTypeListOFFileInfoReq
 import me.learning.api_schema.extension.isRequestBody
 import java.io.File
 import kotlin.reflect.KClass
@@ -36,16 +34,16 @@ fun MethodEnum.throwUnsupportedWhenPropExistedOnMethod(path: String, properties:
         ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported $onProp") }
 }
 
-inline fun <reified T> MethodEnum.throwOnFileOrListTypeReqBody(path: String) {
-    throwOnFileReqBody<T>(path)
+inline fun <reified T> MethodEnum.throwOnFileReqBody(path: String) {
     when (T::class) {
-        List::class -> "list type"
-        else -> return MethodEnum.GET.throwOnFileReqBody<T>(path)
+        FileInfoReq::class -> "file type"
+        File::class -> "file type"
+        else -> return
     }.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported request body $it") }
 }
 
-inline fun <reified T> MethodEnum.throwOnFileReqBody(path: String) {
-    when (T::class) {
+fun MethodEnum.throwOnFileReqBody(path: String, kClass: KClass<*>) {
+    when (kClass) {
         FileInfoReq::class -> "file type"
         File::class -> "file type"
         else -> return
@@ -55,5 +53,5 @@ inline fun <reified T> MethodEnum.throwOnFileReqBody(path: String) {
 fun MethodEnum.throwOnMultipleDataRequestBody(path: String, collection: List<KClass<*>>) {
     collection.map(::isRequestBody).filter { it }
         .takeIf { it.size > 1 }
-        .let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported multiple request body $it") }
+        ?.let { throw IllegalArgumentException("Route path[$path], method[$this]: Unsupported multiple request body $it") }
 }

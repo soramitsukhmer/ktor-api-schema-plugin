@@ -12,9 +12,8 @@ import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.common.MethodEnum
-import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
+import me.learning.api_schema.dto.handler.throwOnFileReqBody
 import me.learning.api_schema.dto.request.FileInfoReq
-import javax.swing.text.html.parser.Entity
 import kotlin.collections.joinToString
 import kotlin.reflect.KClass
 
@@ -147,7 +146,7 @@ suspend inline fun <reified T : Any> RoutingCall.prop(
         RoutePropEnum.AUTH -> auth(pair.first) to pathVarIndex
 
         RoutePropEnum.REQUEST_BODY -> {
-            method.throwOnFileOrListTypeReqBody<T>(path)
+            method.throwOnFileReqBody<T>(path)
             requestBody(pair.first) to pathVarIndex
         }
 
@@ -169,7 +168,7 @@ suspend inline fun <reified T : Any> RoutingCall.prop(
         RoutePropEnum.AUTH -> auth<T>() to pathVarIndex
 
         RoutePropEnum.REQUEST_BODY -> {
-            method.throwOnFileOrListTypeReqBody<T>(path)
+            method.throwOnFileReqBody<T>(path)
             requestBody<T>() to pathVarIndex
         }
 

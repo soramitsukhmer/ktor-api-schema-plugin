@@ -1,6 +1,9 @@
 package me.learning.api_schema.dto.route.inline
 
 import me.learning.api_schema.common.Helper.extractAllPathParameters
+import me.learning.api_schema.common.MethodEnum
+import me.learning.api_schema.dto.handler.throwOnFileReqBody
+import me.learning.api_schema.dto.handler.throwOnMultipleDataRequestBody
 import me.learning.api_schema.dto.route.inline.impl.PathVariable
 import me.learning.api_schema.dto.route.inline.impl.RequestBody
 import kotlin.reflect.KClass
@@ -8,12 +11,13 @@ import kotlin.reflect.KClass
 data class SchemaBuilderProp(
     val pathVariable: Map<String, KClass<*>>?,
     val requestBody: KClass<*>?,
-    val bodyAsFormData: Boolean = false,
-    val bodyFileAsList: Boolean = false,
 ) {
     companion object {
-        fun getSchemaBuilderProp(path: String, collection: List<Pair<KClass<*>, KClass<*>>>): SchemaBuilderProp {
-            val allPathVar = extractAllPathParameters(path)
+        fun getSchemaBuilderProp(method: MethodEnum, path: String, collection: List<Pair<KClass<*>, KClass<*>>>): SchemaBuilderProp {
+            method.throwOnMultipleDataRequestBody(path, collection.map { it.second })
+            collection.forEach { pair -> method.throwOnFileReqBody(path, pair.first) }
+
+            val paths = extractAllPathParameters(path)
             val p1 = mutableMapOf<String, KClass<*>>()
             var p2: KClass<*>? = null
             var idx = 0
@@ -22,7 +26,7 @@ data class SchemaBuilderProp(
                 when (pair.second) {
                     RequestBody::class -> p2 = pair.first
                     PathVariable::class -> {
-                        val name = allPathVar.getOrNull(idx) ?: ""
+                        val name = paths.getOrNull(idx) ?: ""
                         p1[name] = pair.first
                         idx++
                     }

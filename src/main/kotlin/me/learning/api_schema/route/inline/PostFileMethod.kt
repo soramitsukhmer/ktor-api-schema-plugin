@@ -6,8 +6,6 @@ import io.ktor.server.routing.RoutingRequest
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.core.schemaBuilder
-import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
-import me.learning.api_schema.dto.handler.throwOnMultipleDataRequestBody
 import me.learning.api_schema.dto.request.FileInfoReq
 import me.learning.api_schema.dto.route.extension.tuple.Tuple3
 import me.learning.api_schema.dto.route.extension.tuple.Tuple4
@@ -37,7 +35,7 @@ inline fun <reified T> Route.POSTFILE(
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(file: FileInfoReq) -> T
 ): Route {
-    val builder = schemaBuilder<T>(bodyAsFormData = true)
+    val builder = schemaBuilder<T, Unit>(bodyFileAsList = false)
 
     return this.post(path.cleanRoutePath(), builder) {
         val request = call.getFileRequest(false, extensions).first()
@@ -53,7 +51,7 @@ inline fun <reified T> Route.POSTFILES(
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(files: List<FileInfoReq>) -> T
 ): Route {
-    val builder = schemaBuilder<T>(bodyAsFormData = true, bodyFileAsList = true)
+    val builder = schemaBuilder<T, Unit>(bodyFileAsList = true)
 
     return this.post(path.cleanRoutePath(), builder) {
         val files = call.getFileRequest(true, extensions)
@@ -69,15 +67,11 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POSTF
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, file: FileInfoReq) -> T
 ): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
-
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, listOf(V1::class to T1::class))
-    val builder = schemaBuilder<T>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = true,
-        bodyFileAsList = false
-    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, listOf(V1::class to T1::class))
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(bodyFileAsList = false)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, bodyFileAsList = false)
+    }
 
     return this.post(path.cleanRoutePath(), builder) {
         val (file, p1) = when (isRequestBody<T1>()) {
@@ -97,15 +91,11 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POSTF
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, files: List<FileInfoReq>) -> T
 ): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
-
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, listOf(V1::class to T1::class))
-    val builder = schemaBuilder<T>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = true,
-        bodyFileAsList = true
-    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, listOf(V1::class to T1::class))
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(bodyFileAsList = true)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, bodyFileAsList = true)
+    }
 
     return this.post(path.cleanRoutePath(), builder) {
         val (files, p1) = when (isRequestBody<T1>()) {
@@ -128,18 +118,16 @@ inline fun <reified T,
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, T2, file: FileInfoReq) -> T
 ): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V2>(path)
-    MethodEnum.POST.throwOnMultipleDataRequestBody(path, listOf(T1::class, T2::class))
-
-    val collection = listOf(V1::class to T1::class, V2::class to T2::class)
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
-    val builder = schemaBuilder<T>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = true,
-        bodyFileAsList = false
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class
     )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable, bodyFileAsList = false)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable, bodyFileAsList = false)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, bodyFileAsList = false)
+    }
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
@@ -165,18 +153,16 @@ inline fun <reified T,
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, T2, files: List<FileInfoReq>) -> T
 ): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V2>(path)
-    MethodEnum.POST.throwOnMultipleDataRequestBody(path, listOf(T1::class, T2::class))
-
-    val collection = listOf(V1::class to T1::class, V2::class to T2::class)
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
-    val builder = schemaBuilder<T>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = true,
-        bodyFileAsList = true
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class
     )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable, bodyFileAsList = true)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable, bodyFileAsList = true)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, bodyFileAsList = true)
+    }
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
@@ -203,19 +189,18 @@ inline fun <reified T,
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, T2, T3, file: FileInfoReq) -> T
 ): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V2>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V3>(path)
-    MethodEnum.POST.throwOnMultipleDataRequestBody(path, listOf(T1::class, T2::class, T3::class))
-
-    val collection = listOf(V1::class to T1::class, V2::class to T2::class, V3::class to T3::class)
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
-    val builder = schemaBuilder<T>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = true,
-        bodyFileAsList = false
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class
     )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable, bodyFileAsList = false)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable, bodyFileAsList = false)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable, bodyFileAsList = false)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, bodyFileAsList = false)
+    }
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
@@ -258,19 +243,18 @@ inline fun <reified T,
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, T2, T3, file: List<FileInfoReq>) -> T
 ): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V2>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V3>(path)
-    MethodEnum.POST.throwOnMultipleDataRequestBody(path, listOf(T1::class, T2::class, T3::class))
-
-    val collection = listOf(V1::class to T1::class, V2::class to T2::class, V3::class to T3::class)
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
-    val builder = schemaBuilder<T>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = true,
-        bodyFileAsList = true
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class
     )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable, bodyFileAsList = true)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable, bodyFileAsList = true)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable, bodyFileAsList = true)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, bodyFileAsList = true)
+    }
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
@@ -314,20 +298,20 @@ inline fun <reified T,
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, file: FileInfoReq) -> T
 ): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V2>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V3>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V4>(path)
-    MethodEnum.POST.throwOnMultipleDataRequestBody(path, listOf(T1::class, T2::class, T3::class, T4::class))
-
-    val collection = listOf(V1::class to T1::class, V2::class to T2::class, V3::class to T3::class, V4::class to T4::class)
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
-    val builder = schemaBuilder<T>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = true,
-        bodyFileAsList = false
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class,
+        V4::class to T4::class
     )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable, bodyFileAsList = false)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable, bodyFileAsList = false)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable, bodyFileAsList = false)
+        isRequestBody<T4>() -> schemaBuilder<T, V4>(prop.pathVariable, bodyFileAsList = false)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, bodyFileAsList = false)
+    }
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
@@ -381,20 +365,21 @@ inline fun <reified T,
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, files: List<FileInfoReq>) -> T
 ): Route {
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V1>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V2>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V3>(path)
-    MethodEnum.POST.throwOnFileOrListTypeReqBody<V4>(path)
-    MethodEnum.POST.throwOnMultipleDataRequestBody(path, listOf(T1::class, T2::class, T3::class, T4::class))
-
-    val collection = listOf(V1::class to T1::class, V2::class to T2::class, V3::class to T3::class, V4::class to T4::class)
-    val prop = SchemaBuilderProp.getSchemaBuilderProp(path, collection)
-    val builder = schemaBuilder<T>(
-        pathVariable = prop.pathVariable,
-        requestBody = prop.requestBody,
-        bodyAsFormData = true,
-        bodyFileAsList = true
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class,
+        V4::class to T4::class
     )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable, bodyFileAsList = true)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable, bodyFileAsList = true)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable, bodyFileAsList = true)
+        isRequestBody<T4>() -> schemaBuilder<T, V4>(prop.pathVariable, bodyFileAsList = true)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, bodyFileAsList = true)
+    }
+
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {

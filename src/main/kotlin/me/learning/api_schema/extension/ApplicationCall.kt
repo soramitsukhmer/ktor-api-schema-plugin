@@ -9,7 +9,6 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.*
-import io.ktor.server.routing.RoutingCall
 import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.common.Helper.invalidAuthentication
@@ -138,7 +137,3 @@ suspend inline fun <reified T : Any, reified I : RouteProp<T>> ApplicationCall.p
         else -> throw IllegalArgumentException("Unsupported RouteProp type: ${I::class}")
     } as I to idx
 }
-
-inline fun <reified T : RouteProp<*>> isRequestBody() = T::class == RequestBody::class
-
-fun isRequestBody(routeProp: KClass<*>) = routeProp::class == RequestBody::class

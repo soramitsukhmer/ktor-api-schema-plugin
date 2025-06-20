@@ -3,7 +3,7 @@ package me.learning.api_schema.dto.route.extension.put
 import io.ktor.server.routing.Route
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.common.RoutePropEnum
-import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
+import me.learning.api_schema.dto.handler.throwOnFileReqBody
 import me.learning.api_schema.dto.handler.throwOnInvalidTypeOfPathVariable
 import me.learning.api_schema.dto.handler.throwOnMethodGetRequestBody
 import me.learning.api_schema.dto.handler.throwOnMultipleProp
@@ -42,7 +42,7 @@ data class PutDtoT3<T1 : Any, T2 : Any, T3 : Any>(
     }
 
     inline fun <reified T : Any> requestBody(): PutDtoT4<T1, T2, T3, T> {
-        MethodEnum.PUT.throwOnFileOrListTypeReqBody<T>(path)
+        MethodEnum.PUT.throwOnFileReqBody<T>(path)
         return addProp(Pair(T::class, RoutePropEnum.REQUEST_BODY))
     }
 }

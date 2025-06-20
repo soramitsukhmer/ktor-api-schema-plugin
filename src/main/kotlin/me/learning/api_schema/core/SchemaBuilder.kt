@@ -20,37 +20,44 @@ fun Route.hasAuth(): Boolean {
  * The schema can include path variables, request bodies, and multipart form-data handling.
  *
  * @param T The response type for the defined schema ResponseWrapper<T>.
+ * @param I The class type of the request body if required.
  * @param pathVariable A map specifying the path variables and their respective classes. Default is null.
- * @param requestBody The class type of the request body if required. Default is null.
- * @param bodyAsFormData Whether the request body should be treated as multipart form-data. Default is false.
- * @param bodyFileAsList Determines if the multipart form-data should treat the file as a list of `File` objects. Default is false.
+ * @param bodyFileAsList Determines if the multipart form-data should treat the file as a list of `File` objects. Default is null.
  * @return A lambda function to configure the route's schema.
  */
 
-inline fun <reified T> Route.schemaBuilder(
+
+inline fun <reified T, reified I> Route.schemaBuilder(
     pathVariable: Map<String, KClass<*>>? = null,
-    requestBody: KClass<*>? = null,
-    bodyAsFormData: Boolean = false,
-    bodyFileAsList: Boolean = false,
+    bodyFileAsList: Boolean? = null,
 ): RouteConfig.() -> Unit = {
 
     if (hasAuth()) securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
 
     request {
-        if (!bodyAsFormData) {
-            // raw
-            pathVariable?.let { it.forEach { (key, value) -> pathParameter(key, value.asKType()) } }
-            requestBody?.asKType()?.let(::body)
-        } else {
-            // form-data
+        bodyFileAsList?.let { fileAsList ->
+            // form-data request body
             multipartBody {
                 mediaTypes(ContentType.MultiPart.FormData)
-                requestBody?.let { req -> part("data", req.asKType()) }
-                if (bodyFileAsList) {
-                    part<Array<File>>("files") { required = true }
-                } else {
-                    part<File>("file") { required = true }
+                when (T::class) {
+                    Nothing::class -> {}
+                    Unit::class -> {}
+                    Void::class -> {}
+                    else -> part<I>("data")
                 }
+                when (fileAsList) {
+                    true -> part<List<File>>("files") { required = true }
+                    false -> part<File>("file") { required = true }
+                }
+            }
+        } ?: kotlin.run {
+            // raw request body
+            pathVariable?.let { it.forEach { (key, value) -> pathParameter(key, value.asKType()) } }
+            when (T::class) {
+                Nothing::class -> {}
+                Unit::class -> {}
+                Void::class -> {}
+                else -> body<I>()
             }
         }
     }
