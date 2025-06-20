@@ -85,20 +85,23 @@ data class Request(
 ```
 // Get Method
 import me.learning.api_schema.route.inline.GET
+import me.learning.api_schema.dto.route.inline.impl.RequestBody
 
-GET { auth: UserAuth -> ... }
+GET { auth: Auth<UserAuth> -> ... }
 
 
 // Post Method
 import me.learning.api_schema.route.inline.POST
+import me.learning.api_schema.dto.route.inline.impl.RequestBody
 
-POST { auth: UserAuth, request: Reauest -> ... }
+POST { auth: Auth<UserAuth>, requestBody: RequestBody<Reauest> -> ... }
 
 
 // Put Method
-import me.learning.api_schema.route.inline.PUT
+import me.learning.api_schema.route.inline.POST
+import me.learning.api_schema.dto.route.inline.impl.RequestBody
 
-PUT { auth: UserAuth, requestBody: UserBodyUpdateReq -> ... }
+PUT { auth: Auth<UserAuth>, requestBody: RequestBody<UserBodyUpdateReq> -> ... }
 ```
 
 ### Usage [Extension function]
