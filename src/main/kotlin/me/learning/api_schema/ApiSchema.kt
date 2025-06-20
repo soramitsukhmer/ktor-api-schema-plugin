@@ -4,21 +4,16 @@ import io.github.smiley4.ktoropenapi.OpenApi
 import io.github.smiley4.ktoropenapi.config.AuthScheme
 import io.github.smiley4.ktoropenapi.config.AuthType
 import io.github.smiley4.ktoropenapi.config.SchemaGenerator
-import io.github.smiley4.ktoropenapi.openApi
-import io.github.smiley4.ktorredoc.redoc
-import io.github.smiley4.ktorswaggerui.swaggerUI
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.install
 import io.ktor.server.application.pluginOrNull
-import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import me.learning.api_schema.common.Constant.SECURITY_BEARER_SCHEMA_NAME
-import me.learning.api_schema.extension.mergeRoute
 import me.learning.api_schema.config.ApiSchemaConfig
 import me.learning.api_schema.plugin.configureSerialization
 import me.learning.api_schema.plugin.exceptionConfigPlugin
 import me.learning.api_schema.plugin.requestValidatorConfigPlugin
-import me.learning.api_schema.route.docs.download
+import me.learning.api_schema.route.docs.documentRoute
 
 /**
  * Configures an API schema plugin for a Ktor application. This plugin integrates a variety of features
@@ -87,37 +82,6 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
             }
         }
 
-        val baseRoute = pluginConfig.getRouteBuilder()
-
-        this.application.routing {
-            route(baseRoute) {
-                println(">>> expose endpoint json api schema: $baseRoute")
-                openApi()
-            }
-
-            if (pluginConfig.download.enabled) {
-                val route = pluginConfig.download.getFullPath(baseRoute)
-                route(route) {
-                    println(">>> expose endpoint download json api schema: $route")
-                    download(pluginConfig.download, pluginConfig.info.title)
-                }
-            }
-
-            if (pluginConfig.swagger.enabled) {
-                val route = pluginConfig.swagger.path.mergeRoute(baseRoute, pluginConfig.defaultSwaggerPath)
-                route(route) {
-                    println(">>> expose endpoint swagger schema: $route")
-                    swaggerUI(baseRoute)
-                }
-            }
-
-            if (pluginConfig.redoc.enabled) {
-                val route = pluginConfig.redoc.path.mergeRoute(baseRoute, pluginConfig.defaultRoute)
-                route(route) {
-                    println(">>> expose endpoint redoc schema: $route")
-                    redoc(baseRoute)
-                }
-            }
-        }
+        application.routing { documentRoute(pluginConfig) }
     }
 }

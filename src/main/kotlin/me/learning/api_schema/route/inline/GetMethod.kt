@@ -3,184 +3,155 @@ package me.learning.api_schema.route.inline
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
-import me.learning.api_schema.common.Helper.extractAllPathParameters
-import me.learning.api_schema.extension.auth
-import me.learning.api_schema.extension.getPathVariable
+import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.core.schemaBuilder
-import kotlin.reflect.KClass
+import me.learning.api_schema.dto.route.inline.RouteProp
+import me.learning.api_schema.dto.route.inline.SchemaBuilderProp
+import me.learning.api_schema.extension.cleanRoutePath
+import me.learning.api_schema.extension.isRequestBody
+import me.learning.api_schema.extension.prop
 
 
-/**
- * Defines a GET route that processes requests without authentication. The route handler processes
- * the incoming request and returns a response of type [T].
- *
- * @param T The type of the response body.
- * @param path The path pattern for the route. Defaults to an empty string.
- * @param block A suspendable lambda function that processes the request and produces a response of type [T].
- * @return The configured [Route] instance.
- */
 inline fun <reified T> Route.GET(
     path: String = "",
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    return this.get(path = path, schemaBuilder<T>()) {
+    return this.get(path.cleanRoutePath(), schemaBuilder<T, Unit>()) {
         call.ok(call.request.block())
     }
 }
 
 
-/**
- * Defines a GET route with a single path parameter handled dynamically.
- * This method allows for type-safe path extraction and returns a response of type [T].
- *
- * @param T The type of the response body.
- * @param I The type of the path parameter.
- * @param path The URL path for the route. Defaults to an empty string. The path can include placeholders
- *             for path variables in the format `{variable}`.
- * @param pathI The [KClass] representing the type of the path variable.
- * @param block A suspendable lambda function that processes the extracted path variable ([varI])
- *              and returns a response of type [T].
- * @return The configured [Route] instance.
- */
-inline fun <reified T : Any, reified I : Any> Route.GET(
+inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.GET(
     path: String = "",
-    pathI: KClass<I>,
-    crossinline block: suspend RoutingRequest.(varI: I) -> T
+    crossinline block: suspend RoutingRequest.(T1) -> T
 ): Route {
-    val allPathVar = extractAllPathParameters(path)
-    val pathVarI = allPathVar.firstOrNull() ?: ""
-    val pathVar = mapOf(pathVarI to I::class)
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, listOf(V1::class to T1::class))
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>()
+        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+    }
 
-    return get(path, schemaBuilder<T>(pathVariable = pathVar)) {
-        val valueI = call.getPathVariable(pathI, pathVarI)
-        call.ok(call.request.block(valueI))
+    return this.get(path.cleanRoutePath(), builder) {
+        val p1 = call.prop<V1, T1>(path).first
+        call.ok(call.request.block(p1))
     }
 }
 
 
-/**
- * Defines a GET route with optional authentication and response handling.
- *
- * @param T The type of the response body.
- * @param I The type of the authentication object.
- * @param path The URL path for the GET route. Default is an empty string.
- * @param block A lambda function that takes the authentication object of type [I]
- * and returns the response object of type [T].
- * @return The configured [Route] instance.
- */
-inline fun <reified T : Any, reified I : Any> Route.GET(
-    path: String = "",
-    crossinline block: suspend RoutingRequest.(auth: I) -> T
+inline fun <reified T,
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>
+        > Route.GET(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2) -> T
 ): Route {
-    return get(path, schemaBuilder<T>()) {
-        val auth = call.auth<I>()
-        call.ok(call.request.block(auth))
+    val collection = listOf(V1::class to T1::class, V2::class to T2::class)
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+    }
+
+    return this.get(path.cleanRoutePath(), builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val p2 = call.prop<V2, T2>(path, idx).first
+        call.ok(call.request.block(p1, p2))
     }
 }
 
 
-/**
- * Defines a GET route with authentication and a path parameter.
- *
- * @param T The type of the response body.
- * @param I The type of the authentication object.
- * @param J The type of the path variable.
- * @param path The URL path for the GET route. Defaults to an empty string. The path can include
- * placeholders for path variables in the format `{variable}`.
- * @param block A suspendable lambda function that takes the authentication object of type [I]
- * and the path parameter of type [J], and returns the response object of type [T].
- * @return The configured [Route] instance.
- */
-inline fun <reified T : Any, reified I : Any, reified J : Any> Route.GET(
-    path: String = "",
-    crossinline block: suspend RoutingRequest.(auth: I, varJ: J) -> T
+inline fun <reified T,
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>,
+        reified V3 : Any, reified T3 : RouteProp<V3>
+        > Route.GET(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
 ): Route {
-    val allPathVar = extractAllPathParameters(path)
-    val pathVarJ = allPathVar.firstOrNull() ?: ""
-    val pathVar = mapOf(pathVarJ to J::class)
-
-    return get(path, schemaBuilder<T>(pathVariable = pathVar)) {
-        val auth = call.auth<I>()
-        val valueJ = call.getPathVariable<J>(pathVarJ)
-        call.ok(call.request.block(auth, valueJ))
-    }
-}
-
-
-/**
- * Defines a GET route with customizable path parameters and authentication.
- * This route allows for type-safe handling of authentication and up to two path parameters.
- * The response is generated using the provided lambda function, which processes the authenticated user
- * and parsed path parameters to produce a result of type [T].
- *
- * @param T The type of the response body.
- * @param I The type of the authentication object.
- * @param J The type of the first path parameter.
- * @param K The type of the second path parameter.
- * @param path The endpoint path for the GET route. Defaults to an empty string.
- *             The path can contain placeholders for path variables in the format `{variable}`.
- * @param block A suspendable lambda function that takes the authenticated user
- *              ([I]) and parsed values of the path parameters ([J] and [K])
- *              as inputs and produces a response of type [T].
- * @return The configured [Route] instance.
- */
-inline fun <reified T : Any, reified I : Any, reified J : Any, reified K : Any> Route.GET(
-    path: String = "",
-    crossinline block: suspend RoutingRequest.(auth: I, varJ: J, varK: K) -> T
-): Route {
-    val allPathVar = extractAllPathParameters(path)
-    val pathVarJ = allPathVar.firstOrNull() ?: ""
-    val pathVarK = allPathVar.getOrNull(1) ?: ""
-    val pathVar = mapOf(
-        pathVarJ to J::class,
-        pathVarK to K::class,
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class
     )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+    }
 
-    return get(path, schemaBuilder<T>(pathVariable = pathVar)) {
-        val auth = call.auth<I>()
-        val valueJ = call.getPathVariable<J>(pathVarJ)
-        val valueK = call.getPathVariable<K>(pathVarK)
-        call.ok(call.request.block(auth, valueJ, valueK))
+    return this.get(path.cleanRoutePath(), builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val (p2, idx2) = call.prop<V2, T2>(path, idx)
+        val p3 = call.prop<V3, T3>(path, idx2).first
+        call.ok(call.request.block(p1, p2, p3))
     }
 }
 
 
-/**
- * Defines a GET route with customizable path parameters and authentication.
- * This method allows handling multiple path parameters and type-safe parsing of values.
- *
- * @param T The type of the response body.
- * @param I The type of the authentication object.
- * @param J The type of the first path variable.
- * @param K The type of the second path variable.
- * @param L The type of the third path variable.
- * @param path The path pattern for the route. Defaults to an empty string. The path can include
- * placeholders for path variables in the format `{variable}`.
- * @param block A suspendable lambda function defining the behavior of the route. It accepts the
- * authentication object ([I]), the parsed values of the first, second, and third path variables
- * ([J], [K], and [L]), and produces a response of type [T].
- * @return The configured [Route] instance.
- */
-inline fun <reified T : Any, reified I : Any, reified J : Any, reified K : Any, reified L : Any> Route.GET(
-    path: String = "",
-    crossinline block: suspend RoutingRequest.(auth: I, varJ: J, varK: K, varL: L) -> T
+inline fun <reified T,
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>,
+        reified V3 : Any, reified T3 : RouteProp<V3>,
+        reified V4 : Any, reified T4 : RouteProp<V4>
+        > Route.GET(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
 ): Route {
-    val allPathVar = extractAllPathParameters(path)
-    val pathVarJ = allPathVar.firstOrNull() ?: ""
-    val pathVarK = allPathVar.getOrNull(1) ?: ""
-    val pathVarL = allPathVar.getOrNull(2) ?: ""
-    val pathVar = mapOf(
-        pathVarJ to J::class,
-        pathVarK to K::class,
-        pathVarL to L::class,
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class,
+        V4::class to T4::class
     )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable)
+        isRequestBody<T4>() -> schemaBuilder<T, V4>(prop.pathVariable)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+    }
 
-    return get(path, schemaBuilder<T>(pathVariable = pathVar)) {
-        val auth = call.auth<I>()
-        val valueJ = call.getPathVariable<J>(pathVarJ)
-        val valueK = call.getPathVariable<K>(pathVarK)
-        val valueL = call.getPathVariable<L>(pathVarL)
-        call.ok(call.request.block(auth, valueJ, valueK, valueL))
+    return this.get(path.cleanRoutePath(), builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val (p2, idx2) = call.prop<V2, T2>(path, idx)
+        val (p3, idx3) = call.prop<V3, T3>(path, idx2)
+        val p4 = call.prop<V4, T4>(path, idx3).first
+        call.ok(call.request.block(p1, p2, p3, p4))
+    }
+}
+
+
+inline fun <reified T,
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>,
+        reified V3 : Any, reified T3 : RouteProp<V3>,
+        reified V4 : Any, reified T4 : RouteProp<V4>,
+        reified V5 : Any, reified T5 : RouteProp<V5>
+        > Route.GET(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
+): Route {
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class,
+        V4::class to T4::class,
+        V5::class to T5::class
+    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable)
+        isRequestBody<T4>() -> schemaBuilder<T, V4>(prop.pathVariable)
+        isRequestBody<T5>() -> schemaBuilder<T, V5>(prop.pathVariable)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+    }
+
+    return this.get(path.cleanRoutePath(), builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val (p2, idx2) = call.prop<V2, T2>(path, idx)
+        val (p3, idx3) = call.prop<V3, T3>(path, idx2)
+        val (p4, idx4) = call.prop<V4, T4>(path, idx3)
+        val p5 = call.prop<V5, T5>(path, idx4).first
+        call.ok(call.request.block(p1, p2, p3, p4, p5))
     }
 }

@@ -3,28 +3,35 @@ package me.learning.api_schema.route.extension.core
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
+import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.core.schemaBuilder
 import me.learning.api_schema.dto.request.FileInfoReq
-import me.learning.api_schema.dto.route.file.PostFileDtoT1
-import me.learning.api_schema.dto.route.file.PostFileDtoT2
-import me.learning.api_schema.dto.route.file.PostFileDtoT3
-import me.learning.api_schema.dto.route.post.PostDto
-import me.learning.api_schema.dto.route.post.PostDtoT1
-import me.learning.api_schema.dto.route.post.PostDtoT2
-import me.learning.api_schema.dto.route.tuple.Tuple2
-import me.learning.api_schema.dto.route.tuple.Tuple3
+import me.learning.api_schema.dto.route.extension.file.PostFileDtoT1
+import me.learning.api_schema.dto.route.extension.file.PostFileDtoT2
+import me.learning.api_schema.dto.route.extension.file.PostFileDtoT3
+import me.learning.api_schema.dto.route.extension.post.PostDto
+import me.learning.api_schema.dto.route.extension.post.PostDtoT1
+import me.learning.api_schema.dto.route.extension.post.PostDtoT2
+import me.learning.api_schema.dto.route.extension.tuple.Tuple2
+import me.learning.api_schema.dto.route.extension.tuple.Tuple3
 import me.learning.api_schema.extension.auth
+import me.learning.api_schema.extension.cleanRoutePath
+import me.learning.api_schema.extension.getApiSchemaBuilderProp
 import me.learning.api_schema.extension.getFileDataRequest
 import me.learning.api_schema.extension.getFileRequest
+import me.learning.api_schema.extension.isRequestBody
+import me.learning.api_schema.extension.isText
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.prop
+import kotlin.Pair
+import kotlin.reflect.KClass
 
 
 inline fun <reified T> PostDto.map(
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    val builder = route.schemaBuilder<T>()
-    return route.post(path, builder) {
+    val builder = route.schemaBuilder<T, Unit>()
+    return route.post(path.cleanRoutePath(), builder) {
         call.ok(call.request.block())
     }
 }
@@ -32,9 +39,13 @@ inline fun <reified T> PostDto.map(
 inline fun <reified T, reified T1 : Any> PostDtoT1<T1>.map(
     crossinline block: suspend RoutingRequest.(v1: T1) -> T
 ): Route {
-    val requestBody = p1.first.takeIf { p1.second.isRequestBody() }
-    val builder = route.schemaBuilder<T>(requestBody = requestBody)
-    return route.post(path, builder) {
+    val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
+    val builder = when (true) {
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>()
+        else -> route.schemaBuilder<T, Unit>(variable)
+    }
+
+    return route.post(path.cleanRoutePath(), builder) {
         val v1 = call.prop(p1, path).first
         call.ok(call.request.block(v1))
     }
@@ -43,9 +54,14 @@ inline fun <reified T, reified T1 : Any> PostDtoT1<T1>.map(
 inline fun <reified T, reified T1 : Any, reified T2 : Any> PostDtoT2<T1, T2>.map(
     crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> T
 ): Route {
-    val requestBody = p2.first.takeIf { p2.second.isRequestBody() } ?: p1.first.takeIf { p1.second.isRequestBody() }
-    val builder = route.schemaBuilder<T>(requestBody = requestBody)
-    return route.post(path, builder) {
+    val variable = path.getApiSchemaBuilderProp(listOf(p1, p2)).first
+    val builder = when (true) {
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable)
+        else -> route.schemaBuilder<T, Unit>(variable)
+    }
+
+    return route.post(path.cleanRoutePath(), builder) {
         val v1 = call.prop(p1, path).first
         val v2 = call.prop(p2, path).first
         call.ok(call.request.block(Tuple2(v1, v2)))
@@ -56,10 +72,10 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> PostDtoT2<T1, T2>.map
 
 @JvmName("PostFileBuilderT1_FileInfoReq")
 inline fun <reified T> PostFileDtoT1<FileInfoReq>.map(
-    crossinline block: suspend RoutingRequest.(v1: FileInfoReq) -> T
+    crossinline block: suspend RoutingRequest.(t1: FileInfoReq) -> T
 ): Route {
-    val builder = route.schemaBuilder<T>(bodyAsFormData = true, bodyFileAsList = false)
-    return route.post(path, builder) {
+    val builder = route.schemaBuilder<T, Unit>(bodyFileAsList = false)
+    return route.post(path.cleanRoutePath(), builder) {
         val files = call.getFileRequest(true, extensions)
 
         call.ok(call.request.block(files.first()))
@@ -69,10 +85,10 @@ inline fun <reified T> PostFileDtoT1<FileInfoReq>.map(
 
 @JvmName("PostFileBuilderT1_List_FileInfoReq")
 inline fun <reified T> PostFileDtoT1<List<FileInfoReq>>.map(
-    crossinline block: suspend RoutingRequest.(v1: List<FileInfoReq>) -> T
+    crossinline block: suspend RoutingRequest.(t1: List<FileInfoReq>) -> T
 ): Route {
-    val builder = route.schemaBuilder<T>(bodyAsFormData = true, bodyFileAsList = true)
-    return route.post(path, builder) {
+    val builder = route.schemaBuilder<T, Unit>(bodyFileAsList = true)
+    return route.post(path.cleanRoutePath(), builder) {
         val files = call.getFileRequest(true, extensions)
 
         call.ok(call.request.block(files))
@@ -84,9 +100,12 @@ inline fun <reified T> PostFileDtoT1<List<FileInfoReq>>.map(
 inline fun <reified T, reified T2 : Any> PostFileDtoT2<FileInfoReq, T2>.map(
     crossinline block: RoutingRequest.(t2: Tuple2<FileInfoReq, T2>) -> T
 ): Route {
-    val requestBody = p2.first.takeIf { p2.second.isText() }
-    val builder = route.schemaBuilder<T>(requestBody = requestBody, bodyAsFormData = true, bodyFileAsList = false)
-    return route.post(path, builder) {
+    val builder = when (true) {
+        p2.isText() -> route.schemaBuilder<T, T2>(bodyFileAsList = false)
+        else -> route.schemaBuilder<T, Unit>(bodyFileAsList = false)
+    }
+
+    return route.post(path.cleanRoutePath(), builder) {
         val tuple2 = when (p2.second.isText()) {
             true -> call.getFileDataRequest<T2>(false, extensions).let { Tuple2(it.first.first(), it.second) }
             false -> call.getFileRequest(false, extensions).first().let { Tuple2(it, call.auth<T2>()) }
@@ -101,9 +120,12 @@ inline fun <reified T, reified T2 : Any> PostFileDtoT2<FileInfoReq, T2>.map(
 inline fun <reified T, reified T2 : Any> PostFileDtoT2<List<FileInfoReq>, T2>.map(
     crossinline block: RoutingRequest.(t2: Tuple2<List<FileInfoReq>, T2>) -> T
 ): Route {
-    val requestBody = p2.first.takeIf { p2.second.isText() }
-    val builder = route.schemaBuilder<T>(requestBody = requestBody, bodyAsFormData = true, bodyFileAsList = true)
-    return route.post(path, builder) {
+    val builder = when (true) {
+        p2.isText() -> route.schemaBuilder<T, T2>(bodyFileAsList = true)
+        else -> route.schemaBuilder<T, Unit>(bodyFileAsList = true)
+    }
+
+    return route.post(path.cleanRoutePath(), builder) {
         val tuple2 = when (p2.second.isText()) {
             true -> call.getFileDataRequest<T2>(false, extensions).let { Tuple2(it.first, it.second) }
             false -> Tuple2(call.getFileRequest(false, extensions), call.auth<T2>())
@@ -118,9 +140,13 @@ inline fun <reified T, reified T2 : Any> PostFileDtoT2<List<FileInfoReq>, T2>.ma
 inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<FileInfoReq, T2, T3>.map(
     crossinline block: RoutingRequest.(t2: Tuple3<FileInfoReq, T2, T3>) -> T
 ): Route {
-    val requestBody = p2.first.takeIf { p2.second.isText() } ?: p3.first.takeIf { p3.second.isText() }
-    val builder = route.schemaBuilder<T>(requestBody = requestBody, bodyAsFormData = true, bodyFileAsList = false)
-    return route.post(path, builder) {
+    val builder = when (true) {
+        p2.isText() -> route.schemaBuilder<T, T2>(bodyFileAsList = false)
+        p3.isText() -> route.schemaBuilder<T, T3>(bodyFileAsList = false)
+        else -> route.schemaBuilder<T, Unit>(bodyFileAsList = false)
+    }
+
+    return route.post(path.cleanRoutePath(), builder) {
         val tuple3 = when (p2.second.isText()) {
             true -> call.getFileDataRequest<T2>(false, extensions)
                 .let { Tuple3(it.first.first(), it.second, call.auth<T3>()) }
@@ -137,9 +163,13 @@ inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<FileInf
 inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<List<FileInfoReq>, T2, T3>.map(
     crossinline block: RoutingRequest.(t2: Tuple3<List<FileInfoReq>, T2, T3>) -> T
 ): Route {
-    val requestBody = p2.first.takeIf { p2.second.isText() } ?: p3.first.takeIf { p3.second.isText() }
-    val builder = route.schemaBuilder<T>(requestBody = requestBody, bodyAsFormData = true, bodyFileAsList = true)
-    return route.post(path, builder) {
+    val builder = when (true) {
+        p2.isText() -> route.schemaBuilder<T, T2>(bodyFileAsList = true)
+        p3.isText() -> route.schemaBuilder<T, T3>(bodyFileAsList = true)
+        else -> route.schemaBuilder<T, Unit>(bodyFileAsList = true)
+    }
+
+    return route.post(path.cleanRoutePath(), builder) {
         val tuple3 = when (p2.second.isText()) {
             true -> call.getFileDataRequest<T2>(false, extensions)
                 .let { Tuple3(it.first, it.second, call.auth<T3>()) }

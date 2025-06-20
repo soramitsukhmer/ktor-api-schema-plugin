@@ -1,4 +1,4 @@
-package me.learning.api_schema.dto.route.tuple
+package me.learning.api_schema.dto.route.extension.tuple
 
 data class Tuple6<T1 : Any, T2 : Any, T3 : Any, T4 : Any, T5 : Any, T6 : Any>(
     val t1: T1,

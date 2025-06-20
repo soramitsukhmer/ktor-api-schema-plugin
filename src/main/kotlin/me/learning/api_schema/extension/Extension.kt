@@ -5,7 +5,11 @@ import io.ktor.util.cio.writeChannel
 import io.ktor.util.reflect.typeInfo
 import io.ktor.utils.io.copyAndClose
 import me.learning.api_schema.common.Helper.badRequest
+import me.learning.api_schema.common.RouteFormDataPropEnum
+import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.dto.request.FileInfoReq
+import me.learning.api_schema.dto.route.inline.RouteProp
+import me.learning.api_schema.dto.route.inline.impl.RequestBody
 import me.learning.api_schema.utils.JacksonObjMapper.objectMapper
 import me.learning.api_schema.utils.fromMapToClass
 import java.io.File
@@ -60,3 +64,16 @@ suspend inline fun <reified T> PartData.FormItem.getRequest(existed: Boolean): T
 
     return receiveRequestBody(T::class.simpleName) { value.ct(T::class.java) }
 }
+
+
+inline fun <reified T : RouteProp<*>> isRequestBody() = T::class == RequestBody::class
+
+fun isRequestBody(routeProp: KClass<*>) = routeProp::class == RequestBody::class
+
+fun Pair<KClass<*>, RoutePropEnum>.isRequestBody() = second.isRequestBody()
+
+fun Pair<KClass<*>, RouteFormDataPropEnum>.isText() = second.isText()
+
+inline fun <reified T> isListType() = T::class == List::class
+
+fun isListType(kClass: KClass<*>) = kClass == List::class

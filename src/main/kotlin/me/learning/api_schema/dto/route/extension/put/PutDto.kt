@@ -1,9 +1,9 @@
-package me.learning.api_schema.dto.route.put
+package me.learning.api_schema.dto.route.extension.put
 
 import io.ktor.server.routing.Route
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.common.RoutePropEnum
-import me.learning.api_schema.dto.handler.throwOnFileOrListTypeReqBody
+import me.learning.api_schema.dto.handler.throwOnFileReqBody
 import me.learning.api_schema.dto.handler.throwOnInvalidTypeOfPathVariable
 import kotlin.reflect.KClass
 
@@ -25,7 +25,7 @@ data class PutDto(
     }
 
     inline fun <reified T : Any> requestBody(): PutDtoT1<T> {
-        MethodEnum.PUT.throwOnFileOrListTypeReqBody<T>(path)
+        MethodEnum.PUT.throwOnFileReqBody<T>(path)
         return addProp(Pair(T::class, RoutePropEnum.REQUEST_BODY))
     }
 }

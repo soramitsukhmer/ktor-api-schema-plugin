@@ -7,8 +7,15 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
+import io.ktor.server.request.receive
 import io.ktor.server.response.*
+import me.learning.api_schema.common.Helper.badRequest
+import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.common.Helper.invalidAuthentication
+import me.learning.api_schema.dto.route.inline.RouteProp
+import me.learning.api_schema.dto.route.inline.impl.Auth
+import me.learning.api_schema.dto.route.inline.impl.PathVariable
+import me.learning.api_schema.dto.route.inline.impl.RequestBody
 import kotlin.reflect.KClass
 
 suspend inline fun <reified T> ApplicationCall.ok(message: T) {
@@ -91,4 +98,42 @@ suspend inline fun ApplicationCall.notFound(message: String?, data: Any? = null)
             request.headers[HttpHeaders.XRequestId]
         )
     )
+}
+
+suspend inline fun <reified T : Any> ApplicationCall.requestBody(): T {
+    return receiveRequestBody(T::class.simpleName) { receive<T>() }
+}
+
+suspend fun <T : Any> ApplicationCall.requestBody(clazz: KClass<T>): T {
+    return receiveRequestBody(clazz.simpleName) { receive(clazz) }
+}
+
+inline fun <reified T : Any> ApplicationCall.getPathVariable(param: String): T {
+    val value = this.parameters[param]
+        ?: badRequest("Missing path variable: $param")
+
+    return T::class.getDefaultValue(value, param)
+}
+
+fun <T : Any> ApplicationCall.getPathVariable(clazz: KClass<T>, param: String): T {
+    val value = this.parameters[param]
+        ?: badRequest("Missing path variable: $param")
+
+    return clazz.getDefaultValue(value, param)
+}
+
+suspend inline fun <reified T : Any, reified I : RouteProp<T>> ApplicationCall.prop(path: String, pathVarIndex: Int = 0): Pair<I, Int> {
+    var idx = pathVarIndex
+    return when (I::class) {
+        Auth::class -> Auth(this.auth<T>())
+        RequestBody::class -> RequestBody(this.requestBody<T>())
+        PathVariable::class -> {
+            val allPathVar = extractAllPathParameters(path)
+            val param = allPathVar.getOrNull(pathVarIndex) ?: ""
+            val value = getPathVariable<T>(param)
+            idx++
+            PathVariable(value)
+        }
+        else -> throw IllegalArgumentException("Unsupported RouteProp type: ${I::class}")
+    } as I to idx
 }

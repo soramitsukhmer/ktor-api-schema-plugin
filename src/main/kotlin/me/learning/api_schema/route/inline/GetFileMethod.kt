@@ -6,28 +6,22 @@ import io.ktor.server.response.header
 import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
-import me.learning.api_schema.common.Helper.extractAllPathParameters
-import me.learning.api_schema.extension.auth
+import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.core.schemaBuilder
-import me.learning.api_schema.extension.getPathVariable
+import me.learning.api_schema.dto.route.inline.RouteProp
+import me.learning.api_schema.dto.route.inline.SchemaBuilderProp
+import me.learning.api_schema.extension.cleanRoutePath
+import me.learning.api_schema.extension.isRequestBody
+import me.learning.api_schema.extension.prop
 import java.io.File
-import kotlin.reflect.KClass
 
-/**
- * Adds a GET route that serves a file as a downloadable attachment.
- * The response includes a `Content-Disposition` header, specifying the file's name.
- *
- * @param path The URI path for the route. Defaults to an empty string.
- * @param removeFileAfterProcessing If true, the file will be deleted from the server after it is sent. Defaults to false.
- * @param block A lambda function that returns the file to be served. This block is executed for each request.
- * @return The configured route.
- */
+
 inline fun Route.GETFILE(
     path: String = "",
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
-    return this.get(path, schemaBuilder<Void>()) {
+    return this.get(path.cleanRoutePath(), schemaBuilder<Unit, Unit>()) {
         val file = call.request.block()
         call.response.header(
             HttpHeaders.ContentDisposition,
@@ -40,36 +34,20 @@ inline fun Route.GETFILE(
 }
 
 
-/**
- * Adds a GET route that serves a file as a downloadable attachment.
- * The response includes a `Content-Disposition` header, specifying the file's name.
- *
- * @param path The URI path for the route. Defaults to an empty string.
- * @param withAuth If true, the route will be secured with authentication. Defaults to false will return path variable.
- * @param removeFileAfterProcessing If true, the file will be deleted from the server after it is sent. Defaults to false.
- * @param block A lambda function that returns the file to be served. This block is executed for each request.
-*/
-inline fun <reified T : Any> Route.GETFILE(
+inline fun <reified V : Any, reified T : RouteProp<V>> Route.GETFILE(
     path: String = "",
-    withAuth: Boolean = false,
     removeFileAfterProcessing: Boolean = false,
-    crossinline block: suspend RoutingRequest.(param: T) -> File
+    crossinline block: suspend RoutingRequest.(T) -> File
 ): Route {
-    var pathVar: Map<String, KClass<T>>? = null
-    var pathVarT = ""
-
-    if (!withAuth) {
-        val allPathVar = extractAllPathParameters(path)
-        pathVarT = allPathVar.firstOrNull() ?: ""
-        pathVar = mapOf(pathVarT to T::class)
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, listOf(V::class to T::class))
+    val builder = when (true) {
+        isRequestBody<T>() -> schemaBuilder<Unit, V>()
+        else -> schemaBuilder<T, Unit>(prop.pathVariable)
     }
 
-    return this.get(path, schemaBuilder<Void>(pathVariable = pathVar)) {
-        val param = when (withAuth) {
-            true -> call.auth<T>()
-            false -> call.getPathVariable<T>(pathVarT)
-        }
-        val file = call.request.block(param)
+    return this.get(path.cleanRoutePath(), builder) {
+        val p1 = call.prop<V, T>(path).first
+        val file = call.request.block(p1)
         call.response.header(
             HttpHeaders.ContentDisposition,
             "attachment; filename=\"${file.name}\""
@@ -81,27 +59,100 @@ inline fun <reified T : Any> Route.GETFILE(
 }
 
 
-/**
- * Adds a GET route that serves a file as a downloadable attachment.
- * The response includes a `Content-Disposition` header, specifying the file's name.
- *
- * @param path The URI path for the route. Defaults to an empty string.
- * @param removeFileAfterProcessing If true, the file will be deleted from the server after it is sent. Defaults to false.
- * @param block A lambda function that returns the file to be served. This block is executed for each request.
-*/
-inline fun <reified T : Any, reified I : Any> Route.GETFILE(
+inline fun <
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>
+        > Route.GETFILE(
     path: String = "",
     removeFileAfterProcessing: Boolean = false,
-    crossinline block: suspend RoutingRequest.(auth: T, varI: I) -> File
+    crossinline block: suspend RoutingRequest.(T1, T2) -> File
 ): Route {
-    val allPathVar = extractAllPathParameters(path)
-    val pathVarI = allPathVar.firstOrNull() ?: ""
-    val pathVar = mapOf(pathVarI to I::class)
+    val collection = listOf(V1::class to T1::class, V2::class to T2::class)
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(prop.pathVariable)
+        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(prop.pathVariable)
+        else -> schemaBuilder<Unit, Unit>(prop.pathVariable)
+    }
 
-    return this.get(path, schemaBuilder<Void>(pathVariable = pathVar)) {
-        val auth = call.auth<T>()
-        val valueI = call.getPathVariable<I>(pathVarI)
-        val file = call.request.block(auth, valueI)
+    return this.get(path.cleanRoutePath(), builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val p2 = call.prop<V2, T2>(path, idx).first
+        val file = call.request.block(p1, p2)
+        call.response.header(
+            HttpHeaders.ContentDisposition,
+            "attachment; filename=\"${file.name}\""
+        )
+        call.respondFile(file)
+
+        if (removeFileAfterProcessing) file.delete()
+    }
+}
+
+
+inline fun <
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>,
+        reified V3 : Any, reified T3 : RouteProp<V3>
+        > Route.GETFILE(path: String = "", removeFileAfterProcessing: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> File
+): Route {
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class,
+    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(prop.pathVariable)
+        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(prop.pathVariable)
+        isRequestBody<T3>() -> schemaBuilder<Unit, V3>(prop.pathVariable)
+        else -> schemaBuilder<Unit, Unit>(prop.pathVariable)
+    }
+
+    return this.get(path.cleanRoutePath(), builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val (p2, idx2) = call.prop<V2, T2>(path, idx)
+        val p3 = call.prop<V3, T3>(path, idx2).first
+        val file = call.request.block(p1, p2, p3)
+        call.response.header(
+            HttpHeaders.ContentDisposition,
+            "attachment; filename=\"${file.name}\""
+        )
+        call.respondFile(file)
+
+        if (removeFileAfterProcessing) file.delete()
+    }
+}
+
+
+inline fun <
+        reified V1 : Any, reified T1 : RouteProp<V1>,
+        reified V2 : Any, reified T2 : RouteProp<V2>,
+        reified V3 : Any, reified T3 : RouteProp<V3>,
+        reified V4 : Any, reified T4 : RouteProp<V4>
+        > Route.GETFILE(path: String = "", removeFileAfterProcessing: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> File
+): Route {
+    val collection = listOf(
+        V1::class to T1::class,
+        V2::class to T2::class,
+        V3::class to T3::class,
+        V4::class to T4::class,
+    )
+    val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
+    val builder = when (true) {
+        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(prop.pathVariable)
+        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(prop.pathVariable)
+        isRequestBody<T3>() -> schemaBuilder<Unit, V3>(prop.pathVariable)
+        isRequestBody<T4>() -> schemaBuilder<Unit, V4>(prop.pathVariable)
+        else -> schemaBuilder<Unit, Unit>(prop.pathVariable)
+    }
+
+    return this.get(path.cleanRoutePath(), builder) {
+        val (p1, idx) = call.prop<V1, T1>(path)
+        val (p2, idx2) = call.prop<V2, T2>(path, idx)
+        val (p3, idx3) = call.prop<V3, T3>(path, idx2)
+        val p4 = call.prop<V4, T4>(path, idx3).first
+        val file = call.request.block(p1, p2, p3, p4)
         call.response.header(
             HttpHeaders.ContentDisposition,
             "attachment; filename=\"${file.name}\""
