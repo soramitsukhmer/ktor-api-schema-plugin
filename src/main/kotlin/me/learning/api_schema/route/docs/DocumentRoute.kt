@@ -30,6 +30,8 @@ fun Routing.documentRoute(config: ApiSchemaConfig) {
         return content
     }
 
+    if (!config.enabled) return
+
     route(baseRoute) {
 //        openApi()
         println(">>> expose endpoint json api schema: $baseRoute")
