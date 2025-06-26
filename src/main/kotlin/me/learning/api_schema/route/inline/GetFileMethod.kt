@@ -42,7 +42,7 @@ inline fun <reified V : Any, reified T : RouteProp<V>> Route.GETFILE(
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, listOf(V::class to T::class))
     val builder = when (true) {
         isRequestBody<T>() -> schemaBuilder<Unit, V>()
-        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+        else -> schemaBuilder<Unit, Unit>(prop.pathVariable)
     }
 
     return this.get(path.cleanRoutePath(), builder) {
