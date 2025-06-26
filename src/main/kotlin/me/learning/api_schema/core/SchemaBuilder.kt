@@ -34,7 +34,7 @@ inline fun <reified T, reified I> Route.schemaBuilder(
             // form-data request body
             multipartBody {
                 mediaTypes(ContentType.MultiPart.FormData)
-                when (T::class) {
+                when (I::class) {
                     Nothing::class -> {}
                     Unit::class -> {}
                     Void::class -> {}
@@ -48,7 +48,7 @@ inline fun <reified T, reified I> Route.schemaBuilder(
         } ?: kotlin.run {
             // raw request body
             pathVariable?.let { it.forEach { (key, value) -> pathParameter(key, value.asKType()) } }
-            when (T::class) {
+            when (I::class) {
                 Nothing::class -> {}
                 Unit::class -> {}
                 Void::class -> {}
