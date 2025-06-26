@@ -10,11 +10,6 @@ import me.learning.api_schema.extension.asKType
 import java.io.File
 import kotlin.reflect.KClass
 
-fun Route.hasAuth(): Boolean {
-    val uri = this.parent?.toString() ?: return false
-    return uri.startsWith("/(authenticate")
-}
-
 /**
  * Configures a schema for the given route using the specified parameters.
  * The schema can include path variables, request bodies, and multipart form-data handling.
@@ -32,7 +27,7 @@ inline fun <reified T, reified I> Route.schemaBuilder(
     bodyFileAsList: Boolean? = null,
 ): RouteConfig.() -> Unit = {
 
-    if (hasAuth()) securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
+    securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
 
     request {
         bodyFileAsList?.let { fileAsList ->
