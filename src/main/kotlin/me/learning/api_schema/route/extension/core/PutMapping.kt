@@ -19,21 +19,23 @@ import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.prop
 
 inline fun <reified T> PutDto.map(
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    val builder = route.schemaBuilder<T, Unit>()
+    val builder = route.schemaBuilder<T, Unit>(responseWrapper = responseWrapper)
     return route.put(path.cleanRoutePath(), builder) {
         call.ok(call.request.block())
     }
 }
 
 inline fun <reified T, reified T1 : Any> PutDtoT1<T1>.map(
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(v1: T1) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable)
-        else -> route.schemaBuilder<T, Unit>(variable)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(variable, responseWrapper = responseWrapper)
     }
 
     return route.put(path.cleanRoutePath(), builder) {
@@ -43,13 +45,14 @@ inline fun <reified T, reified T1 : Any> PutDtoT1<T1>.map(
 }
 
 inline fun <reified T, reified T1 : Any, reified T2 : Any> PutDtoT2<T1, T2>.map(
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable)
-        else -> route.schemaBuilder<T, Unit>(variable)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(variable, responseWrapper = responseWrapper)
     }
 
     return route.put(path.cleanRoutePath(), builder) {
@@ -60,14 +63,15 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> PutDtoT2<T1, T2>.map(
 }
 
 inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> PutDtoT3<T1, T2, T3>.map(
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(t3: Tuple3<T1, T2, T3>) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable)
-        p3.isRequestBody() -> route.schemaBuilder<T, T3>(variable)
-        else -> route.schemaBuilder<T, Unit>(variable)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable, responseWrapper = responseWrapper)
+        p3.isRequestBody() -> route.schemaBuilder<T, T3>(variable, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(variable, responseWrapper = responseWrapper)
     }
 
     return route.put(path.cleanRoutePath(), builder) {
@@ -79,15 +83,16 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Put
 }
 
 inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any, reified T4 : Any> PutDtoT4<T1, T2, T3, T4>.map(
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(t4: Tuple4<T1, T2, T3, T4>) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable)
-        p3.isRequestBody() -> route.schemaBuilder<T, T3>(variable)
-        p4.isRequestBody() -> route.schemaBuilder<T, T4>(variable)
-        else -> route.schemaBuilder<T, Unit>(variable)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable, responseWrapper = responseWrapper)
+        p3.isRequestBody() -> route.schemaBuilder<T, T3>(variable, responseWrapper = responseWrapper)
+        p4.isRequestBody() -> route.schemaBuilder<T, T4>(variable, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(variable, responseWrapper = responseWrapper)
     }
 
     return route.put(path.cleanRoutePath(), builder) {

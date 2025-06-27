@@ -1,7 +1,10 @@
 package me.learning.api_schema.extension
 
+import io.ktor.http.ContentType
 import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.common.Helper.extractAllPathParameters
+import me.learning.api_schema.common.RouteFormDataPropEnum
+import java.io.File
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
 
@@ -62,4 +65,21 @@ fun String.getApiSchemaBuilderProp(
 fun String.cleanRoutePath() = when (endsWith("/")) {
     true -> substringBeforeLast("/")
     false -> this
+}
+
+fun File.determineContentType() : String {
+    val extension = this.extension.lowercase()
+    val detectedType = when (extension) {
+        "jpg", "jpeg" -> ContentType.Image.JPEG
+        "png" -> ContentType.Image.PNG
+        "gif" -> ContentType.Image.GIF
+        "pdf" -> ContentType.Application.Pdf
+        "json" -> ContentType.Application.Json
+        "xml" -> ContentType.Application.Xml
+        "txt" -> ContentType.Text.Plain
+        "csv" -> ContentType.Text.CSV
+        "zip" -> ContentType.Application.Zip
+        else -> ContentType.Application.OctetStream
+    }
+    return detectedType.toString()
 }
