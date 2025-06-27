@@ -24,6 +24,7 @@ import kotlin.reflect.KClass
 
 inline fun <reified T, reified I> Route.schemaBuilder(
     pathVariable: Map<String, KClass<*>>? = null,
+    responseWrapper: Boolean = true,
     bodyFileAsList: Boolean? = null,
 ): RouteConfig.() -> Unit = {
 
@@ -62,7 +63,10 @@ inline fun <reified T, reified I> Route.schemaBuilder(
             Nothing::class -> {}
             Unit::class -> {}
             Void::class -> {}
-            else -> code(HttpStatusCode.OK) { body<ResponseWrapper<T>>() }
+            else -> code(HttpStatusCode.OK) {
+                if (responseWrapper) body<ResponseWrapper<T>>()
+                else body<T>()
+            }
         }
     }
 }

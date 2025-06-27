@@ -11,13 +11,15 @@ import me.learning.api_schema.dto.route.inline.SchemaBuilderProp
 import me.learning.api_schema.extension.cleanRoutePath
 import me.learning.api_schema.extension.isRequestBody
 import me.learning.api_schema.extension.prop
+import kotlin.Boolean
 
 
 inline fun <reified T> Route.GET(
     path: String = "",
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    return this.get(path.cleanRoutePath(), schemaBuilder<T, Unit>()) {
+    return this.get(path.cleanRoutePath(), schemaBuilder<T, Unit>(responseWrapper = responseWrapper)) {
         call.ok(call.request.block())
     }
 }
@@ -25,11 +27,12 @@ inline fun <reified T> Route.GET(
 
 inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.GET(
     path: String = "",
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(T1) -> T
 ): Route {
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, listOf(V1::class to T1::class))
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<T, V1>()
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(responseWrapper = responseWrapper)
         else -> schemaBuilder<T, Unit>(prop.pathVariable)
     }
 
@@ -43,14 +46,14 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.GET(
 inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>
-        > Route.GET(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2) -> T
+        > Route.GET(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2) -> T
 ): Route {
     val collection = listOf(V1::class to T1::class, V2::class to T2::class)
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable)
-        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable)
-        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable, responseWrapper)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable, responseWrapper)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, responseWrapper)
     }
 
     return this.get(path.cleanRoutePath(), builder) {
@@ -65,7 +68,7 @@ inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>
-        > Route.GET(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
+        > Route.GET(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -74,10 +77,10 @@ inline fun <reified T,
     )
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable)
-        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable)
-        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable)
-        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable, responseWrapper)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable, responseWrapper)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable, responseWrapper)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, responseWrapper)
     }
 
     return this.get(path.cleanRoutePath(), builder) {
@@ -94,7 +97,7 @@ inline fun <reified T,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>
-        > Route.GET(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
+        > Route.GET(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -104,11 +107,11 @@ inline fun <reified T,
     )
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable)
-        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable)
-        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable)
-        isRequestBody<T4>() -> schemaBuilder<T, V4>(prop.pathVariable)
-        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable, responseWrapper)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable, responseWrapper)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable, responseWrapper)
+        isRequestBody<T4>() -> schemaBuilder<T, V4>(prop.pathVariable, responseWrapper)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, responseWrapper)
     }
 
     return this.get(path.cleanRoutePath(), builder) {
@@ -127,7 +130,7 @@ inline fun <reified T,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>,
         reified V5 : Any, reified T5 : RouteProp<V5>
-        > Route.GET(path: String = "", crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
+        > Route.GET(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -138,12 +141,12 @@ inline fun <reified T,
     )
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable)
-        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable)
-        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable)
-        isRequestBody<T4>() -> schemaBuilder<T, V4>(prop.pathVariable)
-        isRequestBody<T5>() -> schemaBuilder<T, V5>(prop.pathVariable)
-        else -> schemaBuilder<T, Unit>(prop.pathVariable)
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(prop.pathVariable, responseWrapper)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(prop.pathVariable, responseWrapper)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(prop.pathVariable, responseWrapper)
+        isRequestBody<T4>() -> schemaBuilder<T, V4>(prop.pathVariable, responseWrapper)
+        isRequestBody<T5>() -> schemaBuilder<T, V5>(prop.pathVariable, responseWrapper)
+        else -> schemaBuilder<T, Unit>(prop.pathVariable, responseWrapper)
     }
 
     return this.get(path.cleanRoutePath(), builder) {

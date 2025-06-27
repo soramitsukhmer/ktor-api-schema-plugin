@@ -1,8 +1,6 @@
 package me.learning.api_schema.route.inline
 
 import io.github.smiley4.ktoropenapi.get
-import io.ktor.http.HttpHeaders
-import io.ktor.server.response.header
 import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
@@ -13,6 +11,7 @@ import me.learning.api_schema.dto.route.inline.SchemaBuilderProp
 import me.learning.api_schema.extension.cleanRoutePath
 import me.learning.api_schema.extension.isRequestBody
 import me.learning.api_schema.extension.prop
+import me.learning.api_schema.extension.setFileHeader
 import java.io.File
 
 
@@ -23,10 +22,7 @@ inline fun Route.GETFILE(
 ): Route {
     return this.get(path.cleanRoutePath(), schemaBuilder<Unit, Unit>()) {
         val file = call.request.block()
-        call.response.header(
-            HttpHeaders.ContentDisposition,
-            "attachment; filename=\"${file.name}\""
-        )
+        call.setFileHeader(file)
         call.respondFile(file)
 
         if (removeFileAfterProcessing) file.delete()
@@ -48,10 +44,7 @@ inline fun <reified V : Any, reified T : RouteProp<V>> Route.GETFILE(
     return this.get(path.cleanRoutePath(), builder) {
         val p1 = call.prop<V, T>(path).first
         val file = call.request.block(p1)
-        call.response.header(
-            HttpHeaders.ContentDisposition,
-            "attachment; filename=\"${file.name}\""
-        )
+        call.setFileHeader(file)
         call.respondFile(file)
 
         if (removeFileAfterProcessing) file.delete()
@@ -79,10 +72,7 @@ inline fun <
         val (p1, idx) = call.prop<V1, T1>(path)
         val p2 = call.prop<V2, T2>(path, idx).first
         val file = call.request.block(p1, p2)
-        call.response.header(
-            HttpHeaders.ContentDisposition,
-            "attachment; filename=\"${file.name}\""
-        )
+        call.setFileHeader(file)
         call.respondFile(file)
 
         if (removeFileAfterProcessing) file.delete()
@@ -114,10 +104,7 @@ inline fun <
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val p3 = call.prop<V3, T3>(path, idx2).first
         val file = call.request.block(p1, p2, p3)
-        call.response.header(
-            HttpHeaders.ContentDisposition,
-            "attachment; filename=\"${file.name}\""
-        )
+        call.setFileHeader(file)
         call.respondFile(file)
 
         if (removeFileAfterProcessing) file.delete()
@@ -153,10 +140,7 @@ inline fun <
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)
         val p4 = call.prop<V4, T4>(path, idx3).first
         val file = call.request.block(p1, p2, p3, p4)
-        call.response.header(
-            HttpHeaders.ContentDisposition,
-            "attachment; filename=\"${file.name}\""
-        )
+        call.setFileHeader(file)
         call.respondFile(file)
 
         if (removeFileAfterProcessing) file.delete()
