@@ -18,15 +18,17 @@ import me.learning.api_schema.dto.route.inline.impl.PathVariable
 import me.learning.api_schema.dto.route.inline.impl.RequestBody
 import kotlin.reflect.KClass
 
-inline fun <reified T> ApplicationCall.ok(data: T, withWrapper: Boolean = true) {
+suspend inline fun <reified T> ApplicationCall.ok(data: T, withWrapper: Boolean = true) {
     response.status(HttpStatusCode.OK)
     when (withWrapper) {
-        true -> ResponseWrapper(
-            Status(ErrorCode.SUCCESS, "Success"),
-            data,
-            request.headers[HttpHeaders.XRequestId]
+        true -> respond(
+            ResponseWrapper(
+                Status(ErrorCode.SUCCESS, "Success"),
+                data,
+                request.headers[HttpHeaders.XRequestId]
+            )
         )
-        false -> data
+        false -> respond(data as Any)
     }
 }
 
