@@ -1,8 +1,6 @@
 package me.learning.api_schema.route.extension.core
 
 import io.github.smiley4.ktoropenapi.get
-import io.ktor.http.HttpHeaders
-import io.ktor.server.response.header
 import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
@@ -28,7 +26,7 @@ inline fun <reified T> GetDto.map(
 ): Route {
     val builder = route.schemaBuilder<T, Unit>(responseWrapper = responseWrapper)
     return route.get(path.cleanRoutePath(), builder) {
-        call.ok(call.request.block())
+        call.ok(call.request.block(), responseWrapper)
     }
 }
 
@@ -45,7 +43,7 @@ inline fun <reified T, reified T1 : Any> GetDtoT1<T1>.map(
 
     return route.get(path.cleanRoutePath(), builder) {
         val v1 = call.prop(p1, path).first
-        call.ok(call.request.block(v1))
+        call.ok(call.request.block(v1), responseWrapper)
     }
 }
 
@@ -64,7 +62,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
     return route.get(path.cleanRoutePath(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val v2 = call.prop(p2, path, idx1).first
-        call.ok(call.request.block(Tuple2(v1, v2)))
+        call.ok(call.request.block(Tuple2(v1, v2)), responseWrapper)
     }
 }
 
@@ -85,7 +83,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Get
         val (v1, idx1) = call.prop(p1, path)
         val (v2, idx2) = call.prop(p2, path, idx1)
         val v3 = call.prop(p3, path, idx2).first
-        call.ok(call.request.block(Tuple3(v1, v2, v3)))
+        call.ok(call.request.block(Tuple3(v1, v2, v3)), responseWrapper)
     }
 }
 
@@ -101,7 +99,6 @@ inline fun GetDto.map(
         val file = call.request.block()
         call.setFileHeader(file)
         call.respondFile(file)
-        call.ok(file)
 
         if (removeFileAfterProcessing) file.delete()
     }
@@ -123,7 +120,6 @@ inline fun <reified T1 : Any> GetDtoT1<T1>.map(
         val file = call.request.block(v1)
         call.setFileHeader(file)
         call.respondFile(file)
-        call.ok(file)
 
         if (removeFileAfterProcessing) file.delete()
     }
@@ -147,7 +143,6 @@ inline fun <reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
         val file = call.request.block(Tuple2(v1, v2))
         call.setFileHeader(file)
         call.respondFile(file)
-        call.ok(file)
 
         if (removeFileAfterProcessing) file.delete()
     }
@@ -173,7 +168,6 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any> GetDtoT3<T1, T
         val file = call.request.block(Tuple3(v1, v2, v3))
         call.setFileHeader(file)
         call.respondFile(file)
-        call.ok(file)
 
         if (removeFileAfterProcessing) file.delete()
     }

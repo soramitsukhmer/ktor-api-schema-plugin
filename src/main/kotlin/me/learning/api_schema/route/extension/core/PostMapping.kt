@@ -33,7 +33,7 @@ inline fun <reified T> PostDto.map(
 ): Route {
     val builder = route.schemaBuilder<T, Unit>(responseWrapper = responseWrapper)
     return route.post(path.cleanRoutePath(), builder) {
-        call.ok(call.request.block())
+        call.ok(call.request.block(), responseWrapper)
     }
 }
 
@@ -49,7 +49,7 @@ inline fun <reified T, reified T1 : Any> PostDtoT1<T1>.map(
 
     return route.post(path.cleanRoutePath(), builder) {
         val v1 = call.prop(p1, path).first
-        call.ok(call.request.block(v1))
+        call.ok(call.request.block(v1), responseWrapper)
     }
 }
 
@@ -67,7 +67,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> PostDtoT2<T1, T2>.map
     return route.post(path.cleanRoutePath(), builder) {
         val v1 = call.prop(p1, path).first
         val v2 = call.prop(p2, path).first
-        call.ok(call.request.block(Tuple2(v1, v2)))
+        call.ok(call.request.block(Tuple2(v1, v2)), responseWrapper)
     }
 }
 
@@ -82,7 +82,7 @@ inline fun <reified T> PostFileDtoT1<FileInfoReq>.map(
     return route.post(path.cleanRoutePath(), builder) {
         val files = call.getFileRequest(true, extensions)
 
-        call.ok(call.request.block(files.first()))
+        call.ok(call.request.block(files.first()), responseWrapper)
         if (removeFileAfterProcessing) files.forEach { it.file.delete() }
     }
 }
@@ -96,7 +96,7 @@ inline fun <reified T> PostFileDtoT1<List<FileInfoReq>>.map(
     return route.post(path.cleanRoutePath(), builder) {
         val files = call.getFileRequest(true, extensions)
 
-        call.ok(call.request.block(files))
+        call.ok(call.request.block(files), responseWrapper)
         if (removeFileAfterProcessing) files.forEach { it.file.delete() }
     }
 }
@@ -117,7 +117,7 @@ inline fun <reified T, reified T2 : Any> PostFileDtoT2<FileInfoReq, T2>.map(
             false -> call.getFileRequest(false, extensions).first().let { Tuple2(it, call.auth<T2>()) }
         }
 
-        call.ok(call.request.block(tuple2))
+        call.ok(call.request.block(tuple2), responseWrapper)
         if (removeFileAfterProcessing) tuple2.t1.file.delete()
     }
 }
@@ -138,7 +138,7 @@ inline fun <reified T, reified T2 : Any> PostFileDtoT2<List<FileInfoReq>, T2>.ma
             false -> Tuple2(call.getFileRequest(false, extensions), call.auth<T2>())
         }
 
-        call.ok(call.request.block(tuple2))
+        call.ok(call.request.block(tuple2), responseWrapper)
         if (removeFileAfterProcessing) tuple2.t1.forEach { it.file.delete() }
     }
 }
@@ -162,7 +162,7 @@ inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<FileInf
                 .let { Tuple3(it.first.first(), call.auth<T2>(), it.second) }
         }
 
-        call.ok(call.request.block(tuple3))
+        call.ok(call.request.block(tuple3), responseWrapper)
         if (removeFileAfterProcessing) tuple3.t1.file.delete()
     }
 }
@@ -186,7 +186,7 @@ inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<List<Fi
                 .let { Tuple3(it.first, call.auth<T2>(), it.second) }
         }
 
-        call.ok(call.request.block(tuple3))
+        call.ok(call.request.block(tuple3), responseWrapper)
         if (removeFileAfterProcessing) tuple3.t1.forEach { it.file.delete() }
     }
 }

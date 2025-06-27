@@ -24,7 +24,7 @@ inline fun <reified T> PutDto.map(
 ): Route {
     val builder = route.schemaBuilder<T, Unit>(responseWrapper = responseWrapper)
     return route.put(path.cleanRoutePath(), builder) {
-        call.ok(call.request.block())
+        call.ok(call.request.block(), responseWrapper)
     }
 }
 
@@ -40,7 +40,7 @@ inline fun <reified T, reified T1 : Any> PutDtoT1<T1>.map(
 
     return route.put(path.cleanRoutePath(), builder) {
         val v1 = call.prop(p1, path).first
-        call.ok(call.request.block(v1))
+        call.ok(call.request.block(v1), responseWrapper)
     }
 }
 
@@ -58,7 +58,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> PutDtoT2<T1, T2>.map(
     return route.put(path.cleanRoutePath(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val v2 = call.prop(p2, path, idx1).first
-        call.ok(call.request.block(Tuple2(v1, v2)))
+        call.ok(call.request.block(Tuple2(v1, v2)), responseWrapper)
     }
 }
 
@@ -78,7 +78,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Put
         val (v1, idx1) = call.prop(p1, path)
         val (v2, idx2) = call.prop(p2, path, idx1)
         val v3 = call.prop(p3, path, idx2).first
-        call.ok(call.request.block(Tuple3(v1, v2, v3)))
+        call.ok(call.request.block(Tuple3(v1, v2, v3)), responseWrapper)
     }
 }
 
@@ -100,6 +100,6 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any, rei
         val (v2, idx2) = call.prop(p2, path, idx1)
         val (v3, idx3) = call.prop(p3, path, idx2)
         val v4 = call.prop(p4, path, idx3).first
-        call.ok(call.request.block(Tuple4(v1, v2, v3, v4)))
+        call.ok(call.request.block(Tuple4(v1, v2, v3, v4)), responseWrapper)
     }
 }
