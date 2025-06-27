@@ -18,24 +18,29 @@ import me.learning.api_schema.extension.getApiSchemaBuilderProp
 import me.learning.api_schema.extension.isRequestBody
 import me.learning.api_schema.extension.ok
 import me.learning.api_schema.extension.prop
+import me.learning.api_schema.extension.setFileHeader
 import java.io.File
 
+@JvmName("get_dto")
 inline fun <reified T> GetDto.map(
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    val builder = route.schemaBuilder<T, Unit>()
+    val builder = route.schemaBuilder<T, Unit>(responseWrapper = responseWrapper)
     return route.get(path.cleanRoutePath(), builder) {
         call.ok(call.request.block())
     }
 }
 
+@JvmName("get_dto_t1")
 inline fun <reified T, reified T1 : Any> GetDtoT1<T1>.map(
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(v1: T1) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (p1.isRequestBody()) {
-        true -> route.schemaBuilder<T, T1>()
-        false -> route.schemaBuilder<T, T1>(variable)
+        true -> route.schemaBuilder<T, T1>(responseWrapper = responseWrapper)
+        false -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
     }
 
     return route.get(path.cleanRoutePath(), builder) {
@@ -44,14 +49,16 @@ inline fun <reified T, reified T1 : Any> GetDtoT1<T1>.map(
     }
 }
 
+@JvmName("get_dto_t1_t2")
 inline fun <reified T, reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable)
-        else -> route.schemaBuilder<T, Unit>(variable)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(variable, responseWrapper = responseWrapper)
     }
 
     return route.get(path.cleanRoutePath(), builder) {
@@ -61,15 +68,17 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
     }
 }
 
+@JvmName("get_dto_t1_t2_t3")
 inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> GetDtoT3<T1, T2, T3>.map(
+    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(t3: Tuple3<T1, T2, T3>) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2, p3)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable)
-        p3.isRequestBody() -> route.schemaBuilder<T, T3>(variable)
-        else -> route.schemaBuilder<T, Unit>(variable)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable, responseWrapper = responseWrapper)
+        p3.isRequestBody() -> route.schemaBuilder<T, T3>(variable, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(variable, responseWrapper = responseWrapper)
     }
 
     return route.get(path.cleanRoutePath(), builder) {
@@ -82,6 +91,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Get
 
 // ============== File Builder ==============
 
+@JvmName("get_dto_file")
 inline fun GetDto.map(
     removeFileAfterProcessing: Boolean,
     crossinline block: suspend RoutingRequest.() -> File
@@ -89,10 +99,7 @@ inline fun GetDto.map(
     val builder = route.schemaBuilder<Unit, Unit>()
     return route.get(path.cleanRoutePath(), builder) {
         val file = call.request.block()
-        call.response.header(
-            HttpHeaders.ContentDisposition,
-            "attachment; filename=\"${file.name}\""
-        )
+        call.setFileHeader(file)
         call.respondFile(file)
         call.ok(file)
 
@@ -100,6 +107,7 @@ inline fun GetDto.map(
     }
 }
 
+@JvmName("get_dto_file_t1")
 inline fun <reified T1 : Any> GetDtoT1<T1>.map(
     removeFileAfterProcessing: Boolean,
     crossinline block: suspend RoutingRequest.(v1: T1) -> File
@@ -113,10 +121,7 @@ inline fun <reified T1 : Any> GetDtoT1<T1>.map(
     return route.get(path.cleanRoutePath(), builder) {
         val v1 = call.prop(p1, path).first
         val file = call.request.block(v1)
-        call.response.header(
-            HttpHeaders.ContentDisposition,
-            "attachment; filename=\"${file.name}\""
-        )
+        call.setFileHeader(file)
         call.respondFile(file)
         call.ok(file)
 
@@ -124,6 +129,7 @@ inline fun <reified T1 : Any> GetDtoT1<T1>.map(
     }
 }
 
+@JvmName("get_dto_file_t1_t2")
 inline fun <reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
     removeFileAfterProcessing: Boolean,
     crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> File
@@ -139,10 +145,7 @@ inline fun <reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
         val (v1, idx1) = call.prop(p1, path)
         val v2 = call.prop(p2, path, idx1).first
         val file = call.request.block(Tuple2(v1, v2))
-        call.response.header(
-            HttpHeaders.ContentDisposition,
-            "attachment; filename=\"${file.name}\""
-        )
+        call.setFileHeader(file)
         call.respondFile(file)
         call.ok(file)
 
@@ -150,6 +153,7 @@ inline fun <reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
     }
 }
 
+@JvmName("get_dto_file_t1_t2_t3")
 inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any> GetDtoT3<T1, T2, T3>.map(
     removeFileAfterProcessing: Boolean,
     crossinline block: suspend RoutingRequest.(t3: Tuple3<T1, T2, T3>) -> File
@@ -167,10 +171,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any> GetDtoT3<T1, T
         val (v2, idx2) = call.prop(p2, path, idx1)
         val v3 = call.prop(p3, path, idx2).first
         val file = call.request.block(Tuple3(v1, v2, v3))
-        call.response.header(
-            HttpHeaders.ContentDisposition,
-            "attachment; filename=\"${file.name}\""
-        )
+        call.setFileHeader(file)
         call.respondFile(file)
         call.ok(file)
 

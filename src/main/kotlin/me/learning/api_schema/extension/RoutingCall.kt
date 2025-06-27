@@ -1,12 +1,15 @@
 package me.learning.api_schema.extension
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import io.ktor.http.ContentDisposition
+import io.ktor.http.HttpHeaders
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveMultipart
+import io.ktor.server.response.header
 import io.ktor.server.routing.*
 import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.common.Helper.badRequest
@@ -14,6 +17,7 @@ import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.dto.handler.throwOnFileReqBody
 import me.learning.api_schema.dto.request.FileInfoReq
+import java.io.File
 import kotlin.collections.joinToString
 import kotlin.reflect.KClass
 
@@ -178,4 +182,9 @@ suspend inline fun <reified T : Any> RoutingCall.prop(
             getPathVariable<T>(param) to pathVarIndex.plus(1)
         }
     }
+}
+
+fun RoutingCall.setFileHeader(file: File) {
+    response.header(HttpHeaders.ContentDisposition, ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, file.name).toString())
+    response.header(HttpHeaders.ContentType, file.determineContentType())
 }
