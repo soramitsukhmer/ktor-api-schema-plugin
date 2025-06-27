@@ -18,7 +18,7 @@ inline fun <reified T> Route.PUT(
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
     return this.put(path.cleanRoutePath(), schemaBuilder<T, Unit>(responseWrapper = responseWrapper)) {
-        call.ok(call.request.block())
+        call.ok(call.request.block(), responseWrapper)
     }
 }
 
@@ -36,7 +36,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.PUT(
 
     return this.put(path.cleanRoutePath(), builder) {
         val p1 = call.prop<V1, T1>(path).first
-        call.ok(call.request.block(p1))
+        call.ok(call.request.block(p1), responseWrapper)
     }
 }
 
@@ -60,7 +60,7 @@ inline fun <reified T,
     return this.put(path.cleanRoutePath(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val p2 = call.prop<V2, T2>(path, idx).first
-        call.ok(call.request.block(p1, p2))
+        call.ok(call.request.block(p1, p2), responseWrapper)
     }
 }
 
@@ -88,7 +88,7 @@ inline fun <reified T,
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val p3 = call.prop<V3, T3>(path, idx2).first
-        call.ok(call.request.block(p1, p2, p3))
+        call.ok(call.request.block(p1, p2, p3), responseWrapper)
     }
 }
 
@@ -115,7 +115,7 @@ inline fun <reified T,
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)
         val p4 = call.prop<V4, T4>(path, idx3).first
-        call.ok(call.request.block(p1, p2, p3, p4))
+        call.ok(call.request.block(p1, p2, p3, p4), responseWrapper)
     }
 }
 
@@ -151,6 +151,6 @@ inline fun <reified T,
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)
         val (p4, idx4) = call.prop<V4, T4>(path, idx3)
         val p5 = call.prop<V5, T5>(path, idx4).first
-        call.ok(call.request.block(p1, p2, p3, p4, p5))
+        call.ok(call.request.block(p1, p2, p3, p4, p5), responseWrapper)
     }
 }

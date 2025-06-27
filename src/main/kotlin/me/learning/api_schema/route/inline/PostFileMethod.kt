@@ -40,7 +40,7 @@ inline fun <reified T> Route.POSTFILE(
 
     return this.post(path.cleanRoutePath(), builder) {
         val request = call.getFileRequest(false, extensions).first()
-        call.ok(call.request.block(request))
+        call.ok(call.request.block(request), responseWrapper)
         if (removeFileAfterProcessing) request.file.delete()
     }
 }
@@ -57,7 +57,7 @@ inline fun <reified T> Route.POSTFILES(
 
     return this.post(path.cleanRoutePath(), builder) {
         val files = call.getFileRequest(true, extensions)
-        call.ok(call.request.block(files))
+        call.ok(call.request.block(files), responseWrapper)
         if (removeFileAfterProcessing) files.forEach { it.file.delete() }
     }
 }
@@ -82,7 +82,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POSTF
             false -> call.getFileRequest(false, extensions).first() to call.prop<V1, T1>(path).first
         }
 
-        call.ok(call.request.block(p1 as T1, file))
+        call.ok(call.request.block(p1 as T1, file), responseWrapper)
         if (removeFileAfterProcessing) file.file.delete()
     }
 }
@@ -107,7 +107,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POSTF
             false -> call.getFileRequest(false, extensions) to call.prop<V1, T1>(path).first
         }
 
-        call.ok(call.request.block(p1 as T1, files))
+        call.ok(call.request.block(p1 as T1, files), responseWrapper)
         if (removeFileAfterProcessing) files.forEach { it.file.delete() }
     }
 }
@@ -143,7 +143,7 @@ inline fun <reified T,
             else -> Tuple3(call.prop<V1, T1>(path).first, call.prop<V2, T2>(path).first, call.getFileRequest(false, extensions).first())
         }
 
-        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3))
+        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3), responseWrapper)
         if (removeFileAfterProcessing) t.t3.file.delete()
     }
 }
@@ -179,7 +179,7 @@ inline fun <reified T,
             else -> Tuple3(call.prop<V1, T1>(path).first, call.prop<V2, T2>(path).first, call.getFileRequest(false, extensions))
         }
 
-        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3))
+        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3), responseWrapper)
         if (removeFileAfterProcessing) t.t3.forEach { it.file.delete() }
     }
 }
@@ -234,7 +234,7 @@ inline fun <reified T,
             }
         }
 
-        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4))
+        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4), responseWrapper)
         if (removeFileAfterProcessing) t.t4.file.delete()
     }
 }
@@ -289,7 +289,7 @@ inline fun <reified T,
             }
         }
 
-        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4))
+        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4), responseWrapper)
         if (removeFileAfterProcessing) t.t4.forEach { it.file.delete() }
     }
 }
@@ -357,7 +357,7 @@ inline fun <reified T,
             }
         }
 
-        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4 as T4, t.t5))
+        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4 as T4, t.t5), responseWrapper)
         if (removeFileAfterProcessing) t.t5.file.delete()
     }
 }
@@ -426,7 +426,7 @@ inline fun <reified T,
             }
         }
 
-        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4 as T4, t.t5))
+        call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4 as T4, t.t5), responseWrapper)
         if (removeFileAfterProcessing) t.t5.forEach { it.file.delete() }
     }
 }
