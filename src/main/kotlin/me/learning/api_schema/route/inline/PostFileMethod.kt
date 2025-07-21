@@ -29,7 +29,7 @@ import me.learning.api_schema.extension.prop
 // ================================================================================================================ //
 
 
-inline fun <reified T> Route.POSTFILE(
+inline fun <reified T> Route.postFile(
     path: String = "",
     responseWrapper: Boolean = true,
     extensions: List<String> = emptyList(),
@@ -46,7 +46,7 @@ inline fun <reified T> Route.POSTFILE(
 }
 
 
-inline fun <reified T> Route.POSTFILES(
+inline fun <reified T> Route.postFiles(
     path: String = "",
     responseWrapper: Boolean = true,
     extensions: List<String> = emptyList(),
@@ -63,7 +63,7 @@ inline fun <reified T> Route.POSTFILES(
 }
 
 
-inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POSTFILE(
+inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postFile(
     path: String = "",
     responseWrapper: Boolean = true,
     extensions: List<String> = emptyList(),
@@ -88,7 +88,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POSTF
 }
 
 
-inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POSTFILES(
+inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postFiles(
     path: String = "",
     responseWrapper: Boolean = true,
     extensions: List<String> = emptyList(),
@@ -116,7 +116,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POSTF
 inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>,
-        > Route.POSTFILE(
+        > Route.postFile(
     path: String = "",
     responseWrapper: Boolean = true,
     extensions: List<String> = emptyList(),
@@ -152,7 +152,7 @@ inline fun <reified T,
 inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>,
-        > Route.POSTFILES(
+        > Route.postFiles(
     path: String = "",
     responseWrapper: Boolean = true,
     extensions: List<String> = emptyList(),
@@ -189,7 +189,7 @@ inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>,
-        > Route.POSTFILE(
+        > Route.postFile(
     path: String = "",
     responseWrapper: Boolean = true,
     extensions: List<String> = emptyList(),
@@ -244,7 +244,7 @@ inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>,
-        > Route.POSTFILES(
+        > Route.postFiles(
     path: String = "",
     responseWrapper: Boolean = true,
     extensions: List<String> = emptyList(),
@@ -300,7 +300,7 @@ inline fun <reified T,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>,
-        > Route.POSTFILE(
+        > Route.postFile(
     path: String = "",
     responseWrapper: Boolean = true,
     extensions: List<String> = emptyList(),
@@ -368,7 +368,7 @@ inline fun <reified T,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>,
-        > Route.POSTFILES(
+        > Route.postFiles(
     path: String = "",
     responseWrapper: Boolean = true,
     extensions: List<String> = emptyList(),
