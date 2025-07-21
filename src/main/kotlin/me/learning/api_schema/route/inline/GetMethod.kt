@@ -14,7 +14,7 @@ import me.learning.api_schema.extension.prop
 import kotlin.Boolean
 
 
-inline fun <reified T> Route.GET(
+inline fun <reified T> Route.get(
     path: String = "",
     responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.() -> T
@@ -25,7 +25,7 @@ inline fun <reified T> Route.GET(
 }
 
 
-inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.GET(
+inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.get(
     path: String = "",
     responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(T1) -> T
@@ -46,7 +46,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.GET(
 inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>
-        > Route.GET(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2) -> T
+        > Route.get(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2) -> T
 ): Route {
     val collection = listOf(V1::class to T1::class, V2::class to T2::class)
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
@@ -68,7 +68,7 @@ inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>
-        > Route.GET(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
+        > Route.get(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -97,7 +97,7 @@ inline fun <reified T,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>
-        > Route.GET(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
+        > Route.get(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -130,7 +130,7 @@ inline fun <reified T,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>,
         reified V5 : Any, reified T5 : RouteProp<V5>
-        > Route.GET(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
+        > Route.get(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
