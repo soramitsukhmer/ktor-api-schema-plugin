@@ -84,45 +84,47 @@ data class Request(
 ### Usage [Inline function]
 ```
 // Get Method
-import me.learning.api_schema.route.inline.GET
+import me.learning.api_schema.route.inline.get
 import me.learning.api_schema.dto.route.inline.impl.RequestBody
 
-GET { auth: Auth<UserAuth> -> ... }
+get { auth: Auth<UserAuth> -> ... }
 
 
 // Post Method
-import me.learning.api_schema.route.inline.POST
+import me.learning.api_schema.route.inline.post
 import me.learning.api_schema.dto.route.inline.impl.RequestBody
 
-POST { auth: Auth<UserAuth>, requestBody: RequestBody<Reauest> -> ... }
+post { auth: Auth<UserAuth>, requestBody: RequestBody<Reauest> -> ... }
 
 
 // Put Method
-import me.learning.api_schema.route.inline.POST
+import me.learning.api_schema.route.inline.put
 import me.learning.api_schema.dto.route.inline.impl.RequestBody
 
-PUT { auth: Auth<UserAuth>, requestBody: RequestBody<UserBodyUpdateReq> -> ... }
+put { auth: Auth<UserAuth>, requestBody: RequestBody<UserBodyUpdateReq> -> ... }
 ```
 
 ### Usage [Extension function]
 ```
 // Get Method
-import me.learning.api_schema.route.extension.GET
+import me.learning.api_schema.route.extension.get
+import me.learning.api_schema.route.extension.core.map
 
-GET("/user").auth(UserAuth::class).map { auth -> ... }
+get("/user").auth(UserAuth::class).map { auth -> ... }
 
 
 // Post Method
-import me.learning.api_schema.route.extension.POST
+import me.learning.api_schema.route.extension.post
+import me.learning.api_schema.route.extension.core.map
 
-POST("/user").auth(UserAuth::class).map { auth -> ... }
+post("/user").auth(UserAuth::class).map { auth -> ... }
 
 
 // Put Method
-import me.learning.api_schema.route.extension.PUT
+import me.learning.api_schema.route.extension.put
 import me.learning.api_schema.route.extension.core.map
 
-PUT("/user/{id}").auth(UserAuth::class).pathVariable(Long::class).map { t2: Tuple2<UserAuth, Long> -> ... }
+put("/user/{id}").auth(UserAuth::class).pathVariable(Long::class).map { t2: Tuple2<UserAuth, Long> -> ... }
 ```
 
 ### Expose Default Endpoint:

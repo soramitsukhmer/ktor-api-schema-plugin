@@ -13,7 +13,7 @@ import me.learning.api_schema.extension.isRequestBody
 import me.learning.api_schema.extension.prop
 
 
-inline fun <reified T> Route.POST(
+inline fun <reified T> Route.post(
     path: String = "",
     responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.() -> T
@@ -24,7 +24,7 @@ inline fun <reified T> Route.POST(
 }
 
 
-inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POST(
+inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.post(
     path: String = "",
     responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(T1) -> T
@@ -45,7 +45,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.POST(
 inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>
-        > Route.POST(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2) -> T
+        > Route.post(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -70,7 +70,7 @@ inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>
-        > Route.POST(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
+        > Route.post(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -99,7 +99,7 @@ inline fun <reified T,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>
-        > Route.POST(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
+        > Route.post(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -132,7 +132,7 @@ inline fun <reified T,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>,
         reified V5 : Any, reified T5 : RouteProp<V5>
-        > Route.POST(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
+        > Route.post(path: String = "", responseWrapper: Boolean = true, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,

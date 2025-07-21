@@ -15,7 +15,7 @@ import me.learning.api_schema.extension.setFileHeader
 import java.io.File
 
 
-inline fun Route.GETFILE(
+inline fun Route.getFile(
     path: String = "",
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.() -> File
@@ -30,7 +30,7 @@ inline fun Route.GETFILE(
 }
 
 
-inline fun <reified V : Any, reified T : RouteProp<V>> Route.GETFILE(
+inline fun <reified V : Any, reified T : RouteProp<V>> Route.getFile(
     path: String = "",
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T) -> File
@@ -55,7 +55,7 @@ inline fun <reified V : Any, reified T : RouteProp<V>> Route.GETFILE(
 inline fun <
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>
-        > Route.GETFILE(
+        > Route.getFile(
     path: String = "",
     removeFileAfterProcessing: Boolean = false,
     crossinline block: suspend RoutingRequest.(T1, T2) -> File
@@ -84,7 +84,7 @@ inline fun <
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>
-        > Route.GETFILE(path: String = "", removeFileAfterProcessing: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> File
+        > Route.getFile(path: String = "", removeFileAfterProcessing: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> File
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -117,7 +117,7 @@ inline fun <
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>
-        > Route.GETFILE(path: String = "", removeFileAfterProcessing: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> File
+        > Route.getFile(path: String = "", removeFileAfterProcessing: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> File
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
