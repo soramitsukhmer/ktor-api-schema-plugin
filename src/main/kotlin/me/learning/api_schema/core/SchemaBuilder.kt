@@ -31,6 +31,7 @@ inline fun <reified T, reified I> Route.schemaBuilder(
     securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
 
     request {
+        pathVariable?.let { it.forEach { (key, value) -> pathParameter(key, value.asKType()) } }
         bodyFileAsList?.let { fileAsList ->
             // form-data request body
             multipartBody {
@@ -47,8 +48,6 @@ inline fun <reified T, reified I> Route.schemaBuilder(
                 }
             }
         } ?: kotlin.run {
-            // raw request body
-            pathVariable?.let { it.forEach { (key, value) -> pathParameter(key, value.asKType()) } }
             when (I::class) {
                 Nothing::class -> {}
                 Unit::class -> {}
