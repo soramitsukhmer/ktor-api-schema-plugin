@@ -2,8 +2,8 @@ package me.learning.api_schema.dto.route.inline
 
 import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.common.MethodEnum
-import me.learning.api_schema.dto.handler.throwOnFileReqBody
-import me.learning.api_schema.dto.handler.throwOnMultipleDataRequestBody
+import me.learning.api_schema.extension.throwOnFileReqBody
+import me.learning.api_schema.extension.throwOnMultipleDataRequestBody
 import me.learning.api_schema.dto.route.inline.impl.PathVariable
 import me.learning.api_schema.dto.route.inline.impl.RequestBody
 import kotlin.reflect.KClass

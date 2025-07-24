@@ -3,10 +3,10 @@ package me.learning.api_schema.dto.route.extension.put
 import io.ktor.server.routing.Route
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.common.RoutePropEnum
-import me.learning.api_schema.dto.handler.throwOnFileReqBody
-import me.learning.api_schema.dto.handler.throwOnInvalidTypeOfPathVariable
-import me.learning.api_schema.dto.handler.throwOnMethodGetRequestBody
-import me.learning.api_schema.dto.handler.throwOnMultipleProp
+import me.learning.api_schema.extension.throwOnFileReqBody
+import me.learning.api_schema.extension.throwOnInvalidTypeOfPathVariable
+import me.learning.api_schema.extension.throwOnMethodGetRequestBody
+import me.learning.api_schema.extension.throwOnMultipleProp
 import kotlin.reflect.KClass
 
 data class PutDtoT3<T1 : Any, T2 : Any, T3 : Any>(

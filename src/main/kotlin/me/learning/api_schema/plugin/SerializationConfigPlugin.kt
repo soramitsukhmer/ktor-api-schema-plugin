@@ -16,6 +16,7 @@ fun Application.configureSerialization() {
                 registerModule(JavaTimeModule())
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                configure(SerializationFeature.INDENT_OUTPUT, true)
                 dateFormat = StdDateFormat().withColonInTimeZone(true)
             }
         }
