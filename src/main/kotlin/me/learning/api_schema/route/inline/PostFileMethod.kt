@@ -103,8 +103,8 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postF
 
     return this.post(path.cleanRoutePath(), builder) {
         val (files, p1) = when (isRequestBody<T1>()) {
-            true -> call.getFileDataRequest<V1>(false, extensions).let { it.first to RequestBody(it.second) }
-            false -> call.getFileRequest(false, extensions) to call.prop<V1, T1>(path).first
+            true -> call.getFileDataRequest<V1>(true, extensions).let { it.first to RequestBody(it.second) }
+            false -> call.getFileRequest(true, extensions) to call.prop<V1, T1>(path).first
         }
 
         call.ok(call.request.block(p1 as T1, files), responseWrapper)
@@ -172,11 +172,11 @@ inline fun <reified T,
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
-            isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions)
+            isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions)
                 .let { Tuple3(RequestBody(it.second), call.prop<V2, T2>(path).first, it.first) }
-            isRequestBody<T2>() -> call.getFileDataRequest<V2>(false, extensions)
+            isRequestBody<T2>() -> call.getFileDataRequest<V2>(true, extensions)
                 .let { Tuple3(call.prop<V1, T1>(path).first, RequestBody(it.second), it.first) }
-            else -> Tuple3(call.prop<V1, T1>(path).first, call.prop<V2, T2>(path).first, call.getFileRequest(false, extensions))
+            else -> Tuple3(call.prop<V1, T1>(path).first, call.prop<V2, T2>(path).first, call.getFileRequest(true, extensions))
         }
 
         call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3), responseWrapper)
@@ -221,7 +221,7 @@ inline fun <reified T,
                 val p3 = call.prop<V3, T3>(path, idx).first
                 Tuple4(p1, RequestBody(it.second), p3, it.first.first())
             }
-            isRequestBody<T3>() -> call.getFileDataRequest<V2>(false, extensions).let {
+            isRequestBody<T3>() -> call.getFileDataRequest<V3>(false, extensions).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val p2 = call.prop<V2, T2>(path, idx).first
                 Tuple4(p1, p2, RequestBody(it.second), it.first.first())
@@ -266,22 +266,22 @@ inline fun <reified T,
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
-            isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions).let {
+            isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions).let {
                 val (p2, idx) = call.prop<V2, T2>(path)
                 val p3 = call.prop<V3, T3>(path, idx).first
                 Tuple4(RequestBody(it.second), p2, p3, it.first)
             }
-            isRequestBody<T2>() -> call.getFileDataRequest<V2>(false, extensions).let {
+            isRequestBody<T2>() -> call.getFileDataRequest<V2>(true, extensions).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val p3 = call.prop<V3, T3>(path, idx).first
                 Tuple4(p1, RequestBody(it.second), p3, it.first)
             }
-            isRequestBody<T3>() -> call.getFileDataRequest<V2>(false, extensions).let {
+            isRequestBody<T3>() -> call.getFileDataRequest<V3>(true, extensions).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val p2 = call.prop<V2, T2>(path, idx).first
                 Tuple4(p1, p2, RequestBody(it.second), it.first)
             }
-            else -> call.getFileRequest(false, extensions).let {
+            else -> call.getFileRequest(true, extensions).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val p3 = call.prop<V3, T3>(path, idx2).first
@@ -336,7 +336,7 @@ inline fun <reified T,
                 val p4 = call.prop<V4, T4>(path, idx3).first
                 Tuple5(p1, RequestBody(it.second), p3, p4, it.first.first())
             }
-            isRequestBody<T3>() -> call.getFileDataRequest<V2>(false, extensions).let {
+            isRequestBody<T3>() -> call.getFileDataRequest<V3>(false, extensions).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val p4 = call.prop<V4, T4>(path, idx2).first
@@ -393,31 +393,31 @@ inline fun <reified T,
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
-            isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions).let {
+            isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions).let {
                 val (p2, idx2) = call.prop<V2, T2>(path)
                 val (p3, idx3) = call.prop<V3, T3>(path, idx2)
                 val p4 = call.prop<V4, T4>(path, idx3).first
                 Tuple5(RequestBody(it.second), p2, p3, p4, it.first)
             }
-            isRequestBody<T2>() -> call.getFileDataRequest<V2>(false, extensions).let {
+            isRequestBody<T2>() -> call.getFileDataRequest<V2>(true, extensions).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p3, idx3) = call.prop<V3, T3>(path, idx)
                 val p4 = call.prop<V4, T4>(path, idx3).first
                 Tuple5(p1, RequestBody(it.second), p3, p4, it.first)
             }
-            isRequestBody<T3>() -> call.getFileDataRequest<V2>(false, extensions).let {
+            isRequestBody<T3>() -> call.getFileDataRequest<V3>(true, extensions).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val p4 = call.prop<V4, T4>(path, idx2).first
                 Tuple5(p1, p2, RequestBody(it.second), p4, it.first)
             }
-            isRequestBody<T4>() -> call.getFileDataRequest<V4>(false, extensions).let {
+            isRequestBody<T4>() -> call.getFileDataRequest<V4>(true, extensions).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val p3 = call.prop<V3, T3>(path, idx2).first
                 Tuple5(p1, p2, p3, RequestBody(it.second), it.first)
             }
-            else -> call.getFileRequest(false, extensions).let {
+            else -> call.getFileRequest(true, extensions).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val (p3, idx3) = call.prop<V3, T3>(path, idx2)
