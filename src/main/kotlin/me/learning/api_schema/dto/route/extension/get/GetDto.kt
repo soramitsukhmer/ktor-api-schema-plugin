@@ -3,7 +3,7 @@ package me.learning.api_schema.dto.route.extension.get
 import io.ktor.server.routing.Route
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.common.RoutePropEnum
-import me.learning.api_schema.dto.handler.throwOnInvalidTypeOfPathVariable
+import me.learning.api_schema.extension.throwOnInvalidTypeOfPathVariable
 import kotlin.reflect.KClass
 
 data class GetDto(

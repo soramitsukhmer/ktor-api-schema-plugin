@@ -3,8 +3,8 @@ package me.learning.api_schema.dto.route.extension.get
 import io.ktor.server.routing.Route
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.common.RoutePropEnum
-import me.learning.api_schema.dto.handler.throwOnMethodGetRequestBody
-import me.learning.api_schema.dto.handler.throwOnMultipleProp
+import me.learning.api_schema.extension.throwOnMethodGetRequestBody
+import me.learning.api_schema.extension.throwOnMultipleProp
 import kotlin.reflect.KClass
 
 data class GetDtoT3<T1 : Any, T2 : Any, T3 : Any>(

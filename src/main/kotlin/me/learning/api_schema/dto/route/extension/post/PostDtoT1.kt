@@ -3,8 +3,8 @@ package me.learning.api_schema.dto.route.extension.post
 import io.ktor.server.routing.Route
 import me.learning.api_schema.common.MethodEnum
 import me.learning.api_schema.common.RoutePropEnum
-import me.learning.api_schema.dto.handler.throwOnFileReqBody
-import me.learning.api_schema.dto.handler.throwUnsupportedWhenPropExistedOnMethod
+import me.learning.api_schema.extension.throwOnFileReqBody
+import me.learning.api_schema.extension.throwUnsupportedWhenPropExistedOnMethod
 import kotlin.reflect.KClass
 
 data class PostDtoT1<T1 : Any>(

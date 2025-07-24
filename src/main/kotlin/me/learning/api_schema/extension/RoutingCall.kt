@@ -15,7 +15,6 @@ import me.learning.api_schema.common.RoutePropEnum
 import me.learning.api_schema.common.Helper.badRequest
 import me.learning.api_schema.common.Helper.extractAllPathParameters
 import me.learning.api_schema.common.MethodEnum
-import me.learning.api_schema.dto.handler.throwOnFileReqBody
 import me.learning.api_schema.dto.request.FileInfoReq
 import java.io.File
 import kotlin.collections.joinToString

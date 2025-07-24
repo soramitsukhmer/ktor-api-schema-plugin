@@ -26,12 +26,6 @@ fun <T : Any> KClass<T>.asKType(): KType {
     return this.java.kotlin.createType()
 }
 
-inline fun <reified T> ifTypeListOFFileInfoReq(): Boolean {
-    val fileTypeAsList = typeInfo<List<FileInfoReq>>()
-    val requestType = typeInfo<T>()
-    return requestType == fileTypeAsList
-}
-
 suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<String>, asList: Boolean): FileInfoReq? {
     if (asList && this.name != "files") return null
     if (!asList && this.name != "file") return null
@@ -61,7 +55,6 @@ suspend inline fun <reified T> PartData.FormItem.getRequest(existed: Boolean): T
     if (existed) badRequest("Invalid request duplicate data")
     if ((null is T) && value.isEmpty()) return null
     if (value.isEmpty()) badRequest("Invalid data must not empty")
-
     return receiveRequestBody(T::class.simpleName) { value.ct(T::class.java) }
 }
 
