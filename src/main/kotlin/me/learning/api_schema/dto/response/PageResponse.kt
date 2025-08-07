@@ -5,14 +5,14 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ResponseWrapper<T>(
     val status: Status,
-    val data: T,
-    val requestId: String? = null
+    val data: T?,
+    val requestId: String?
 )
 
 @Serializable
 data class Status(
-    val errorCode: Int,
-    val errorMessage: String,
+    val code: Int,
+    val message: String?,
 )
 
 object ErrorCode {

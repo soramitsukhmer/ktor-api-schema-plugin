@@ -50,54 +50,46 @@ fun <T : Any> ApplicationCall.auth(clazz: KClass<T>): T {
     }
 }
 
-suspend inline fun ApplicationCall.response(statusCode: Int, message: String?, data: Any? = null) {
-    response.status(HttpStatusCode.BadRequest)
-    respond(
-        ResponseWrapper(
-            Status(statusCode, message ?: HttpStatusCode.BadRequest.description),
-            data,
-            request.headers[HttpHeaders.XRequestId]
-        )
-    )
+suspend inline fun ApplicationCall.response(http: HttpStatusCode, code: Int, message: String?, data: Any? = null) {
+    response.status(http)
+    respond(ResponseWrapper(Status(code, message), data, request.headers[HttpHeaders.XRequestId]))
 }
 
-suspend inline fun ApplicationCall.invalidAuth() {
-    response.status(HttpStatusCode.Unauthorized)
-    respond(
-        ResponseWrapper(
-            Status(ErrorCode.BAD_REQUEST, "Token is invalid or expired"),
-            request.headers[HttpHeaders.XRequestId]
-        )
-    )
+suspend inline fun ApplicationCall.invalidAuth(
+    code: Int = ErrorCode.BAD_REQUEST,
+    message: String = "Token is invalid or expired",
+    http: HttpStatusCode = HttpStatusCode.Forbidden
+) {
+    response.status(http)
+    respond(ResponseWrapper(Status(code, message), null, request.headers[HttpHeaders.XRequestId]))
 }
 
-suspend inline fun ApplicationCall.unauthorized() {
-    response.status(HttpStatusCode.Forbidden)
-    respond(
-        ResponseWrapper(
-            Status(ErrorCode.BAD_REQUEST, "Access Denied"),
-            request.headers[HttpHeaders.XRequestId]
-        )
-    )
+suspend inline fun ApplicationCall.unauthorized(
+    code: Int = ErrorCode.BAD_REQUEST,
+    message: String = "Access Denied",
+    http: HttpStatusCode = HttpStatusCode.Forbidden
+) {
+    response.status(http)
+    respond(ResponseWrapper(Status(code, message), null, request.headers[HttpHeaders.XRequestId]))
 }
 
-suspend inline fun ApplicationCall.badReq(message: String?, data: Any? = null) {
+suspend inline fun ApplicationCall.badReq(message: String?) {
     response.status(HttpStatusCode.BadRequest)
     respond(
         ResponseWrapper(
             Status(ErrorCode.BAD_REQUEST, message ?: HttpStatusCode.BadRequest.description),
-            data,
+            null,
             request.headers[HttpHeaders.XRequestId]
         )
     )
 }
 
-suspend inline fun ApplicationCall.notFound(message: String?, data: Any? = null) {
+suspend inline fun ApplicationCall.notFound(message: String?) {
     response.status(HttpStatusCode.NotFound)
     respond(
         ResponseWrapper(
             Status(ErrorCode.NOT_FOUND, message ?: HttpStatusCode.NotFound.description),
-            data,
+            null,
             request.headers[HttpHeaders.XRequestId]
         )
     )
