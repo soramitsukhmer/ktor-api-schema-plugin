@@ -35,6 +35,10 @@ fun Application.exceptionConfigPlugin(config: ExceptionConfig) {
                 logger.error("Not Found", cause)
                 call.notFound(cause.message)
             }
+            exception<IllegalArgumentException> { call, cause ->
+                logger.error("IllegalArgumentException: ", cause)
+                call.badReq(cause.message)
+            }
 
             config.property.exceptions.forEach { (exceptionClass, handler) ->
                 @Suppress("UNCHECKED_CAST")

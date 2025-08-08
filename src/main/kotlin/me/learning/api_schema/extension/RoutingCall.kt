@@ -1,6 +1,8 @@
 package me.learning.api_schema.extension
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import io.ktor.http.ContentDisposition
 import io.ktor.http.HttpHeaders
 import io.ktor.http.content.PartData
@@ -33,15 +35,14 @@ fun <T : Any> KClass<T>.getDefaultValue(value: String, param: String): T {
 }
 
 suspend fun <T> receiveRequestBody(clazzName: String?, block: suspend () -> T): T {
-    return try {
-        block()
-    } catch (e: Exception) {
+    return try { block() }
+    catch (e: Exception) {
         when (e) {
             is RequestValidationException -> badRequest(e.reasons.minOf { it })
             else -> {
-                e.cause?.cause.isMismatchException()
-                e.cause.isMismatchException()
-                e.isMismatchException()
+                e.cause?.cause.throwable()
+                e.cause.throwable()
+                e.throwable()
 
                 print(">>> Invalid body request: : $clazzName")
                 badRequest("The body request is invalid")
@@ -64,14 +65,31 @@ fun <T : Any> RoutingCall.getPathVariable(clazz: KClass<T>, param: String): T {
     return clazz.getDefaultValue(value, param)
 }
 
-fun Throwable?.isMismatchException() = when (this) {
-    is MismatchedInputException -> {
+fun Throwable?.throwable() = when (this) {
+
+    is IllegalArgumentException -> badRequest(message ?: localizedMessage)
+
+    is InvalidFormatException -> {
+        val msg = message ?: localizedMessage
+        val fieldPattern = """\["([^"]+)"\]""".toRegex()
+        val valuePattern = """from String "([^"]+)"""".toRegex()
+
+        val field = fieldPattern.findAll(msg)
+            .map { it.groupValues[1] }
+            .joinToString(".")
+        val value = valuePattern.find(msg)?.groupValues?.get(1) ?: "unknown"
+
+        badRequest("Invalid request value: [$value] of field: $field")
+    }
+
+    is MissingKotlinParameterException, is MismatchedInputException -> {
         val field = path.map { it.fieldName }.let { fields ->
             if (fields.size > 1) fields.joinToString(", ", "[", "]") { it }
             else fields.firstOrNull() ?: ""
         }
         badRequest("$field is missing")
     }
+
     else -> {}
 }
 
