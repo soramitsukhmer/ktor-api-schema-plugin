@@ -22,9 +22,9 @@ object ErrorCode {
     const val ERROR = 5
 }
 
-data class PaginationRes(
+data class Pagination(
     val currentPage: Long,
-    val pageSize: Long,
+    val pageSize: Int,
     val totalElements: Long,
     val totalPages: Long,
     val first: Boolean,
@@ -33,5 +33,5 @@ data class PaginationRes(
 
 data class PageResponse<T>(
     val content: List<T>,
-    val pagination: PaginationRes
+    val pagination: Pagination
 )
