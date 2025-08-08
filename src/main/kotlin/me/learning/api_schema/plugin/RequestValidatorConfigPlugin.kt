@@ -18,7 +18,7 @@ fun Application.requestValidatorConfigPlugin() {
                 when (error.isEmpty()) {
                     true -> ValidationResult.Valid
                     false -> {
-                        val messages = error.map { e -> "${e.propertyPath} ${e.message}" }
+                        val messages = error.map { e -> e.message.replace("{field}", e.propertyPath.toString()) }
                         ValidationResult.Invalid(messages)
                     }
                 }
