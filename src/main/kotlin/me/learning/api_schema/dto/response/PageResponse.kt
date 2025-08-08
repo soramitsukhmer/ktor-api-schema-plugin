@@ -21,3 +21,17 @@ object ErrorCode {
     const val BAD_REQUEST = 4
     const val ERROR = 5
 }
+
+data class PaginationRes(
+    val currentPage: Long,
+    val pageSize: Long,
+    val totalElements: Long,
+    val totalPages: Long,
+    val first: Boolean,
+    val last: Boolean
+)
+
+data class PageResponse<T>(
+    val content: List<T>,
+    val pagination: PaginationRes
+)
