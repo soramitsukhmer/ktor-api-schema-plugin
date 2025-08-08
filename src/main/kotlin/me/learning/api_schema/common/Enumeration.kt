@@ -24,3 +24,8 @@ enum class RouteFormDataPropEnum {
 
     fun isText() = this == TEXT
 }
+
+enum class DirectionEnum {
+    ASC,
+    DESC
+}
