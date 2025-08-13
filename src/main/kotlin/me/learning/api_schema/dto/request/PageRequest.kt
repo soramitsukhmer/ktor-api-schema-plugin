@@ -1,6 +1,5 @@
 package me.learning.api_schema.dto.request
 
-import jakarta.validation.constraints.NotBlank
 import me.learning.api_schema.common.DirectionEnum
 
 abstract class PageRequest(
@@ -10,6 +9,8 @@ abstract class PageRequest(
 )
 
 data class Order(
-    @field:NotBlank(message = "The property field must not be blank") val property: String,
+    val property: String,
     val direction: DirectionEnum
-)
+) {
+    init { require(property.isNotBlank()) { "The property must not be blank." } }
+}
