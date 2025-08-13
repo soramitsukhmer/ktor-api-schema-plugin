@@ -3,6 +3,7 @@ package me.learning.api_schema.plugin
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.plugins.statuspages.*
+import jakarta.validation.ValidationException
 import me.learning.api_schema.config.exception.ExceptionConfig
 import me.learning.api_schema.dto.handler.InvalidAuthException
 import me.learning.api_schema.dto.handler.UnauthorizedAuthException
@@ -37,6 +38,10 @@ fun Application.exceptionConfigPlugin(config: ExceptionConfig) {
             }
             exception<IllegalArgumentException> { call, cause ->
                 logger.error("IllegalArgumentException: ", cause)
+                call.badReq(cause.message)
+            }
+            exception<ValidationException> { call, cause ->
+                logger.error("ValidationException: ", cause)
                 call.badReq(cause.message)
             }
 
