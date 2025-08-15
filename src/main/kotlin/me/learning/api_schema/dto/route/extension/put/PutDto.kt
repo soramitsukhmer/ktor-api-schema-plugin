@@ -9,11 +9,15 @@ import kotlin.reflect.KClass
 
 data class PutDto(
     val route: Route,
-    val path: String
+    val path: String,
+    val responseWrapper: Boolean,
+    val hidden: Boolean
 ) {
     fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>) = PutDtoT1(
         route,
         path,
+        responseWrapper,
+        hidden,
         pair
     )
 

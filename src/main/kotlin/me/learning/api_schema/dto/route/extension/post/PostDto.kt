@@ -12,11 +12,15 @@ import kotlin.reflect.typeOf
 
 data class PostDto(
     val route: Route,
-    val path: String
+    val path: String,
+    val responseWrapper: Boolean,
+    val hidden: Boolean
 ) {
     fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>) = PostDtoT1(
         route,
         path,
+        responseWrapper,
+        hidden,
         pair
     )
 
@@ -32,6 +36,8 @@ data class PostDto(
         path,
         extension,
         removeFileAfterProcessing,
+        responseWrapper,
+        hidden,
         FileInfoReq::class to RouteFormDataPropEnum.FILE
     )
 
@@ -41,6 +47,8 @@ data class PostDto(
         path,
         extension,
         removeFileAfterProcessing,
+        responseWrapper,
+        hidden,
         (typeOf<List<FileInfoReq>>().classifier as KClass<List<FileInfoReq>>) to RouteFormDataPropEnum.FILES
     )
 }

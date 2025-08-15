@@ -12,6 +12,8 @@ import kotlin.reflect.KClass
 data class PutDtoT3<T1 : Any, T2 : Any, T3 : Any>(
     val route: Route,
     val path: String,
+    val responseWrapper: Boolean,
+    val hidden: Boolean,
     val p1: Pair<KClass<T1>, RoutePropEnum>,
     val p2: Pair<KClass<T2>, RoutePropEnum>,
     val p3: Pair<KClass<T3>, RoutePropEnum>
@@ -28,6 +30,8 @@ data class PutDtoT3<T1 : Any, T2 : Any, T3 : Any>(
         PutDtoT4(
             route,
             path,
+            responseWrapper,
+            hidden,
             p1,
             p2,
             p3,

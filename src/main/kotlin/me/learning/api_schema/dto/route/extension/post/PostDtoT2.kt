@@ -10,6 +10,8 @@ import kotlin.reflect.KClass
 data class PostDtoT2<T1 : Any, T2 : Any>(
     val route: Route,
     val path: String,
+    val responseWrapper: Boolean,
+    val hidden: Boolean,
     val p1: Pair<KClass<T1>, RoutePropEnum>,
     val p2: Pair<KClass<T2>, RoutePropEnum>
 ) {

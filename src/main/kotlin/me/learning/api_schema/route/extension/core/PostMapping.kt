@@ -27,24 +27,18 @@ import kotlin.Pair
 import kotlin.reflect.KClass
 
 
-inline fun <reified T> PostDto.map(
-    responseWrapper: Boolean = true,
-    crossinline block: suspend RoutingRequest.() -> T
-): Route {
-    val builder = route.schemaBuilder<T, Unit>(responseWrapper = responseWrapper)
+inline fun <reified T> PostDto.map(crossinline block: suspend RoutingRequest.() -> T): Route {
+    val builder = route.schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper)
     return route.post(path.cleanRoutePath(), builder) {
         call.ok(call.request.block(), responseWrapper)
     }
 }
 
-inline fun <reified T, reified T1 : Any> PostDtoT1<T1>.map(
-    responseWrapper: Boolean = true,
-    crossinline block: suspend RoutingRequest.(v1: T1) -> T
-): Route {
+inline fun <reified T, reified T1 : Any> PostDtoT1<T1>.map(crossinline block: suspend RoutingRequest.(v1: T1) -> T): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(variable, responseWrapper = responseWrapper)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper)
     }
 
     return route.post(path.cleanRoutePath(), builder) {
@@ -53,15 +47,12 @@ inline fun <reified T, reified T1 : Any> PostDtoT1<T1>.map(
     }
 }
 
-inline fun <reified T, reified T1 : Any, reified T2 : Any> PostDtoT2<T1, T2>.map(
-    responseWrapper: Boolean = true,
-    crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> T
-): Route {
+inline fun <reified T, reified T1 : Any, reified T2 : Any> PostDtoT2<T1, T2>.map(crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> T): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(variable, responseWrapper = responseWrapper)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(hidden, variable, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper)
     }
 
     return route.post(path.cleanRoutePath(), builder) {
@@ -74,11 +65,8 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> PostDtoT2<T1, T2>.map
 // ============== File Builder ==============
 
 @JvmName("PostFileBuilderT1_FileInfoReq")
-inline fun <reified T> PostFileDtoT1<FileInfoReq>.map(
-    responseWrapper: Boolean = true,
-    crossinline block: suspend RoutingRequest.(t1: FileInfoReq) -> T
-): Route {
-    val builder = route.schemaBuilder<T, Unit>(bodyFileAsList = false, responseWrapper = responseWrapper)
+inline fun <reified T> PostFileDtoT1<FileInfoReq>.map(crossinline block: suspend RoutingRequest.(t1: FileInfoReq) -> T): Route {
+    val builder = route.schemaBuilder<T, Unit>(hidden, bodyFileAsList = false, responseWrapper = responseWrapper)
     return route.post(path.cleanRoutePath(), builder) {
         val files = call.getFileRequest(true, extensions)
 
@@ -88,11 +76,8 @@ inline fun <reified T> PostFileDtoT1<FileInfoReq>.map(
 }
 
 @JvmName("PostFileBuilderT1_List_FileInfoReq")
-inline fun <reified T> PostFileDtoT1<List<FileInfoReq>>.map(
-    responseWrapper: Boolean = true,
-    crossinline block: suspend RoutingRequest.(t1: List<FileInfoReq>) -> T
-): Route {
-    val builder = route.schemaBuilder<T, Unit>(bodyFileAsList = true, responseWrapper = responseWrapper)
+inline fun <reified T> PostFileDtoT1<List<FileInfoReq>>.map(crossinline block: suspend RoutingRequest.(t1: List<FileInfoReq>) -> T): Route {
+    val builder = route.schemaBuilder<T, Unit>(hidden, bodyFileAsList = true, responseWrapper = responseWrapper)
     return route.post(path.cleanRoutePath(), builder) {
         val files = call.getFileRequest(true, extensions)
 
@@ -102,13 +87,10 @@ inline fun <reified T> PostFileDtoT1<List<FileInfoReq>>.map(
 }
 
 @JvmName("PostFileBuilderT2_FileInfoReq")
-inline fun <reified T, reified T2 : Any> PostFileDtoT2<FileInfoReq, T2>.map(
-    responseWrapper: Boolean = true,
-    crossinline block: RoutingRequest.(t2: Tuple2<FileInfoReq, T2>) -> T
-): Route {
+inline fun <reified T, reified T2 : Any> PostFileDtoT2<FileInfoReq, T2>.map(crossinline block: RoutingRequest.(t2: Tuple2<FileInfoReq, T2>) -> T): Route {
     val builder = when (true) {
-        p2.isText() -> route.schemaBuilder<T, T2>(bodyFileAsList = false, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(bodyFileAsList = false, responseWrapper = responseWrapper)
+        p2.isText() -> route.schemaBuilder<T, T2>(hidden, bodyFileAsList = false, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(hidden, bodyFileAsList = false, responseWrapper = responseWrapper)
     }
 
     return route.post(path.cleanRoutePath(), builder) {
@@ -123,13 +105,10 @@ inline fun <reified T, reified T2 : Any> PostFileDtoT2<FileInfoReq, T2>.map(
 }
 
 @JvmName("PostFileBuilderT2_List_FileInfoReq")
-inline fun <reified T, reified T2 : Any> PostFileDtoT2<List<FileInfoReq>, T2>.map(
-    responseWrapper: Boolean = true,
-    crossinline block: RoutingRequest.(t2: Tuple2<List<FileInfoReq>, T2>) -> T
-): Route {
+inline fun <reified T, reified T2 : Any> PostFileDtoT2<List<FileInfoReq>, T2>.map(crossinline block: RoutingRequest.(t2: Tuple2<List<FileInfoReq>, T2>) -> T): Route {
     val builder = when (true) {
-        p2.isText() -> route.schemaBuilder<T, T2>(bodyFileAsList = true, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(bodyFileAsList = true, responseWrapper = responseWrapper)
+        p2.isText() -> route.schemaBuilder<T, T2>(hidden, bodyFileAsList = true, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(hidden, bodyFileAsList = true, responseWrapper = responseWrapper)
     }
 
     return route.post(path.cleanRoutePath(), builder) {
@@ -144,14 +123,11 @@ inline fun <reified T, reified T2 : Any> PostFileDtoT2<List<FileInfoReq>, T2>.ma
 }
 
 @JvmName("PostFileBuilderT3_FileInfoReq")
-inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<FileInfoReq, T2, T3>.map(
-    responseWrapper: Boolean = true,
-    crossinline block: RoutingRequest.(t2: Tuple3<FileInfoReq, T2, T3>) -> T
-): Route {
+inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<FileInfoReq, T2, T3>.map(crossinline block: RoutingRequest.(t2: Tuple3<FileInfoReq, T2, T3>) -> T): Route {
     val builder = when (true) {
-        p2.isText() -> route.schemaBuilder<T, T2>(bodyFileAsList = false, responseWrapper = responseWrapper)
-        p3.isText() -> route.schemaBuilder<T, T3>(bodyFileAsList = false, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(bodyFileAsList = false, responseWrapper = responseWrapper)
+        p2.isText() -> route.schemaBuilder<T, T2>(hidden, bodyFileAsList = false, responseWrapper = responseWrapper)
+        p3.isText() -> route.schemaBuilder<T, T3>(hidden, bodyFileAsList = false, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(hidden, bodyFileAsList = false, responseWrapper = responseWrapper)
     }
 
     return route.post(path.cleanRoutePath(), builder) {
@@ -169,13 +145,12 @@ inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<FileInf
 
 @JvmName("PostFileBuilderT3_List_FileInfoReq")
 inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<List<FileInfoReq>, T2, T3>.map(
-    responseWrapper: Boolean = true,
     crossinline block: RoutingRequest.(t2: Tuple3<List<FileInfoReq>, T2, T3>) -> T
 ): Route {
     val builder = when (true) {
-        p2.isText() -> route.schemaBuilder<T, T2>(bodyFileAsList = true, responseWrapper = responseWrapper)
-        p3.isText() -> route.schemaBuilder<T, T3>(bodyFileAsList = true, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(bodyFileAsList = true, responseWrapper = responseWrapper)
+        p2.isText() -> route.schemaBuilder<T, T2>(hidden, bodyFileAsList = true, responseWrapper = responseWrapper)
+        p3.isText() -> route.schemaBuilder<T, T3>(hidden, bodyFileAsList = true, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(hidden, bodyFileAsList = true, responseWrapper = responseWrapper)
     }
 
     return route.post(path.cleanRoutePath(), builder) {

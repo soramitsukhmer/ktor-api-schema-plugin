@@ -23,10 +23,13 @@ import kotlin.reflect.KClass
 
 
 inline fun <reified T, reified I> Route.schemaBuilder(
+    hidden: Boolean,
     pathVariable: Map<String, KClass<*>>? = null,
     responseWrapper: Boolean = true,
     bodyFileAsList: Boolean? = null,
 ): RouteConfig.() -> Unit = {
+
+    this.hidden = hidden
 
     securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
 

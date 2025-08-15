@@ -10,6 +10,8 @@ import kotlin.reflect.KClass
 data class GetDtoT1<T1 : Any>(
     val route: Route,
     val path: String,
+    val responseWrapper: Boolean,
+    val hidden: Boolean,
     val p1: Pair<KClass<T1>, RoutePropEnum>
 ) {
     init {
@@ -20,6 +22,8 @@ data class GetDtoT1<T1 : Any>(
         GetDtoT2(
             route,
             path,
+            responseWrapper,
+            hidden,
             p1,
             pair
         )

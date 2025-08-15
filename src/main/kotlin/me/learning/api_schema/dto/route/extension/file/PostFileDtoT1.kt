@@ -2,13 +2,16 @@ package me.learning.api_schema.dto.route.extension.file
 
 import io.ktor.server.routing.Route
 import me.learning.api_schema.common.RouteFormDataPropEnum
+import me.learning.api_schema.dto.response.ResponseWrapper
 import kotlin.reflect.KClass
 
 data class PostFileDtoT1<T1 : Any>(
     val route: Route,
     val path: String,
     val extensions: List<String>,
-    val removeFileAfterProcessing: Boolean = false,
+    val removeFileAfterProcessing: Boolean,
+    val responseWrapper: Boolean,
+    val hidden: Boolean,
     val p1: Pair<KClass<T1>, RouteFormDataPropEnum>
 ) {
 
@@ -29,6 +32,8 @@ data class PostFileDtoT1<T1 : Any>(
             path,
             ext,
             removeFileAfterProcessing,
+            responseWrapper,
+            hidden,
             p1,
             pair
         )

@@ -20,25 +20,19 @@ import me.learning.api_schema.extension.setFileHeader
 import java.io.File
 
 @JvmName("get_dto")
-inline fun <reified T> GetDto.map(
-    responseWrapper: Boolean = true,
-    crossinline block: suspend RoutingRequest.() -> T
-): Route {
-    val builder = route.schemaBuilder<T, Unit>(responseWrapper = responseWrapper)
+inline fun <reified T> GetDto.map(crossinline block: suspend RoutingRequest.() -> T): Route {
+    val builder = route.schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper)
     return route.get(path.cleanRoutePath(), builder) {
         call.ok(call.request.block(), responseWrapper)
     }
 }
 
 @JvmName("get_dto_t1")
-inline fun <reified T, reified T1 : Any> GetDtoT1<T1>.map(
-    responseWrapper: Boolean = true,
-    crossinline block: suspend RoutingRequest.(v1: T1) -> T
-): Route {
+inline fun <reified T, reified T1 : Any> GetDtoT1<T1>.map(crossinline block: suspend RoutingRequest.(v1: T1) -> T): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (p1.isRequestBody()) {
-        true -> route.schemaBuilder<T, T1>(responseWrapper = responseWrapper)
-        false -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
+        true -> route.schemaBuilder<T, T1>(hidden, responseWrapper = responseWrapper)
+        false -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper)
     }
 
     return route.get(path.cleanRoutePath(), builder) {
@@ -49,14 +43,13 @@ inline fun <reified T, reified T1 : Any> GetDtoT1<T1>.map(
 
 @JvmName("get_dto_t1_t2")
 inline fun <reified T, reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
-    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(variable, responseWrapper = responseWrapper)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(hidden, variable, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper)
     }
 
     return route.get(path.cleanRoutePath(), builder) {
@@ -68,15 +61,14 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
 
 @JvmName("get_dto_t1_t2_t3")
 inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> GetDtoT3<T1, T2, T3>.map(
-    responseWrapper: Boolean = true,
     crossinline block: suspend RoutingRequest.(t3: Tuple3<T1, T2, T3>) -> T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2, p3)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(variable, responseWrapper = responseWrapper)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(variable, responseWrapper = responseWrapper)
-        p3.isRequestBody() -> route.schemaBuilder<T, T3>(variable, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(variable, responseWrapper = responseWrapper)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(hidden, variable, responseWrapper = responseWrapper)
+        p3.isRequestBody() -> route.schemaBuilder<T, T3>(hidden, variable, responseWrapper = responseWrapper)
+        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper)
     }
 
     return route.get(path.cleanRoutePath(), builder) {
@@ -94,7 +86,7 @@ inline fun GetDto.map(
     removeFileAfterProcessing: Boolean,
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
-    val builder = route.schemaBuilder<Unit, Unit>()
+    val builder = route.schemaBuilder<Unit, Unit>(hidden)
     return route.get(path.cleanRoutePath(), builder) {
         val file = call.request.block()
         call.setFileHeader(file)
@@ -111,8 +103,8 @@ inline fun <reified T1 : Any> GetDtoT1<T1>.map(
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<Unit, T1>(variable)
-        else -> route.schemaBuilder<Unit, Unit>(variable)
+        p1.isRequestBody() -> route.schemaBuilder<Unit, T1>(hidden, variable)
+        else -> route.schemaBuilder<Unit, Unit>(hidden, variable)
     }
 
     return route.get(path.cleanRoutePath(), builder) {
@@ -132,9 +124,9 @@ inline fun <reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<Unit, T1>(variable)
-        p2.isRequestBody() -> route.schemaBuilder<Unit, T2>(variable)
-        else -> route.schemaBuilder<Unit, Unit>(variable)
+        p1.isRequestBody() -> route.schemaBuilder<Unit, T1>(hidden, variable)
+        p2.isRequestBody() -> route.schemaBuilder<Unit, T2>(hidden, variable)
+        else -> route.schemaBuilder<Unit, Unit>(hidden, variable)
     }
 
     return route.get(path.cleanRoutePath(), builder) {
@@ -155,10 +147,10 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any> GetDtoT3<T1, T
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1, p2, p3)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<Unit, T1>(variable)
-        p2.isRequestBody() -> route.schemaBuilder<Unit, T2>(variable)
-        p3.isRequestBody() -> route.schemaBuilder<Unit, T3>(variable)
-        else -> route.schemaBuilder<Unit, Unit>(variable)
+        p1.isRequestBody() -> route.schemaBuilder<Unit, T1>(hidden, variable)
+        p2.isRequestBody() -> route.schemaBuilder<Unit, T2>(hidden, variable)
+        p3.isRequestBody() -> route.schemaBuilder<Unit, T3>(hidden, variable)
+        else -> route.schemaBuilder<Unit, Unit>(hidden, variable)
     }
 
     return route.get(path.cleanRoutePath(), builder) {

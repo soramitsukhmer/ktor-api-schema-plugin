@@ -8,11 +8,15 @@ import kotlin.reflect.KClass
 
 data class GetDto(
     val route: Route,
-    val path: String
+    val path: String,
+    val responseWrapper: Boolean,
+    val hidden: Boolean
 ) {
     fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>) = GetDtoT1(
         route,
         path,
+        responseWrapper,
+        hidden,
         pair
     )
 
