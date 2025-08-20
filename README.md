@@ -84,22 +84,22 @@ data class Request(
 ### Usage [Inline function]
 ```
 // Get Method
-import me.learning.api_schema.route.inline.get
-import me.learning.api_schema.dto.route.inline.impl.RequestBody
+import com.skh.api_schema.route.inline.get
+import com.skh.api_schema.dto.route.inline.impl.RequestBody
 
 get { auth: Auth<UserAuth> -> ... }
 
 
 // Post Method
-import me.learning.api_schema.route.inline.post
-import me.learning.api_schema.dto.route.inline.impl.RequestBody
+import com.skh.api_schema.route.inline.post
+import com.skh.api_schema.dto.route.inline.impl.RequestBody
 
 post { auth: Auth<UserAuth>, requestBody: RequestBody<Reauest> -> ... }
 
 
 // Put Method
-import me.learning.api_schema.route.inline.put
-import me.learning.api_schema.dto.route.inline.impl.RequestBody
+import com.skh.api_schema.route.inline.put
+import com.skh.api_schema.dto.route.inline.impl.RequestBody
 
 put { auth: Auth<UserAuth>, requestBody: RequestBody<UserBodyUpdateReq> -> ... }
 ```
@@ -107,22 +107,22 @@ put { auth: Auth<UserAuth>, requestBody: RequestBody<UserBodyUpdateReq> -> ... }
 ### Usage [Extension function]
 ```
 // Get Method
-import me.learning.api_schema.route.extension.get
-import me.learning.api_schema.route.extension.core.map
+import com.skh.api_schema.route.extension.get
+import com.skh.api_schema.route.extension.core.map
 
 get("/user").auth(UserAuth::class).map { auth -> ... }
 
 
 // Post Method
-import me.learning.api_schema.route.extension.post
-import me.learning.api_schema.route.extension.core.map
+import com.skh.api_schema.route.extension.post
+import com.skh.api_schema.route.extension.core.map
 
 post("/user").auth(UserAuth::class).map { auth -> ... }
 
 
 // Put Method
-import me.learning.api_schema.route.extension.put
-import me.learning.api_schema.route.extension.core.map
+import com.skh.api_schema.route.extension.put
+import com.skh.api_schema.route.extension.core.map
 
 put("/user/{id}").auth(UserAuth::class).pathVariable(Long::class).map { t2: Tuple2<UserAuth, Long> -> ... }
 ```
