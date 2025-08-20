@@ -1,0 +1,15 @@
+package com.skh.api_schema.validator
+
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
+import kotlin.reflect.KClass
+
+@MustBeDocumented
+@Constraint(validatedBy = [NoSpaceValidator::class])
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class NoSpace(
+    val message: String = "invalid format",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = []
+)
