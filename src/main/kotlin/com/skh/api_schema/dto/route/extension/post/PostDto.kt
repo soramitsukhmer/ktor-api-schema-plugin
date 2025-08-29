@@ -14,13 +14,15 @@ data class PostDto(
     val route: Route,
     val path: String,
     val responseWrapper: Boolean,
-    val hidden: Boolean
+    val hidden: Boolean,
+    val accessRights: List<String>
 ) {
     fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>) = PostDtoT1(
         route,
         path,
         responseWrapper,
         hidden,
+        accessRights,
         pair
     )
 
@@ -38,6 +40,7 @@ data class PostDto(
         removeFileAfterProcessing,
         responseWrapper,
         hidden,
+        accessRights,
         FileInfoReq::class to RouteFormDataPropEnum.FILE
     )
 
@@ -49,6 +52,7 @@ data class PostDto(
         removeFileAfterProcessing,
         responseWrapper,
         hidden,
+        accessRights,
         (typeOf<List<FileInfoReq>>().classifier as KClass<List<FileInfoReq>>) to RouteFormDataPropEnum.FILES
     )
 }
