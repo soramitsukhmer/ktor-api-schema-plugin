@@ -27,11 +27,17 @@ inline fun <reified T, reified I> Route.schemaBuilder(
     pathVariable: Map<String, KClass<*>>? = null,
     responseWrapper: Boolean = true,
     bodyFileAsList: Boolean? = null,
+    accessRights: List<String> = listOf(),
 ): RouteConfig.() -> Unit = {
 
     this.hidden = hidden
 
     securitySchemeNames(SECURITY_BEARER_SCHEMA_NAME)
+
+    accessRights
+        .takeIf { it.isNotEmpty() }
+        ?.joinToString(separator = "', '", prefix = "['", postfix = "']")
+        ?.let { summary = "Authorities: $it" }
 
     request {
         pathVariable?.let { it.forEach { (key, value) -> pathParameter(key, value.asKType()) } }

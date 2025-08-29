@@ -12,6 +12,7 @@ data class PostDtoT1<T1 : Any>(
     val path: String,
     val responseWrapper: Boolean,
     val hidden: Boolean,
+    val accessRights: List<String>,
     val p1: Pair<KClass<T1>, RoutePropEnum>
 ) {
 
@@ -25,6 +26,7 @@ data class PostDtoT1<T1 : Any>(
             path,
             responseWrapper,
             hidden,
+            accessRights,
             p1,
             pair
         )

@@ -11,13 +11,15 @@ data class PutDto(
     val route: Route,
     val path: String,
     val responseWrapper: Boolean,
-    val hidden: Boolean
+    val hidden: Boolean,
+    val accessRights: List<String>
 ) {
     fun <T : Any> addProp(pair: Pair<KClass<T>, RoutePropEnum>) = PutDtoT1(
         route,
         path,
         responseWrapper,
         hidden,
+        accessRights,
         pair
     )
 
