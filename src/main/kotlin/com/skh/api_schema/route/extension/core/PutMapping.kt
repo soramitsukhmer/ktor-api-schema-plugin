@@ -19,7 +19,7 @@ import com.skh.api_schema.extension.ok
 import com.skh.api_schema.extension.prop
 
 inline fun <reified T> PutDto.map(crossinline block: suspend RoutingRequest.() -> T): Route {
-    val builder = route.schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper)
+    val builder = route.schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, accessRights = accessRights)
     return route.put(path.cleanRoutePath(), builder) {
         call.ok(call.request.block(), responseWrapper)
     }
@@ -28,8 +28,8 @@ inline fun <reified T> PutDto.map(crossinline block: suspend RoutingRequest.() -
 inline fun <reified T, reified T1 : Any> PutDtoT1<T1>.map(crossinline block: suspend RoutingRequest.(v1: T1) -> T): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
+        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
     return route.put(path.cleanRoutePath(), builder) {
@@ -41,9 +41,9 @@ inline fun <reified T, reified T1 : Any> PutDtoT1<T1>.map(crossinline block: sus
 inline fun <reified T, reified T1 : Any, reified T2 : Any> PutDtoT2<T1, T2>.map(crossinline block: suspend RoutingRequest.(t2: Tuple2<T1, T2>) -> T): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(hidden, variable, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
+        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
     return route.put(path.cleanRoutePath(), builder) {
@@ -58,10 +58,10 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Put
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(hidden, variable, responseWrapper = responseWrapper)
-        p3.isRequestBody() -> route.schemaBuilder<T, T3>(hidden, variable, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
+        p3.isRequestBody() -> route.schemaBuilder<T, T3>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
+        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
     return route.put(path.cleanRoutePath(), builder) {
@@ -77,11 +77,11 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any, rei
 ): Route {
     val variable = path.getApiSchemaBuilderProp(listOf(p1)).first
     val builder = when (true) {
-        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper)
-        p2.isRequestBody() -> route.schemaBuilder<T, T2>(hidden, variable, responseWrapper = responseWrapper)
-        p3.isRequestBody() -> route.schemaBuilder<T, T3>(hidden, variable, responseWrapper = responseWrapper)
-        p4.isRequestBody() -> route.schemaBuilder<T, T4>(hidden, variable, responseWrapper = responseWrapper)
-        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper)
+        p1.isRequestBody() -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
+        p2.isRequestBody() -> route.schemaBuilder<T, T2>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
+        p3.isRequestBody() -> route.schemaBuilder<T, T3>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
+        p4.isRequestBody() -> route.schemaBuilder<T, T4>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
+        else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
     return route.put(path.cleanRoutePath(), builder) {

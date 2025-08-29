@@ -16,7 +16,7 @@ class ApiSchemaConfig internal constructor() {
     var route = ""
 
     var info = InfoSchemaConfig()
-    var server = ServerSchemaConfig()
+    val servers = mutableListOf<ServerSchemaConfig>()
 
     var download = DownloadSchemaConfig()
     var swagger = RouteSchemaConfig(defaultSwaggerPath)
@@ -29,7 +29,7 @@ class ApiSchemaConfig internal constructor() {
     }
 
     fun server(block: ServerSchemaConfig.() -> Unit) {
-        server = ServerSchemaConfig().apply(block)
+        servers.add(ServerSchemaConfig().apply(block))
     }
 
     fun download(block: DownloadSchemaConfig.() -> Unit) {

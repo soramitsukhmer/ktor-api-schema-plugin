@@ -12,6 +12,7 @@ data class GetDtoT3<T1 : Any, T2 : Any, T3 : Any>(
     val path: String,
     val responseWrapper: Boolean,
     val hidden: Boolean,
+    val accessRights: List<String>,
     val p1: Pair<KClass<T1>, RoutePropEnum>,
     val p2: Pair<KClass<T2>, RoutePropEnum>,
     val p3: Pair<KClass<T3>, RoutePropEnum>

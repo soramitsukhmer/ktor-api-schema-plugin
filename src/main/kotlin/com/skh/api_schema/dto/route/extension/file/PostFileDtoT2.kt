@@ -11,6 +11,7 @@ data class PostFileDtoT2<T1 : Any, T2 : Any>(
     val removeFileAfterProcessing: Boolean,
     val responseWrapper: Boolean,
     val hidden: Boolean,
+    val accessRights: List<String>,
     val p1: Pair<KClass<T1>, RouteFormDataPropEnum>,
     val p2: Pair<KClass<T2>, RouteFormDataPropEnum>
 ) {
@@ -38,6 +39,7 @@ data class PostFileDtoT2<T1 : Any, T2 : Any>(
             removeFileAfterProcessing,
             responseWrapper,
             hidden,
+            accessRights,
             p1,
             p2,
             pair

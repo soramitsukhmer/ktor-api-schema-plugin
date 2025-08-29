@@ -11,6 +11,7 @@ data class PostFileDtoT3<T1 : Any, T2 : Any, T3 : Any>(
     val removeFileAfterProcessing: Boolean,
     val responseWrapper: Boolean,
     val hidden: Boolean,
+    val accessRights: List<String>,
     val p1: Pair<KClass<T1>, RouteFormDataPropEnum>,
     val p2: Pair<KClass<T2>, RouteFormDataPropEnum>,
     val p3: Pair<KClass<T3>, RouteFormDataPropEnum>

@@ -55,7 +55,7 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
                 }
             }
 
-            pluginConfig.server.let { config ->
+            pluginConfig.servers.forEach { config ->
                 server {
                     config.url?.let { url = it }
                     config.description?.let { description = it }

@@ -19,9 +19,10 @@ inline fun Route.getFile(
     path: String = "",
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
-    return this.get(path.cleanRoutePath(), schemaBuilder<Unit, Unit>(hidden)) {
+    return this.get(path.cleanRoutePath(), schemaBuilder<Unit, Unit>(hidden, accessRights = accessRights)) {
         val file = call.request.block()
         call.setFileHeader(file)
         call.respondFile(file)
@@ -35,12 +36,13 @@ inline fun <reified V : Any, reified T : RouteProp<V>> Route.getFile(
     path: String = "",
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T) -> File
 ): Route {
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, listOf(V::class to T::class))
     val builder = when (true) {
-        isRequestBody<T>() -> schemaBuilder<Unit, V>(hidden)
-        else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable)
+        isRequestBody<T>() -> schemaBuilder<Unit, V>(hidden, accessRights = accessRights)
+        else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable, accessRights = accessRights)
     }
 
     return this.get(path.cleanRoutePath(), builder) {
@@ -61,14 +63,15 @@ inline fun <
     path: String = "",
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2) -> File
 ): Route {
     val collection = listOf(V1::class to T1::class, V2::class to T2::class)
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(hidden, prop.pathVariable)
-        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(hidden, prop.pathVariable)
-        else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable)
+        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(hidden, prop.pathVariable, accessRights = accessRights)
+        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(hidden, prop.pathVariable, accessRights = accessRights)
+        else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable, accessRights = accessRights)
     }
 
     return this.get(path.cleanRoutePath(), builder) {
@@ -87,7 +90,12 @@ inline fun <
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>
-        > Route.getFile(path: String = "", removeFileAfterProcessing: Boolean = false, hidden: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> File
+        > Route.getFile(
+    path: String = "",
+    removeFileAfterProcessing: Boolean = false,
+    hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
+    crossinline block: suspend RoutingRequest.(T1, T2, T3) -> File
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -96,10 +104,10 @@ inline fun <
     )
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(hidden, prop.pathVariable)
-        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(hidden, prop.pathVariable)
-        isRequestBody<T3>() -> schemaBuilder<Unit, V3>(hidden, prop.pathVariable)
-        else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable)
+        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(hidden, prop.pathVariable, accessRights = accessRights)
+        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(hidden, prop.pathVariable, accessRights = accessRights)
+        isRequestBody<T3>() -> schemaBuilder<Unit, V3>(hidden, prop.pathVariable, accessRights = accessRights)
+        else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable, accessRights = accessRights)
     }
 
     return this.get(path.cleanRoutePath(), builder) {
@@ -120,7 +128,12 @@ inline fun <
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>
-        > Route.getFile(path: String = "", removeFileAfterProcessing: Boolean = false, hidden: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> File
+        > Route.getFile(
+    path: String = "",
+    removeFileAfterProcessing: Boolean = false,
+    hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
+    crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> File
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -130,11 +143,11 @@ inline fun <
     )
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(hidden, prop.pathVariable)
-        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(hidden, prop.pathVariable)
-        isRequestBody<T3>() -> schemaBuilder<Unit, V3>(hidden, prop.pathVariable)
-        isRequestBody<T4>() -> schemaBuilder<Unit, V4>(hidden, prop.pathVariable)
-        else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable)
+        isRequestBody<T1>() -> schemaBuilder<Unit, V1>(hidden, prop.pathVariable, accessRights = accessRights)
+        isRequestBody<T2>() -> schemaBuilder<Unit, V2>(hidden, prop.pathVariable, accessRights = accessRights)
+        isRequestBody<T3>() -> schemaBuilder<Unit, V3>(hidden, prop.pathVariable, accessRights = accessRights)
+        isRequestBody<T4>() -> schemaBuilder<Unit, V4>(hidden, prop.pathVariable, accessRights = accessRights)
+        else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable, accessRights = accessRights)
     }
 
     return this.get(path.cleanRoutePath(), builder) {

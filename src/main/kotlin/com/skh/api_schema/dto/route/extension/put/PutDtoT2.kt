@@ -14,6 +14,7 @@ data class PutDtoT2<T1 : Any, T2 : Any>(
     val path: String,
     val responseWrapper: Boolean,
     val hidden: Boolean,
+    val accessRights: List<String>,
     val p1: Pair<KClass<T1>, RoutePropEnum>,
     val p2: Pair<KClass<T2>, RoutePropEnum>
 ) {
@@ -31,6 +32,7 @@ data class PutDtoT2<T1 : Any, T2 : Any>(
             path,
             responseWrapper,
             hidden,
+            accessRights,
             p1,
             p2,
             pair

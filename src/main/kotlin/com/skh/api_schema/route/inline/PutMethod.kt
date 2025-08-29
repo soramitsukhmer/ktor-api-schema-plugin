@@ -16,9 +16,10 @@ inline fun <reified T> Route.put(
     path: String = "",
     responseWrapper: Boolean = true,
     hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    return this.put(path.cleanRoutePath(), schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper)) {
+    return this.put(path.cleanRoutePath(), schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, accessRights = accessRights)) {
         call.ok(call.request.block(), responseWrapper)
     }
 }
@@ -28,12 +29,13 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.put(
     path: String = "",
     responseWrapper: Boolean = true,
     hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1) -> T
 ): Route {
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.PUT, path, listOf(V1::class to T1::class))
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<T, V1>(hidden, responseWrapper = responseWrapper)
-        else -> schemaBuilder<T, V1>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(hidden, responseWrapper = responseWrapper, accessRights = accessRights)
+        else -> schemaBuilder<T, V1>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
     return this.put(path.cleanRoutePath(), builder) {
@@ -46,7 +48,12 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.put(
 inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>
-        > Route.put(path: String = "", responseWrapper: Boolean = true, hidden: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2) -> T
+        > Route.put(
+    path: String = "",
+    responseWrapper: Boolean = true,
+    hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
+    crossinline block: suspend RoutingRequest.(T1, T2) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -54,9 +61,9 @@ inline fun <reified T,
     )
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.PUT, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<T, V1>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        isRequestBody<T2>() -> schemaBuilder<T, V2>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        else -> schemaBuilder<T, V2>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        else -> schemaBuilder<T, V2>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
     return this.put(path.cleanRoutePath(), builder) {
@@ -71,7 +78,12 @@ inline fun <reified T,
         reified V1 : Any, reified T1 : RouteProp<V1>,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>
-        > Route.put(path: String = "", responseWrapper: Boolean = true, hidden: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
+        > Route.put(
+    path: String = "",
+    responseWrapper: Boolean = true,
+    hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
+    crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -80,10 +92,10 @@ inline fun <reified T,
     )
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.PUT, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<T, V1>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        isRequestBody<T2>() -> schemaBuilder<T, V2>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        isRequestBody<T3>() -> schemaBuilder<T, V3>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        else -> schemaBuilder<T, V3>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        else -> schemaBuilder<T, V3>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
     return this.put(path.cleanRoutePath(), builder) {
@@ -100,16 +112,21 @@ inline fun <reified T,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>
-        > Route.put(path: String = "", responseWrapper: Boolean = true, hidden: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
+        > Route.put(
+    path: String = "",
+    responseWrapper: Boolean = true,
+    hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
+    crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
 ): Route {
     val collection = listOf(V1::class to T1::class, V2::class to T2::class, V3::class to T3::class, V4::class to T4::class)
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.PUT, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<T, V1>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        isRequestBody<T2>() -> schemaBuilder<T, V2>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        isRequestBody<T3>() -> schemaBuilder<T, V3>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        isRequestBody<T4>() -> schemaBuilder<T, V4>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        isRequestBody<T4>() -> schemaBuilder<T, V4>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
     return this.put(path.cleanRoutePath(), builder) {
@@ -128,7 +145,12 @@ inline fun <reified T,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         reified V4 : Any, reified T4 : RouteProp<V4>,
         reified V5 : Any, reified T5 : RouteProp<V5>
-        > Route.put(path: String = "", responseWrapper: Boolean = true, hidden: Boolean = false, crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
+        > Route.put(
+    path: String = "",
+    responseWrapper: Boolean = true,
+    hidden: Boolean = false,
+    accessRights: List<String> = emptyList(),
+    crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
 ): Route {
     val collection = listOf(
         V1::class to T1::class,
@@ -139,12 +161,12 @@ inline fun <reified T,
     )
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.PUT, path, collection)
     val builder = when (true) {
-        isRequestBody<T1>() -> schemaBuilder<T, V1>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        isRequestBody<T2>() -> schemaBuilder<T, V2>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        isRequestBody<T3>() -> schemaBuilder<T, V3>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        isRequestBody<T4>() -> schemaBuilder<T, V4>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        isRequestBody<T5>() -> schemaBuilder<T, V5>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
-        else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper)
+        isRequestBody<T1>() -> schemaBuilder<T, V1>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        isRequestBody<T2>() -> schemaBuilder<T, V2>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        isRequestBody<T3>() -> schemaBuilder<T, V3>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        isRequestBody<T4>() -> schemaBuilder<T, V4>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        isRequestBody<T5>() -> schemaBuilder<T, V5>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
+        else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
     return this.put(path.cleanRoutePath(), builder) {
