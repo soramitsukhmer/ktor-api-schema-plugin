@@ -15,9 +15,9 @@ import com.skh.api_schema.extension.prop
 
 inline fun <reified T> Route.post(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     responseWrapper: Boolean = true,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
     return this.post(path.cleanRoutePath(), schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, accessRights = accessRights)) {
@@ -28,9 +28,9 @@ inline fun <reified T> Route.post(
 
 inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.post(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     responseWrapper: Boolean = true,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1) -> T
 ): Route {
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, listOf(V1::class to T1::class))
@@ -51,9 +51,9 @@ inline fun <reified T,
         reified V2 : Any, reified T2 : RouteProp<V2>
         > Route.post(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     responseWrapper: Boolean = true,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2) -> T
 ): Route {
     val collection = listOf(
@@ -81,9 +81,9 @@ inline fun <reified T,
         reified V3 : Any, reified T3 : RouteProp<V3>
         > Route.post(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     responseWrapper: Boolean = true,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, T3) -> T
 ): Route {
     val collection = listOf(
@@ -115,9 +115,9 @@ inline fun <reified T,
         reified V4 : Any, reified T4 : RouteProp<V4>
         > Route.post(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     responseWrapper: Boolean = true,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> T
 ): Route {
     val collection = listOf(
@@ -153,9 +153,9 @@ inline fun <reified T,
         reified V5 : Any, reified T5 : RouteProp<V5>
         > Route.post(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     responseWrapper: Boolean = true,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, T5) -> T
 ): Route {
     val collection = listOf(

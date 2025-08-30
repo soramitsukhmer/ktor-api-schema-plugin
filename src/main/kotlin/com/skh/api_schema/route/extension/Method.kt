@@ -7,21 +7,21 @@ import com.skh.api_schema.dto.route.extension.put.PutDto
 
 fun Route.get(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     responseWrapper: Boolean = true,
-    hidden: Boolean = false,
-    accessRights: List<String> = emptyList()
+    hidden: Boolean = false
 ) = GetDto(this, path, responseWrapper, hidden, accessRights)
 
 fun Route.post(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     responseWrapper: Boolean = true,
-    hidden: Boolean = false,
-    accessRights: List<String> = emptyList()
+    hidden: Boolean = false
 ) = PostDto(this, path, responseWrapper, hidden, accessRights)
 
 fun Route.put(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     responseWrapper: Boolean = true,
-    hidden: Boolean = false,
-    accessRights: List<String> = emptyList()
+    hidden: Boolean = false
 ) = PutDto(this, path, responseWrapper, hidden, accessRights)

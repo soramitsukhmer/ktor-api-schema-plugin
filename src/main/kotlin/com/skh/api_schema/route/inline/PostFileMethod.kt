@@ -31,11 +31,11 @@ import com.skh.api_schema.extension.prop
 
 inline fun <reified T> Route.postFile(
     path: String = "",
-    responseWrapper: Boolean = true,
+    accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(file: FileInfoReq) -> T
 ): Route {
     val builder = schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, bodyFileAsList = false, accessRights = accessRights)
@@ -50,11 +50,11 @@ inline fun <reified T> Route.postFile(
 
 inline fun <reified T> Route.postFiles(
     path: String = "",
-    responseWrapper: Boolean = true,
+    accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(files: List<FileInfoReq>) -> T
 ): Route {
     val builder = schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, bodyFileAsList = true, accessRights = accessRights)
@@ -69,11 +69,11 @@ inline fun <reified T> Route.postFiles(
 
 inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postFile(
     path: String = "",
-    responseWrapper: Boolean = true,
+    accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, file: FileInfoReq) -> T
 ): Route {
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, listOf(V1::class to T1::class))
@@ -96,11 +96,11 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postF
 
 inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postFiles(
     path: String = "",
-    responseWrapper: Boolean = true,
+    accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, files: List<FileInfoReq>) -> T
 ): Route {
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.POST, path, listOf(V1::class to T1::class))
@@ -126,11 +126,11 @@ inline fun <reified T,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         > Route.postFile(
     path: String = "",
-    responseWrapper: Boolean = true,
+    accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, file: FileInfoReq) -> T
 ): Route {
     val collection = listOf(
@@ -164,11 +164,11 @@ inline fun <reified T,
         reified V2 : Any, reified T2 : RouteProp<V2>,
         > Route.postFiles(
     path: String = "",
-    responseWrapper: Boolean = true,
+    accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, files: List<FileInfoReq>) -> T
 ): Route {
     val collection = listOf(
@@ -203,11 +203,11 @@ inline fun <reified T,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         > Route.postFile(
     path: String = "",
-    responseWrapper: Boolean = true,
+    accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, T3, file: FileInfoReq) -> T
 ): Route {
     val collection = listOf(
@@ -260,11 +260,11 @@ inline fun <reified T,
         reified V3 : Any, reified T3 : RouteProp<V3>,
         > Route.postFiles(
     path: String = "",
-    responseWrapper: Boolean = true,
+    accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, T3, file: List<FileInfoReq>) -> T
 ): Route {
     val collection = listOf(
@@ -318,11 +318,11 @@ inline fun <reified T,
         reified V4 : Any, reified T4 : RouteProp<V4>,
         > Route.postFile(
     path: String = "",
-    responseWrapper: Boolean = true,
+    accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, file: FileInfoReq) -> T
 ): Route {
     val collection = listOf(
@@ -388,11 +388,11 @@ inline fun <reified T,
         reified V4 : Any, reified T4 : RouteProp<V4>,
         > Route.postFiles(
     path: String = "",
-    responseWrapper: Boolean = true,
+    accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, T3, T4, files: List<FileInfoReq>) -> T
 ): Route {
     val collection = listOf(
