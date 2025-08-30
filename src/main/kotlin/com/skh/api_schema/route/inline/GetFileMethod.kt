@@ -17,9 +17,9 @@ import java.io.File
 
 inline fun Route.getFile(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
     return this.get(path.cleanRoutePath(), schemaBuilder<Unit, Unit>(hidden, accessRights = accessRights)) {
@@ -34,9 +34,9 @@ inline fun Route.getFile(
 
 inline fun <reified V : Any, reified T : RouteProp<V>> Route.getFile(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T) -> File
 ): Route {
     val prop = SchemaBuilderProp.getSchemaBuilderProp(MethodEnum.GET, path, listOf(V::class to T::class))
@@ -61,9 +61,9 @@ inline fun <
         reified V2 : Any, reified T2 : RouteProp<V2>
         > Route.getFile(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2) -> File
 ): Route {
     val collection = listOf(V1::class to T1::class, V2::class to T2::class)
@@ -92,9 +92,9 @@ inline fun <
         reified V3 : Any, reified T3 : RouteProp<V3>
         > Route.getFile(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, T3) -> File
 ): Route {
     val collection = listOf(
@@ -130,9 +130,9 @@ inline fun <
         reified V4 : Any, reified T4 : RouteProp<V4>
         > Route.getFile(
     path: String = "",
+    accessRights: List<String> = emptyList(),
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
-    accessRights: List<String> = emptyList(),
     crossinline block: suspend RoutingRequest.(T1, T2, T3, T4) -> File
 ): Route {
     val collection = listOf(
