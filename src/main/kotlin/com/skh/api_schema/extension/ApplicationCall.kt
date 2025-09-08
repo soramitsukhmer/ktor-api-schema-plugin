@@ -95,6 +95,17 @@ suspend inline fun ApplicationCall.notFound(message: String?) {
     )
 }
 
+suspend inline fun ApplicationCall.accessDenied() {
+    response.status(HttpStatusCode.BadRequest)
+    respond(
+        ResponseWrapper(
+            Status(ErrorCode.BAD_REQUEST, "Access Denied"),
+            null,
+            request.headers[HttpHeaders.XRequestId]
+        )
+    )
+}
+
 suspend inline fun <reified T : Any> ApplicationCall.requestBody(): T {
     return receiveRequestBody(T::class.simpleName) { receive<T>() }
 }
