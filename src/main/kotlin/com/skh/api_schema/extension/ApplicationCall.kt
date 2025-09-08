@@ -96,7 +96,7 @@ suspend inline fun ApplicationCall.notFound(message: String?) {
 }
 
 suspend inline fun ApplicationCall.accessDenied() {
-    response.status(HttpStatusCode.BadRequest)
+    response.status(HttpStatusCode.Forbidden)
     respond(
         ResponseWrapper(
             Status(ErrorCode.BAD_REQUEST, "Access Denied"),
