@@ -13,5 +13,5 @@ object Constant {
     /** MM/dd/yyyy */
     const val DATE_FORMAT = "MM/dd/yyyy"
     /** HH:mm */
-    const val TIME_FORMAT = "HH:mm"
+    const val TIME_FORMAT = "HH:mm:ss"
 }

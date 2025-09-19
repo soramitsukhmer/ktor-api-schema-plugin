@@ -25,7 +25,12 @@ enum class RouteFormDataPropEnum {
     fun isText() = this == TEXT
 }
 
-enum class DirectionEnum {
+enum class Direction {
     ASC,
-    DESC
+    DESC;
+
+    companion object {
+        fun isValid(name: String): Boolean = Direction.entries.any { it.name.equals(name, true) }
+        fun findByName(name: String): Direction = Direction.entries.find { it.name.equals(name, true) }!!
+    }
 }
