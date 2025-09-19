@@ -1,5 +1,6 @@
 package com.skh.api_schema.config
 
+import com.skh.api_schema.config.PluginProperties.property
 import com.skh.api_schema.config.exception.ExceptionConfig
 import com.skh.api_schema.config.schema.DownloadSchemaConfig
 import com.skh.api_schema.extension.cleanRoute
@@ -12,7 +13,7 @@ class ApiSchemaConfig internal constructor() {
     val defaultSwaggerPath = "/swagger"
     val defaultRedocPath = "/redoc"
 
-    var enabled = true
+    var enabled = property.enabled
     var route = ""
 
     var info = InfoSchemaConfig()
