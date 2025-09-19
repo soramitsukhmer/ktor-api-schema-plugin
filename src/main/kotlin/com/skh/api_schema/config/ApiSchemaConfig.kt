@@ -8,7 +8,7 @@ import com.skh.api_schema.config.schema.RouteSchemaConfig
 import com.skh.api_schema.config.schema.ServerSchemaConfig
 
 class ApiSchemaConfig internal constructor() {
-    val defaultRoute = "/api/v1/schema"
+    val defaultRoute = "/schema"
     val defaultSwaggerPath = "/swagger"
     val defaultRedocPath = "/redoc"
 
