@@ -36,7 +36,7 @@ inline fun <reified T, reified I> Route.schemaBuilder(
 
     accessRights
         .takeIf { it.isNotEmpty() }
-        ?.joinToString(separator = "', '", prefix = "['", postfix = "']")
+        ?.map { "'$it'" }
         ?.let { summary = "Authorities: $it" }
 
     request {
