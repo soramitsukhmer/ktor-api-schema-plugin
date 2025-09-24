@@ -18,7 +18,8 @@ import com.skh.api_schema.common.Helper.clean
 import com.skh.api_schema.common.Helper.extractAllPathParameters
 import com.skh.api_schema.common.Helper.megaByteToByte
 import com.skh.api_schema.common.MethodEnum
-import com.skh.api_schema.dto.handler.MaxRequestFileItem
+import com.skh.api_schema.dto.handler.FileSizeExceededException
+import com.skh.api_schema.dto.handler.MaxRequestFileItemException
 import com.skh.api_schema.dto.request.FileInfoReq
 import java.io.File
 import kotlin.Long
@@ -48,8 +49,8 @@ suspend fun <T> receiveRequestBody(clazzName: String?, block: suspend () -> T): 
                 e.cause.throwable()
                 e.throwable()
 
-                print(">>> Invalid body request: : $clazzName")
-                badRequest("The body request is invalid")
+                print(">>> Invalid request body: $clazzName")
+                badRequest("The request body is invalid")
             }
         }
     }
@@ -104,13 +105,6 @@ suspend fun <T : Any> RoutingCall.requestBody(clazz: KClass<T>): T {
     return receiveRequestBody(clazz.simpleName) { receive(clazz) }
 }
 
-inline fun <reified T> isUnitType(): Boolean {
-    return when (T::class) {
-        Unit::class, Void::class, Nothing::class -> false
-        else -> true
-    }
-}
-
 suspend inline fun <reified T> RoutingCall.getFileDataRequest(
     fileAsList: Boolean,
     extensions: List<String>,
@@ -121,11 +115,17 @@ suspend inline fun <reified T> RoutingCall.getFileDataRequest(
     var data: T? = null
     var fileCount = 0
 
-    val requiresData = !isUnitType<T>()
+    val requiresData = when (T::class) {
+        Unit::class, Void::class, Nothing::class -> false
+        else -> true
+    }
+
     val hasFileLimit = limit > 0
+    val multiPartSize = (maxMB * 2).megaByteToByte()
+    var isCleanFile = true
 
     try {
-        receiveMultipart(formFieldLimit = maxMB.megaByteToByte()).forEachPart { part ->
+        receiveMultipart(formFieldLimit = multiPartSize).forEachPart { part ->
             try {
                 when (part) {
                     is PartData.FileItem -> {
@@ -133,12 +133,14 @@ suspend inline fun <reified T> RoutingCall.getFileDataRequest(
                             true -> false
                             else -> files.isNotEmpty()
                         }
-                        part.getRequest(fileExisted, extensions, fileAsList)?.let(files::add)
+                        part.getRequest(fileExisted, extensions, fileAsList, maxMB)?.let(files::add)
                         if (hasFileLimit && ++fileCount > limit) {
-                            throw MaxRequestFileItem("Files request must not exceed $limit items")
+                            throw MaxRequestFileItemException("Files request must not exceed $limit items")
                         }
                     }
+
                     is PartData.FormItem -> { if (requiresData && data == null) { data = part.getRequest<T>(false) } }
+
                     else -> {}
                 }
             } finally {
@@ -146,23 +148,25 @@ suspend inline fun <reified T> RoutingCall.getFileDataRequest(
             }
         }
 
-        val value = if (requiresData) {
-            data ?: badRequest("Invalid request data cannot be empty")
-        } else data
+        val value = if (requiresData) { data ?: badRequest("Invalid request data cannot be empty") } else data
 
         return when (fileAsList) {
-            true -> Pair(files, value)
+            true -> {
+                isCleanFile = false
+                Pair(files, value)
+            }
             else -> {
                 val file = files.firstOrNull() ?: badRequest("Invalid request file cannot be empty")
+                isCleanFile = false
                 Pair(listOf(file), value)
             }
         }
-    } catch (e: MaxRequestFileItem) {
-        files.clean(true)
+    } catch (e: MaxRequestFileItemException) {
         badRequest(e.message)
-    } catch (e: Exception) {
-        files.clean(true)
-        badRequest("File processing failed: ${e.message ?: "File size exceeds the maximum limit of $maxMB MB"}")
+    } catch (e: FileSizeExceededException) {
+        badRequest(e.message)
+    } finally {
+        files.clean(isCleanFile)
     }
 }
 

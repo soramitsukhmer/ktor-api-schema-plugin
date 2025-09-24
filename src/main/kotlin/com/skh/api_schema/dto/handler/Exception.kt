@@ -4,4 +4,6 @@ class UnauthorizedAuthException(override val message: String) : RuntimeException
 
 class InvalidAuthException(override val message: String) : RuntimeException(message)
 
-class MaxRequestFileItem(override val message: String) : RuntimeException(message)
+class MaxRequestFileItemException(override val message: String) : RuntimeException(message)
+
+class FileSizeExceededException(override val message: String) : RuntimeException(message)
