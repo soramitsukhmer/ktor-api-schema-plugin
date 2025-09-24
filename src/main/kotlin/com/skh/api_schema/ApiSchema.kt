@@ -10,12 +10,11 @@ import io.ktor.server.application.pluginOrNull
 import io.ktor.server.routing.routing
 import com.skh.api_schema.common.Constant.SECURITY_BEARER_SCHEMA_NAME
 import com.skh.api_schema.config.ApiSchemaConfig
-import com.skh.api_schema.config.PluginProperties.property
+import com.skh.api_schema.config.ApiSchemaProperties.property
 import com.skh.api_schema.plugin.configureSerialization
 import com.skh.api_schema.plugin.exceptionConfigPlugin
 import com.skh.api_schema.plugin.requestValidatorConfigPlugin
 import com.skh.api_schema.route.docs.documentRoute
-import io.ktor.server.util.url
 
 /**
  * Configures an API schema plugin for a Ktor application. This plugin integrates a variety of features

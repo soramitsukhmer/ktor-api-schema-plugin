@@ -1,5 +1,6 @@
 package com.skh.api_schema.route.extension.core
 
+import com.skh.api_schema.common.Helper.clean
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
@@ -17,7 +18,7 @@ import com.skh.api_schema.extension.auth
 import com.skh.api_schema.extension.cleanRoutePath
 import com.skh.api_schema.extension.getApiSchemaBuilderProp
 import com.skh.api_schema.extension.getFileDataRequest
-import com.skh.api_schema.extension.getFileRequest
+import com.skh.api_schema.extension.getFileDataRequest
 import com.skh.api_schema.extension.isRequestBody
 import com.skh.api_schema.extension.isText
 import com.skh.api_schema.extension.ok
@@ -65,10 +66,10 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> PostDtoT2<T1, T2>.map
 inline fun <reified T> PostFileDtoT1<FileInfoReq>.map(crossinline block: suspend RoutingRequest.(t1: FileInfoReq) -> T): Route {
     val builder = route.schemaBuilder<T, Unit>(hidden, bodyFileAsList = false, responseWrapper = responseWrapper, accessRights = accessRights)
     return route.post(path.cleanRoutePath(), builder) {
-        val files = call.getFileRequest(true, extensions)
+        val files = call.getFileDataRequest<Unit>(true, extensions, maxMB, maxItem).first
 
         call.ok(call.request.block(files.first()), responseWrapper)
-        if (removeFileAfterProcessing) files.forEach { it.file.delete() }
+        files.clean(removeFileAfterProcessing)
     }
 }
 
@@ -76,10 +77,10 @@ inline fun <reified T> PostFileDtoT1<FileInfoReq>.map(crossinline block: suspend
 inline fun <reified T> PostFileDtoT1<List<FileInfoReq>>.map(crossinline block: suspend RoutingRequest.(t1: List<FileInfoReq>) -> T): Route {
     val builder = route.schemaBuilder<T, Unit>(hidden, bodyFileAsList = true, responseWrapper = responseWrapper, accessRights = accessRights)
     return route.post(path.cleanRoutePath(), builder) {
-        val files = call.getFileRequest(true, extensions)
+        val files = call.getFileDataRequest<Unit>(true, extensions, maxMB, maxItem).first
 
         call.ok(call.request.block(files), responseWrapper)
-        if (removeFileAfterProcessing) files.forEach { it.file.delete() }
+        files.clean(removeFileAfterProcessing)
     }
 }
 
@@ -92,8 +93,8 @@ inline fun <reified T, reified T2 : Any> PostFileDtoT2<FileInfoReq, T2>.map(cros
 
     return route.post(path.cleanRoutePath(), builder) {
         val tuple2 = when (p2.second.isText()) {
-            true -> call.getFileDataRequest<T2>(false, extensions).let { Tuple2(it.first.first(), it.second) }
-            false -> call.getFileRequest(false, extensions).first().let { Tuple2(it, call.auth<T2>()) }
+            true -> call.getFileDataRequest<T2>(false, extensions, maxMB, maxItem).let { Tuple2(it.first.first(), it.second!!) }
+            false -> call.getFileDataRequest<Unit>(false, extensions, maxMB, maxItem).first.first().let { Tuple2(it, call.auth<T2>()) }
         }
 
         call.ok(call.request.block(tuple2), responseWrapper)
@@ -110,12 +111,12 @@ inline fun <reified T, reified T2 : Any> PostFileDtoT2<List<FileInfoReq>, T2>.ma
 
     return route.post(path.cleanRoutePath(), builder) {
         val tuple2 = when (p2.second.isText()) {
-            true -> call.getFileDataRequest<T2>(false, extensions).let { Tuple2(it.first, it.second) }
-            false -> Tuple2(call.getFileRequest(false, extensions), call.auth<T2>())
+            true -> call.getFileDataRequest<T2>(false, extensions, maxMB, maxItem).let { Tuple2(it.first, it.second!!) }
+            false -> Tuple2(call.getFileDataRequest<Unit>(false, extensions, maxMB, maxItem).first, call.auth<T2>())
         }
 
         call.ok(call.request.block(tuple2), responseWrapper)
-        if (removeFileAfterProcessing) tuple2.t1.forEach { it.file.delete() }
+        tuple2.t1.clean(removeFileAfterProcessing)
     }
 }
 
@@ -129,14 +130,14 @@ inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<FileInf
 
     return route.post(path.cleanRoutePath(), builder) {
         val tuple3 = when (p2.second.isText()) {
-            true -> call.getFileDataRequest<T2>(false, extensions)
-                .let { Tuple3(it.first.first(), it.second, call.auth<T3>()) }
-            false -> call.getFileDataRequest<T3>(false, extensions)
-                .let { Tuple3(it.first.first(), call.auth<T2>(), it.second) }
+            true -> call.getFileDataRequest<T2>(false, extensions, maxMB, maxItem)
+                .let { Tuple3(it.first.first(), it.second!!, call.auth<T3>()) }
+            false -> call.getFileDataRequest<T3>(false, extensions, maxMB, maxItem)
+                .let { Tuple3(it.first.first(), call.auth<T2>(), it.second!!) }
         }
 
         call.ok(call.request.block(tuple3), responseWrapper)
-        if (removeFileAfterProcessing) tuple3.t1.file.delete()
+        tuple3.t1.clean(removeFileAfterProcessing)
     }
 }
 
@@ -152,13 +153,13 @@ inline fun <reified T, reified T2 : Any, reified T3 : Any> PostFileDtoT3<List<Fi
 
     return route.post(path.cleanRoutePath(), builder) {
         val tuple3 = when (p2.second.isText()) {
-            true -> call.getFileDataRequest<T2>(false, extensions)
-                .let { Tuple3(it.first, it.second, call.auth<T3>()) }
-            false -> call.getFileDataRequest<T3>(false, extensions)
-                .let { Tuple3(it.first, call.auth<T2>(), it.second) }
+            true -> call.getFileDataRequest<T2>(false, extensions, maxMB, maxItem)
+                .let { Tuple3(it.first, it.second!!, call.auth<T3>()) }
+            false -> call.getFileDataRequest<T3>(false, extensions, maxMB, maxItem)
+                .let { Tuple3(it.first, call.auth<T2>(), it.second!!) }
         }
 
         call.ok(call.request.block(tuple3), responseWrapper)
-        if (removeFileAfterProcessing) tuple3.t1.forEach { it.file.delete() }
+        tuple3.t1.clean(removeFileAfterProcessing)
     }
 }

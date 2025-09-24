@@ -1,5 +1,6 @@
 package com.skh.api_schema.route.inline
 
+import com.skh.api_schema.common.Helper.clean
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
@@ -27,7 +28,7 @@ inline fun Route.getFile(
         call.setFileHeader(file)
         call.respondFile(file)
 
-        if (removeFileAfterProcessing) file.delete()
+        file.clean(removeFileAfterProcessing)
     }
 }
 
@@ -51,7 +52,7 @@ inline fun <reified V : Any, reified T : RouteProp<V>> Route.getFile(
         call.setFileHeader(file)
         call.respondFile(file)
 
-        if (removeFileAfterProcessing) file.delete()
+        file.clean(removeFileAfterProcessing)
     }
 }
 
@@ -81,7 +82,7 @@ inline fun <
         call.setFileHeader(file)
         call.respondFile(file)
 
-        if (removeFileAfterProcessing) file.delete()
+        file.clean(removeFileAfterProcessing)
     }
 }
 
@@ -118,7 +119,7 @@ inline fun <
         call.setFileHeader(file)
         call.respondFile(file)
 
-        if (removeFileAfterProcessing) file.delete()
+        file.clean(removeFileAfterProcessing)
     }
 }
 
@@ -159,6 +160,6 @@ inline fun <
         call.setFileHeader(file)
         call.respondFile(file)
 
-        if (removeFileAfterProcessing) file.delete()
+        file.clean(removeFileAfterProcessing)
     }
 }

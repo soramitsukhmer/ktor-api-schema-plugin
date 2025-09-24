@@ -1,9 +1,11 @@
 package com.skh.api_schema.route.inline
 
+import com.skh.api_schema.common.Helper.clean
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import com.skh.api_schema.common.MethodEnum
+import com.skh.api_schema.config.ApiSchemaProperties.property
 import com.skh.api_schema.extension.ok
 import com.skh.api_schema.core.schemaBuilder
 import com.skh.api_schema.dto.request.FileInfoReq
@@ -14,7 +16,6 @@ import com.skh.api_schema.dto.route.inline.RouteProp
 import com.skh.api_schema.dto.route.inline.SchemaBuilderProp
 import com.skh.api_schema.dto.route.inline.impl.RequestBody
 import com.skh.api_schema.extension.cleanRoutePath
-import com.skh.api_schema.extension.getFileRequest
 import com.skh.api_schema.extension.getFileDataRequest
 import com.skh.api_schema.extension.isRequestBody
 import com.skh.api_schema.extension.prop
@@ -33,6 +34,7 @@ inline fun <reified T> Route.postFile(
     path: String = "",
     accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    maxMB: Long = property.maxFileSizeMB,
     responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
@@ -41,9 +43,9 @@ inline fun <reified T> Route.postFile(
     val builder = schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, bodyFileAsList = false, accessRights = accessRights)
 
     return this.post(path.cleanRoutePath(), builder) {
-        val request = call.getFileRequest(false, extensions).first()
+        val request = call.getFileDataRequest<Unit>(false, extensions, maxMB, 0).first.first()
         call.ok(call.request.block(request), responseWrapper)
-        if (removeFileAfterProcessing) request.file.delete()
+        request.file.clean(removeFileAfterProcessing)
     }
 }
 
@@ -52,6 +54,8 @@ inline fun <reified T> Route.postFiles(
     path: String = "",
     accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    maxMB: Long = property.maxFileSizeMB,
+    maxItem: Int = 0,
     responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
@@ -60,9 +64,9 @@ inline fun <reified T> Route.postFiles(
     val builder = schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, bodyFileAsList = true, accessRights = accessRights)
 
     return this.post(path.cleanRoutePath(), builder) {
-        val files = call.getFileRequest(true, extensions)
+        val files = call.getFileDataRequest<Unit>(true, extensions, maxMB, maxItem).first
         call.ok(call.request.block(files), responseWrapper)
-        if (removeFileAfterProcessing) files.forEach { it.file.delete() }
+        files.clean(removeFileAfterProcessing)
     }
 }
 
@@ -71,6 +75,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postF
     path: String = "",
     accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    maxMB: Long = property.maxFileSizeMB,
     responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
@@ -84,12 +89,12 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postF
 
     return this.post(path.cleanRoutePath(), builder) {
         val (file, p1) = when (isRequestBody<T1>()) {
-            true -> call.getFileDataRequest<V1>(false, extensions).let { it.first.first() to RequestBody(it.second) }
-            false -> call.getFileRequest(false, extensions).first() to call.prop<V1, T1>(path).first
+            true -> call.getFileDataRequest<V1>(false, extensions, maxMB, 0).let { it.first.first() to RequestBody(it.second) }
+            false -> call.getFileDataRequest<Unit>(false, extensions, maxMB, 0).first.first() to call.prop<V1, T1>(path).first
         }
 
         call.ok(call.request.block(p1 as T1, file), responseWrapper)
-        if (removeFileAfterProcessing) file.file.delete()
+        file.clean(removeFileAfterProcessing)
     }
 }
 
@@ -98,6 +103,8 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postF
     path: String = "",
     accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    maxMB: Long = property.maxFileSizeMB,
+    maxItem: Int = 0,
     responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
@@ -111,12 +118,12 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postF
 
     return this.post(path.cleanRoutePath(), builder) {
         val (files, p1) = when (isRequestBody<T1>()) {
-            true -> call.getFileDataRequest<V1>(true, extensions).let { it.first to RequestBody(it.second) }
-            false -> call.getFileRequest(true, extensions) to call.prop<V1, T1>(path).first
+            true -> call.getFileDataRequest<V1>(true, extensions, maxMB, maxItem).let { it.first to RequestBody(it.second) }
+            false -> call.getFileDataRequest<Unit>(true, extensions, maxMB, maxItem).first to call.prop<V1, T1>(path).first
         }
 
         call.ok(call.request.block(p1 as T1, files), responseWrapper)
-        if (removeFileAfterProcessing) files.forEach { it.file.delete() }
+        files.clean(removeFileAfterProcessing)
     }
 }
 
@@ -128,6 +135,7 @@ inline fun <reified T,
     path: String = "",
     accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    maxMB: Long = property.maxFileSizeMB,
     responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
@@ -146,15 +154,15 @@ inline fun <reified T,
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
-            isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions)
+            isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions, maxMB, 0)
                 .let { Tuple3(RequestBody(it.second), call.prop<V2, T2>(path).first, it.first.first()) }
-            isRequestBody<T2>() -> call.getFileDataRequest<V2>(false, extensions)
+            isRequestBody<T2>() -> call.getFileDataRequest<V2>(false, extensions, maxMB, 0)
                 .let { Tuple3(call.prop<V1, T1>(path).first, RequestBody(it.second), it.first.first()) }
-            else -> Tuple3(call.prop<V1, T1>(path).first, call.prop<V2, T2>(path).first, call.getFileRequest(false, extensions).first())
+            else -> Tuple3(call.prop<V1, T1>(path).first, call.prop<V2, T2>(path).first, call.getFileDataRequest<Unit>(false, extensions, maxMB, 0).first.first())
         }
 
         call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3), responseWrapper)
-        if (removeFileAfterProcessing) t.t3.file.delete()
+        t.t3.clean(removeFileAfterProcessing)
     }
 }
 
@@ -166,6 +174,8 @@ inline fun <reified T,
     path: String = "",
     accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    maxMB: Long = property.maxFileSizeMB,
+    maxItem: Int = 0,
     responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
@@ -184,15 +194,15 @@ inline fun <reified T,
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
-            isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions)
+            isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions, maxMB, maxItem)
                 .let { Tuple3(RequestBody(it.second), call.prop<V2, T2>(path).first, it.first) }
-            isRequestBody<T2>() -> call.getFileDataRequest<V2>(true, extensions)
+            isRequestBody<T2>() -> call.getFileDataRequest<V2>(true, extensions, maxMB, maxItem)
                 .let { Tuple3(call.prop<V1, T1>(path).first, RequestBody(it.second), it.first) }
-            else -> Tuple3(call.prop<V1, T1>(path).first, call.prop<V2, T2>(path).first, call.getFileRequest(true, extensions))
+            else -> Tuple3(call.prop<V1, T1>(path).first, call.prop<V2, T2>(path).first, call.getFileDataRequest<Unit>(true, extensions, maxMB, maxItem).first)
         }
 
         call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3), responseWrapper)
-        if (removeFileAfterProcessing) t.t3.forEach { it.file.delete() }
+        t.t3.clean(removeFileAfterProcessing)
     }
 }
 
@@ -205,6 +215,7 @@ inline fun <reified T,
     path: String = "",
     accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    maxMB: Long = property.maxFileSizeMB,
     responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
@@ -225,31 +236,31 @@ inline fun <reified T,
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
-            isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions).let {
+            isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions, maxMB, 0).let {
                 val (p2, idx) = call.prop<V2, T2>(path)
                 val p3 = call.prop<V3, T3>(path, idx).first
                 Tuple4(RequestBody(it.second), p2, p3, it.first.first())
             }
-            isRequestBody<T2>() -> call.getFileDataRequest<V2>(false, extensions).let {
+            isRequestBody<T2>() -> call.getFileDataRequest<V2>(false, extensions, maxMB, 0).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val p3 = call.prop<V3, T3>(path, idx).first
                 Tuple4(p1, RequestBody(it.second), p3, it.first.first())
             }
-            isRequestBody<T3>() -> call.getFileDataRequest<V3>(false, extensions).let {
+            isRequestBody<T3>() -> call.getFileDataRequest<V3>(false, extensions, maxMB, 0).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val p2 = call.prop<V2, T2>(path, idx).first
                 Tuple4(p1, p2, RequestBody(it.second), it.first.first())
             }
-            else -> call.getFileRequest(false, extensions).let {
+            else -> call.getFileDataRequest<Unit>(false, extensions, maxMB, 0).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val p3 = call.prop<V3, T3>(path, idx2).first
-                Tuple4(p1, p2, p3, it.first())
+                Tuple4(p1, p2, p3, it.first.first())
             }
         }
 
         call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4), responseWrapper)
-        if (removeFileAfterProcessing) t.t4.file.delete()
+        t.t4.clean(removeFileAfterProcessing)
     }
 }
 
@@ -262,6 +273,8 @@ inline fun <reified T,
     path: String = "",
     accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    maxMB: Long = property.maxFileSizeMB,
+    maxItem: Int = 0,
     responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
@@ -282,31 +295,31 @@ inline fun <reified T,
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
-            isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions).let {
+            isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions, maxMB, maxItem).let {
                 val (p2, idx) = call.prop<V2, T2>(path)
                 val p3 = call.prop<V3, T3>(path, idx).first
                 Tuple4(RequestBody(it.second), p2, p3, it.first)
             }
-            isRequestBody<T2>() -> call.getFileDataRequest<V2>(true, extensions).let {
+            isRequestBody<T2>() -> call.getFileDataRequest<V2>(true, extensions, maxMB, maxItem).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val p3 = call.prop<V3, T3>(path, idx).first
                 Tuple4(p1, RequestBody(it.second), p3, it.first)
             }
-            isRequestBody<T3>() -> call.getFileDataRequest<V3>(true, extensions).let {
+            isRequestBody<T3>() -> call.getFileDataRequest<V3>(true, extensions, maxMB, maxItem).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val p2 = call.prop<V2, T2>(path, idx).first
                 Tuple4(p1, p2, RequestBody(it.second), it.first)
             }
-            else -> call.getFileRequest(true, extensions).let {
+            else -> call.getFileDataRequest<Unit>(true, extensions, maxMB, maxItem).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val p3 = call.prop<V3, T3>(path, idx2).first
-                Tuple4(p1, p2, p3, it)
+                Tuple4(p1, p2, p3, it.first)
             }
         }
 
         call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4), responseWrapper)
-        if (removeFileAfterProcessing) t.t4.forEach { it.file.delete() }
+        t.t4.clean(removeFileAfterProcessing)
     }
 }
 
@@ -320,6 +333,7 @@ inline fun <reified T,
     path: String = "",
     accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    maxMB: Long = property.maxFileSizeMB,
     responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean,
@@ -342,41 +356,41 @@ inline fun <reified T,
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
-            isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions).let {
+            isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions, maxMB, 0).let {
                 val (p2, idx2) = call.prop<V2, T2>(path)
                 val (p3, idx3) = call.prop<V3, T3>(path, idx2)
                 val p4 = call.prop<V4, T4>(path, idx3).first
                 Tuple5(RequestBody(it.second), p2, p3, p4, it.first.first())
             }
-            isRequestBody<T2>() -> call.getFileDataRequest<V2>(false, extensions).let {
+            isRequestBody<T2>() -> call.getFileDataRequest<V2>(false, extensions, maxMB, 0).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p3, idx3) = call.prop<V3, T3>(path, idx)
                 val p4 = call.prop<V4, T4>(path, idx3).first
                 Tuple5(p1, RequestBody(it.second), p3, p4, it.first.first())
             }
-            isRequestBody<T3>() -> call.getFileDataRequest<V3>(false, extensions).let {
+            isRequestBody<T3>() -> call.getFileDataRequest<V3>(false, extensions, maxMB, 0).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val p4 = call.prop<V4, T4>(path, idx2).first
                 Tuple5(p1, p2, RequestBody(it.second), p4, it.first.first())
             }
-            isRequestBody<T4>() -> call.getFileDataRequest<V4>(false, extensions).let {
+            isRequestBody<T4>() -> call.getFileDataRequest<V4>(false, extensions, maxMB, 0).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val p3 = call.prop<V3, T3>(path, idx2).first
                 Tuple5(p1, p2, p3, RequestBody(it.second), it.first.first())
             }
-            else -> call.getFileRequest(false, extensions).let {
+            else -> call.getFileDataRequest<Unit>(false, extensions, maxMB, 0).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val (p3, idx3) = call.prop<V3, T3>(path, idx2)
                 val p4 = call.prop<V4, T4>(path, idx3).first
-                Tuple5(p1, p2, p3, p4, it.first())
+                Tuple5(p1, p2, p3, p4, it.first.first())
             }
         }
 
         call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4 as T4, t.t5), responseWrapper)
-        if (removeFileAfterProcessing) t.t5.file.delete()
+        t.t5.clean(removeFileAfterProcessing)
     }
 }
 
@@ -390,6 +404,8 @@ inline fun <reified T,
     path: String = "",
     accessRights: List<String> = emptyList(),
     extensions: List<String> = emptyList(),
+    maxMB: Long = property.maxFileSizeMB,
+    maxItem: Int = 0,
     responseWrapper: Boolean = true,
     removeFileAfterProcessing: Boolean = false,
     hidden: Boolean = false,
@@ -413,40 +429,40 @@ inline fun <reified T,
 
     return this.post(path.cleanRoutePath(), builder) {
         val t = when (true) {
-            isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions).let {
+            isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions, maxMB, maxItem).let {
                 val (p2, idx2) = call.prop<V2, T2>(path)
                 val (p3, idx3) = call.prop<V3, T3>(path, idx2)
                 val p4 = call.prop<V4, T4>(path, idx3).first
                 Tuple5(RequestBody(it.second), p2, p3, p4, it.first)
             }
-            isRequestBody<T2>() -> call.getFileDataRequest<V2>(true, extensions).let {
+            isRequestBody<T2>() -> call.getFileDataRequest<V2>(true, extensions, maxMB, maxItem).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p3, idx3) = call.prop<V3, T3>(path, idx)
                 val p4 = call.prop<V4, T4>(path, idx3).first
                 Tuple5(p1, RequestBody(it.second), p3, p4, it.first)
             }
-            isRequestBody<T3>() -> call.getFileDataRequest<V3>(true, extensions).let {
+            isRequestBody<T3>() -> call.getFileDataRequest<V3>(true, extensions, maxMB, maxItem).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val p4 = call.prop<V4, T4>(path, idx2).first
                 Tuple5(p1, p2, RequestBody(it.second), p4, it.first)
             }
-            isRequestBody<T4>() -> call.getFileDataRequest<V4>(true, extensions).let {
+            isRequestBody<T4>() -> call.getFileDataRequest<V4>(true, extensions, maxMB, maxItem).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val p3 = call.prop<V3, T3>(path, idx2).first
                 Tuple5(p1, p2, p3, RequestBody(it.second), it.first)
             }
-            else -> call.getFileRequest(true, extensions).let {
+            else -> call.getFileDataRequest<Unit>(true, extensions, maxMB, maxItem).let {
                 val (p1, idx) = call.prop<V1, T1>(path)
                 val (p2, idx2) = call.prop<V2, T2>(path, idx)
                 val (p3, idx3) = call.prop<V3, T3>(path, idx2)
                 val p4 = call.prop<V4, T4>(path, idx3).first
-                Tuple5(p1, p2, p3, p4, it)
+                Tuple5(p1, p2, p3, p4, it.first)
             }
         }
 
         call.ok(call.request.block(t.t1 as T1, t.t2 as T2, t.t3 as T3, t.t4 as T4, t.t5), responseWrapper)
-        if (removeFileAfterProcessing) t.t5.forEach { it.file.delete() }
+        t.t5.clean(removeFileAfterProcessing)
     }
 }

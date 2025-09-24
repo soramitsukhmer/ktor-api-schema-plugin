@@ -2,6 +2,7 @@ package com.skh.api_schema.dto.route.extension.file
 
 import io.ktor.server.routing.Route
 import com.skh.api_schema.common.RouteFormDataPropEnum
+import com.skh.api_schema.config.ApiSchemaProperties.property
 import kotlin.reflect.KClass
 
 data class PostFileDtoT3<T1 : Any, T2 : Any, T3 : Any>(
@@ -12,6 +13,8 @@ data class PostFileDtoT3<T1 : Any, T2 : Any, T3 : Any>(
     val responseWrapper: Boolean,
     val hidden: Boolean,
     val accessRights: List<String>,
+    val maxMB: Long,
+    val maxItem: Int,
     val p1: Pair<KClass<T1>, RouteFormDataPropEnum>,
     val p2: Pair<KClass<T2>, RouteFormDataPropEnum>,
     val p3: Pair<KClass<T3>, RouteFormDataPropEnum>

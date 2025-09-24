@@ -1,8 +1,6 @@
 package com.skh.api_schema.extension
 
 import io.ktor.http.content.PartData
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.copyAndClose
 import com.skh.api_schema.common.Helper.badRequest
 import com.skh.api_schema.common.RouteFormDataPropEnum
 import com.skh.api_schema.common.RoutePropEnum
@@ -11,6 +9,8 @@ import com.skh.api_schema.dto.route.inline.RouteProp
 import com.skh.api_schema.dto.route.inline.impl.RequestBody
 import com.skh.api_schema.utils.JacksonObjMapper.objectMapper
 import com.skh.api_schema.utils.fromMapToClass
+import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.copyAndClose
 import java.io.File
 import java.util.UUID
 import kotlin.reflect.KClass
@@ -25,7 +25,11 @@ fun <T : Any> KClass<T>.asKType(): KType {
     return this.java.kotlin.createType()
 }
 
-suspend fun PartData.FileItem.getRequest(existed: Boolean, extensions: List<String>, asList: Boolean): FileInfoReq? {
+suspend fun PartData.FileItem.getRequest(
+    existed: Boolean,
+    extensions: List<String>,
+    asList: Boolean
+): FileInfoReq? {
     if (asList && this.name != "files") return null
     if (!asList && this.name != "file") return null
     if (existed) badRequest("Invalid request duplicate file")
@@ -68,4 +72,4 @@ fun Pair<KClass<*>, RouteFormDataPropEnum>.isText() = second.isText()
 
 inline fun <reified T> isListType() = T::class == List::class
 
-fun isListType(kClass: KClass<*>) = kClass == List::class
+fun Long.toStringMB() = "${((this * 1024L) * 1024L)} MB"

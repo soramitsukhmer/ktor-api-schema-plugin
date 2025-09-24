@@ -12,6 +12,8 @@ data class PostFileDtoT1<T1 : Any>(
     val responseWrapper: Boolean,
     val hidden: Boolean,
     val accessRights: List<String>,
+    val maxMB: Long,
+    val maxItem: Int,
     val p1: Pair<KClass<T1>, RouteFormDataPropEnum>
 ) {
 
@@ -35,6 +37,8 @@ data class PostFileDtoT1<T1 : Any>(
             responseWrapper,
             hidden,
             accessRights,
+            maxMB,
+            maxItem,
             p1,
             pair
         )
