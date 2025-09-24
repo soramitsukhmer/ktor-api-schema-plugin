@@ -18,7 +18,6 @@ import com.skh.api_schema.common.Helper.clean
 import com.skh.api_schema.common.Helper.extractAllPathParameters
 import com.skh.api_schema.common.Helper.megaByteToByte
 import com.skh.api_schema.common.MethodEnum
-import com.skh.api_schema.config.ApiSchemaProperties.property
 import com.skh.api_schema.dto.handler.MaxRequestFileItem
 import com.skh.api_schema.dto.request.FileInfoReq
 import java.io.File
@@ -105,6 +104,13 @@ suspend fun <T : Any> RoutingCall.requestBody(clazz: KClass<T>): T {
     return receiveRequestBody(clazz.simpleName) { receive(clazz) }
 }
 
+inline fun <reified T> isUnitType(): Boolean {
+    return when (T::class) {
+        Unit::class, Void::class, Nothing::class -> false
+        else -> true
+    }
+}
+
 suspend inline fun <reified T> RoutingCall.getFileDataRequest(
     fileAsList: Boolean,
     extensions: List<String>,
@@ -113,40 +119,34 @@ suspend inline fun <reified T> RoutingCall.getFileDataRequest(
 ): Pair<List<FileInfoReq>, T?> {
     val files = mutableListOf<FileInfoReq>()
     var data: T? = null
+    var fileCount = 0
 
-    val dataMustNotBlank = when (T::class) {
-        Unit::class -> false
-        Void::class -> false
-        Nothing::class -> false
-        else -> true
-    }
-
-    val isNotSkipFileLimitItem = limit > 0
-    var fileItem = 0
+    val requiresData = !isUnitType<T>()
+    val hasFileLimit = limit > 0
 
     try {
         receiveMultipart(formFieldLimit = maxMB.megaByteToByte()).forEachPart { part ->
-            when (part) {
-                is PartData.FileItem -> {
-                    val fileExisted = when (fileAsList) {
-                        true -> false
-                        else -> files.isNotEmpty()
-                    }
-                    part.getRequest(fileExisted, extensions, fileAsList)?.let(files::add)
-                    if (isNotSkipFileLimitItem) {
-                        fileItem++
-                        if (fileItem > limit) {
-                            throw MaxRequestFileItem("Files request must not more than $limit")
+            try {
+                when (part) {
+                    is PartData.FileItem -> {
+                        val fileExisted = when (fileAsList) {
+                            true -> false
+                            else -> files.isNotEmpty()
+                        }
+                        part.getRequest(fileExisted, extensions, fileAsList)?.let(files::add)
+                        if (hasFileLimit && ++fileCount > limit) {
+                            throw MaxRequestFileItem("Files request must not exceed $limit items")
                         }
                     }
+                    is PartData.FormItem -> { if (requiresData && data == null) { data = part.getRequest<T>(false) } }
+                    else -> {}
                 }
-                is PartData.FormItem -> { if (dataMustNotBlank) part.getRequest<T>(data != null)?.let { data = it } }
-                else -> {}
+            } finally {
+                part.dispose()
             }
-            part.dispose()
         }
 
-        val value = if (dataMustNotBlank) {
+        val value = if (requiresData) {
             data ?: badRequest("Invalid request data cannot be empty")
         } else data
 
@@ -162,7 +162,7 @@ suspend inline fun <reified T> RoutingCall.getFileDataRequest(
         badRequest(e.message)
     } catch (e: Exception) {
         files.clean(true)
-        badRequest("File size exceeds the maximum limit of $maxMB MB")
+        badRequest("File processing failed: ${e.message ?: "File size exceeds the maximum limit of $maxMB MB"}")
     }
 }
 
