@@ -14,4 +14,6 @@ object Constant {
     const val DATE_FORMAT = "MM/dd/yyyy"
     /** HH:mm */
     const val TIME_FORMAT = "HH:mm:ss"
+
+    const val DEFAULT_MAX_FILE_SIZE_100MB: Long = 100
 }

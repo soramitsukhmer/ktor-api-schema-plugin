@@ -14,10 +14,15 @@ import io.ktor.server.response.header
 import io.ktor.server.routing.*
 import com.skh.api_schema.common.RoutePropEnum
 import com.skh.api_schema.common.Helper.badRequest
+import com.skh.api_schema.common.Helper.clean
 import com.skh.api_schema.common.Helper.extractAllPathParameters
+import com.skh.api_schema.common.Helper.megaByteToByte
 import com.skh.api_schema.common.MethodEnum
+import com.skh.api_schema.config.ApiSchemaProperties.property
+import com.skh.api_schema.dto.handler.MaxRequestFileItem
 import com.skh.api_schema.dto.request.FileInfoReq
 import java.io.File
+import kotlin.Long
 import kotlin.collections.joinToString
 import kotlin.reflect.KClass
 
@@ -100,59 +105,64 @@ suspend fun <T : Any> RoutingCall.requestBody(clazz: KClass<T>): T {
     return receiveRequestBody(clazz.simpleName) { receive(clazz) }
 }
 
-suspend fun RoutingCall.getFileRequest(fileAsList: Boolean, extensions: List<String>): List<FileInfoReq> {
-    val files = mutableListOf<FileInfoReq>()
-
-    receiveMultipart().forEachPart { part ->
-        when (part) {
-            is PartData.FileItem -> {
-                val fileExisted = when (fileAsList) {
-                    true -> false
-                    else -> files.isNotEmpty()
-                }
-                part.getRequest(fileExisted, extensions, fileAsList)?.let(files::add)
-            }
-            else -> {}
-        }
-        part.dispose()
-    }
-
-    return when (fileAsList) {
-        true -> files
-        else -> {
-            val file = files.firstOrNull() ?: badRequest("Invalid request file cannot be empty")
-            listOf(file)
-        }
-    }
-}
-
-suspend inline fun <reified T> RoutingCall.getFileDataRequest(fileAsList: Boolean, extensions: List<String>): Pair<List<FileInfoReq>, T> {
+suspend inline fun <reified T> RoutingCall.getFileDataRequest(
+    fileAsList: Boolean,
+    extensions: List<String>,
+    maxMB: Long,
+    limit: Int
+): Pair<List<FileInfoReq>, T?> {
     val files = mutableListOf<FileInfoReq>()
     var data: T? = null
 
-    receiveMultipart().forEachPart { part ->
-        when (part) {
-            is PartData.FileItem -> {
-                val fileExisted = when (fileAsList) {
-                    true -> false
-                    else -> files.isNotEmpty()
-                }
-                part.getRequest(fileExisted, extensions, fileAsList)?.let(files::add)
-            }
-            is PartData.FormItem -> part.getRequest<T>(data != null)?.let { data = it }
-            else -> {}
-        }
-        part.dispose()
+    val dataMustNotBlank = when (T::class) {
+        Unit::class -> false
+        Void::class -> false
+        Nothing::class -> false
+        else -> true
     }
 
-    val value = data ?: badRequest("Invalid request data cannot be empty")
+    val isNotSkipFileLimitItem = limit > 0
+    var fileItem = 0
 
-    return when (fileAsList) {
-        true -> Pair(files, value)
-        else -> {
-            val file = files.firstOrNull() ?: badRequest("Invalid request file cannot be empty")
-            Pair(listOf(file), value)
+    try {
+        receiveMultipart(formFieldLimit = maxMB.megaByteToByte()).forEachPart { part ->
+            when (part) {
+                is PartData.FileItem -> {
+                    val fileExisted = when (fileAsList) {
+                        true -> false
+                        else -> files.isNotEmpty()
+                    }
+                    part.getRequest(fileExisted, extensions, fileAsList)?.let(files::add)
+                    if (isNotSkipFileLimitItem) {
+                        fileItem++
+                        if (fileItem > limit) {
+                            throw MaxRequestFileItem("Files request must not more than $limit")
+                        }
+                    }
+                }
+                is PartData.FormItem -> { if (dataMustNotBlank) part.getRequest<T>(data != null)?.let { data = it } }
+                else -> {}
+            }
+            part.dispose()
         }
+
+        val value = if (dataMustNotBlank) {
+            data ?: badRequest("Invalid request data cannot be empty")
+        } else data
+
+        return when (fileAsList) {
+            true -> Pair(files, value)
+            else -> {
+                val file = files.firstOrNull() ?: badRequest("Invalid request file cannot be empty")
+                Pair(listOf(file), value)
+            }
+        }
+    } catch (e: MaxRequestFileItem) {
+        files.clean(true)
+        badRequest(e.message)
+    } catch (e: Exception) {
+        files.clean(true)
+        badRequest("File size exceeds the maximum limit of $maxMB MB")
     }
 }
 
