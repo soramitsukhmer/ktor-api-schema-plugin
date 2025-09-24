@@ -122,6 +122,7 @@ suspend inline fun <reified T> RoutingCall.getFileDataRequest(
 
     val hasFileLimit = limit > 0
     val multiPartSize = (maxMB * 2).megaByteToByte()
+    var isCleanFile = true
 
     try {
         receiveMultipart(formFieldLimit = multiPartSize).forEachPart { part ->
@@ -150,21 +151,22 @@ suspend inline fun <reified T> RoutingCall.getFileDataRequest(
         val value = if (requiresData) { data ?: badRequest("Invalid request data cannot be empty") } else data
 
         return when (fileAsList) {
-            true -> Pair(files, value)
+            true -> {
+                isCleanFile = false
+                Pair(files, value)
+            }
             else -> {
                 val file = files.firstOrNull() ?: badRequest("Invalid request file cannot be empty")
+                isCleanFile = false
                 Pair(listOf(file), value)
             }
         }
     } catch (e: MaxRequestFileItemException) {
-        files.clean(true)
         badRequest(e.message)
     } catch (e: FileSizeExceededException) {
-        files.clean(true)
         badRequest(e.message)
-    } catch (e: Exception) {
-        files.clean(true)
-        badRequest("Error on processing upload file: ${e.message}")
+    } finally {
+        files.clean(isCleanFile)
     }
 }
 
