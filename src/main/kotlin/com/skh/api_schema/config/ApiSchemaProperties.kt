@@ -2,9 +2,11 @@ package com.skh.api_schema.config
 
 import com.skh.api_schema.common.Constant.DATETIME_FORMAT
 import com.skh.api_schema.common.Constant.DATE_FORMAT
+import com.skh.api_schema.common.Constant.DEFAULT_MAX_FILE_SIZE_100MB
+import com.skh.api_schema.common.Constant.TIME_FORMAT
 import io.ktor.server.config.ApplicationConfig
 
-object PluginProperties {
+object ApiSchemaProperties {
     private fun getApplicationConfig(): ApplicationConfig {
         val profile = System.getenv("KTOR_PROFILE")?.let { "-$it" } ?: ""
         return ApplicationConfig("application$profile.yaml")
@@ -36,6 +38,7 @@ object PluginProperties {
     data class Property(
         val enabled: Boolean = true,
         val baseUrls: List<String> = listOf(),
+        val maxFileSizeMB: Long = 0,
         val datetimeFormat: String = "",
         val dateFormat: String = "",
         val timeFormat: String = ""
@@ -44,8 +47,9 @@ object PluginProperties {
     val property = Property(
         enabled = config.getOptionalValue<Boolean>("api-shema.enabled").elze(true),
         baseUrls = config.getOptionalValue<String>("api-shema.base-urls")?.split(",")?.map { it.trim() }.elze(emptyList()),
+        maxFileSizeMB = config.getOptionalValue<Long>("api-shema.max-file-size-mb").elze(DEFAULT_MAX_FILE_SIZE_100MB),
         datetimeFormat = config.getOptionalValue<String>("api-shema.datetime-format").elze(DATETIME_FORMAT),
         dateFormat = config.getOptionalValue<String>("api-shema.date-format").elze(DATE_FORMAT),
-        timeFormat = config.getOptionalValue<String>("api-shema.time-format").elze(DATE_FORMAT),
+        timeFormat = config.getOptionalValue<String>("api-shema.time-format").elze(TIME_FORMAT),
     )
 }

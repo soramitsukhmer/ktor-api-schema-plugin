@@ -4,6 +4,7 @@ import io.ktor.server.routing.Route
 import com.skh.api_schema.common.MethodEnum
 import com.skh.api_schema.common.RouteFormDataPropEnum
 import com.skh.api_schema.common.RoutePropEnum
+import com.skh.api_schema.config.ApiSchemaProperties.property
 import com.skh.api_schema.extension.throwOnFileReqBody
 import com.skh.api_schema.dto.request.FileInfoReq
 import com.skh.api_schema.dto.route.extension.file.PostFileDtoT1
@@ -33,7 +34,11 @@ data class PostDto(
         return addProp(Pair(T::class, RoutePropEnum.REQUEST_BODY))
     }
 
-    fun file(extension: List<String> = emptyList(), removeFileAfterProcessing: Boolean = false) = PostFileDtoT1(
+    fun file(
+        extension: List<String> = emptyList(),
+        removeFileAfterProcessing: Boolean = false,
+        maxMB: Long = property.maxFileSizeMB,
+    ) = PostFileDtoT1(
         route,
         path,
         extension,
@@ -41,11 +46,18 @@ data class PostDto(
         responseWrapper,
         hidden,
         accessRights,
+        maxMB,
+        0,
         FileInfoReq::class to RouteFormDataPropEnum.FILE
     )
 
     @Suppress("UNCHECKED_CAST")
-    fun files(extension: List<String> = emptyList(), removeFileAfterProcessing: Boolean = false) = PostFileDtoT1(
+    fun files(
+        extension: List<String> = emptyList(),
+        removeFileAfterProcessing: Boolean = false,
+        maxMB: Long = property.maxFileSizeMB,
+        maxItem: Int = 0
+    ) = PostFileDtoT1(
         route,
         path,
         extension,
@@ -53,6 +65,8 @@ data class PostDto(
         responseWrapper,
         hidden,
         accessRights,
+        maxMB,
+        maxItem,
         (typeOf<List<FileInfoReq>>().classifier as KClass<List<FileInfoReq>>) to RouteFormDataPropEnum.FILES
     )
 }

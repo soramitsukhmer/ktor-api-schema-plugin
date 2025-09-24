@@ -1,6 +1,6 @@
 package com.skh.api_schema.config
 
-import com.skh.api_schema.config.PluginProperties.property
+import com.skh.api_schema.config.ApiSchemaProperties.property
 import com.skh.api_schema.config.exception.ExceptionConfig
 import com.skh.api_schema.config.schema.DownloadSchemaConfig
 import com.skh.api_schema.extension.cleanRoute
