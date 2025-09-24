@@ -14,7 +14,7 @@ object ApiSchemaProperties {
 
     private var config = getApplicationConfig()
 
-    private inline fun <reified T> ApplicationConfig.getOptionalValue(key: String): T? {
+    private inline fun <reified T> ApplicationConfig.getOptionalValue(key: String, elze: () -> T): T {
         return try {
             val value = property(key).getString()
             when (T::class) {
@@ -24,15 +24,11 @@ object ApiSchemaProperties {
                 Double::class -> value.toDouble()
                 Boolean::class -> value.toBoolean()
                 String::class -> value
-                else -> null
-            } as T?
+                else -> elze()
+            } as T
         } catch (_: Exception) {
-            null
+            elze()
         }
-    }
-
-    private fun <T> T?.elze(default: T): T {
-        return this ?: default
     }
 
     data class Property(
@@ -45,11 +41,11 @@ object ApiSchemaProperties {
     )
 
     val property = Property(
-        enabled = config.getOptionalValue<Boolean>("api-shema.enabled").elze(true),
-        baseUrls = config.getOptionalValue<String>("api-shema.base-urls")?.split(",")?.map { it.trim() }.elze(emptyList()),
-        maxFileSizeMB = config.getOptionalValue<Long>("api-shema.max-file-size-mb").elze(DEFAULT_MAX_FILE_SIZE_100MB),
-        datetimeFormat = config.getOptionalValue<String>("api-shema.datetime-format").elze(DATETIME_FORMAT),
-        dateFormat = config.getOptionalValue<String>("api-shema.date-format").elze(DATE_FORMAT),
-        timeFormat = config.getOptionalValue<String>("api-shema.time-format").elze(TIME_FORMAT),
+        enabled = config.getOptionalValue<Boolean>("api-shema.enabled") { true },
+        baseUrls = config.getOptionalValue<String>("api-shema.base-urls") { "" }.split(",").map { it.trim() }.filter { it.isNotBlank() },
+        maxFileSizeMB = config.getOptionalValue<Long>("api-shema.max-file-size-mb") { DEFAULT_MAX_FILE_SIZE_100MB },
+        datetimeFormat = config.getOptionalValue<String>("api-shema.datetime-format") { DATETIME_FORMAT },
+        dateFormat = config.getOptionalValue<String>("api-shema.date-format") { DATE_FORMAT },
+        timeFormat = config.getOptionalValue<String>("api-shema.time-format") { TIME_FORMAT },
     )
 }
