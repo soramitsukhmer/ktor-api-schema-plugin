@@ -41,11 +41,11 @@ object ApiSchemaProperties {
     )
 
     val property = Property(
-        enabled = config.getOptionalValue<Boolean>("api-shema.enabled") { true },
-        baseUrls = config.getOptionalValue<String>("api-shema.base-urls") { "" }.split(",").map { it.trim() }.filter { it.isNotBlank() },
-        maxFileSizeMB = config.getOptionalValue<Long>("api-shema.max-file-size-mb") { DEFAULT_MAX_FILE_SIZE_100MB },
-        datetimeFormat = config.getOptionalValue<String>("api-shema.datetime-format") { DATETIME_FORMAT },
-        dateFormat = config.getOptionalValue<String>("api-shema.date-format") { DATE_FORMAT },
-        timeFormat = config.getOptionalValue<String>("api-shema.time-format") { TIME_FORMAT },
+        enabled = config.getOptionalValue<Boolean>("api-schema.enabled") { true },
+        baseUrls = config.getOptionalValue<String>("api-schema.base-urls") { "" }.split(",").map { it.trim() }.filter { it.isNotBlank() },
+        maxFileSizeMB = config.getOptionalValue<Long>("api-schema.max-file-size-mb") { DEFAULT_MAX_FILE_SIZE_100MB },
+        datetimeFormat = config.getOptionalValue<String>("api-schema.datetime-format") { DATETIME_FORMAT },
+        dateFormat = config.getOptionalValue<String>("api-schema.date-format") { DATE_FORMAT },
+        timeFormat = config.getOptionalValue<String>("api-schema.time-format") { TIME_FORMAT },
     )
 }
