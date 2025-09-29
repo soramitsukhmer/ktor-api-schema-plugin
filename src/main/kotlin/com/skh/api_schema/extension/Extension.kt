@@ -45,7 +45,7 @@ fun PartData.FileItem.getRequest(
 
     if (extensions.isNotEmpty()) {
         when (extension.lowercase()) {
-            "svg+mxl" -> extensions.any { s -> s.equals("svg", ignoreCase = true) || s.equals(extension, ignoreCase = true) }
+            "svg+xml" -> extensions.any { s -> s.equals("svg", ignoreCase = true) || s.equals(extension, ignoreCase = true) }
             else -> extensions.any { s -> s.equals(extension, ignoreCase = true) }
         } || badRequest("Invalid file extension $extensions")
     }
