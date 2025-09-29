@@ -18,6 +18,7 @@ import com.skh.api_schema.common.Helper.clean
 import com.skh.api_schema.common.Helper.extractAllPathParameters
 import com.skh.api_schema.common.Helper.megaByteToByte
 import com.skh.api_schema.common.MethodEnum
+import com.skh.api_schema.config.ApiSchemaProperties.validator
 import com.skh.api_schema.dto.handler.FileSizeExceededException
 import com.skh.api_schema.dto.handler.MaxRequestFileItemException
 import com.skh.api_schema.dto.request.FileInfoReq
@@ -39,7 +40,7 @@ fun <T : Any> KClass<T>.getDefaultValue(value: String, param: String): T {
 }
 
 suspend fun <T> receiveRequestBody(clazzName: String?, block: suspend () -> T): T {
-    return try { block() }
+    val request = try { block() }
     catch (e: Exception) {
         when (e) {
             is RequestValidationException -> badRequest(e.reasons.minOf { it })
@@ -54,6 +55,12 @@ suspend fun <T> receiveRequestBody(clazzName: String?, block: suspend () -> T): 
             }
         }
     }
+
+    validator.validate(request)
+        .takeIf { it.isNotEmpty() }
+        ?.let { badRequest(it.messages().joinToString(", ")) }
+
+    return request
 }
 
 inline fun <reified T : Any> RoutingCall.getPathVariable(param: String): T {
