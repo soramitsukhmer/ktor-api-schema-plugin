@@ -11,14 +11,14 @@ import com.skh.api_schema.dto.route.inline.RouteProp
 import com.skh.api_schema.dto.route.inline.impl.RequestBody
 import com.skh.api_schema.utils.JacksonObjMapper.objectMapper
 import com.skh.api_schema.utils.fromMapToClass
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.copyAndClose
 import io.ktor.utils.io.jvm.javaio.toInputStream
+import jakarta.validation.ConstraintViolation
 import java.io.File
 import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
+import kotlin.text.replace
 
 fun <T> Map<*, *>.ct(clazz: Class<T>): T = objectMapper.fromMapToClass(clazz, this)
 
@@ -98,6 +98,4 @@ fun Pair<KClass<*>, RoutePropEnum>.isRequestBody() = second.isRequestBody()
 
 fun Pair<KClass<*>, RouteFormDataPropEnum>.isText() = second.isText()
 
-inline fun <reified T> isListType() = T::class == List::class
-
-fun Long.toStringMB() = "${((this * 1024L) * 1024L)} MB"
+fun <T> Set<ConstraintViolation<T>>.messages() = map { e -> e.message.replace("{field}", e.propertyPath.toString()) }

@@ -5,6 +5,8 @@ import com.skh.api_schema.common.Constant.DATE_FORMAT
 import com.skh.api_schema.common.Constant.DEFAULT_MAX_FILE_SIZE_100MB
 import com.skh.api_schema.common.Constant.TIME_FORMAT
 import io.ktor.server.config.ApplicationConfig
+import jakarta.validation.Validation
+import jakarta.validation.Validator
 
 object ApiSchemaProperties {
     private fun getApplicationConfig(): ApplicationConfig {
@@ -13,6 +15,8 @@ object ApiSchemaProperties {
     }
 
     private var config = getApplicationConfig()
+
+    val validator: Validator = Validation.buildDefaultValidatorFactory().validator
 
     private inline fun <reified T> ApplicationConfig.getOptionalValue(key: String, elze: () -> T): T {
         return try {
