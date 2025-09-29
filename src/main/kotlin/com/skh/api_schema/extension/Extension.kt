@@ -44,7 +44,10 @@ fun PartData.FileItem.getRequest(
     val extension = this.contentType?.contentSubtype ?: badRequest("Invalid file extension")
 
     if (extensions.isNotEmpty()) {
-        extension.lowercase() in extensions.map { it.lowercase() } || badRequest("Invalid file extension $extensions")
+        when (extension.lowercase()) {
+            "svg+mxl" -> extensions.any { s -> s.equals("svg", ignoreCase = true) || s.equals(extension, ignoreCase = true) }
+            else -> extensions.any { s -> s.equals(extension, ignoreCase = true) }
+        } || badRequest("Invalid file extension $extensions")
     }
 
     val filename = this.originalFileName ?: badRequest("Invalid file name")
