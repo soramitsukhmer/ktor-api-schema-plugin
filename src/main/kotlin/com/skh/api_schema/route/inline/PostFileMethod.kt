@@ -15,7 +15,7 @@ import com.skh.api_schema.dto.route.extension.tuple.Tuple5
 import com.skh.api_schema.dto.route.inline.RouteProp
 import com.skh.api_schema.dto.route.inline.SchemaBuilderProp
 import com.skh.api_schema.dto.route.inline.impl.RequestBody
-import com.skh.api_schema.extension.cleanRoutePath
+import com.skh.api_schema.extension.cleanRoute
 import com.skh.api_schema.extension.getFileDataRequest
 import com.skh.api_schema.extension.isRequestBody
 import com.skh.api_schema.extension.prop
@@ -42,7 +42,7 @@ inline fun <reified T> Route.postFile(
 ): Route {
     val builder = schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, bodyFileAsList = false, accessRights = accessRights)
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val request = call.getFileDataRequest<Unit>(false, extensions, maxMB, 0).first.first()
         call.ok(call.request.block(request), responseWrapper)
         request.file.clean(removeFileAfterProcessing)
@@ -63,7 +63,7 @@ inline fun <reified T> Route.postFiles(
 ): Route {
     val builder = schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, bodyFileAsList = true, accessRights = accessRights)
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val files = call.getFileDataRequest<Unit>(true, extensions, maxMB, maxItem).first
         call.ok(call.request.block(files), responseWrapper)
         files.clean(removeFileAfterProcessing)
@@ -87,7 +87,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postF
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, bodyFileAsList = false, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val (file, p1) = when (isRequestBody<T1>()) {
             true -> call.getFileDataRequest<V1>(false, extensions, maxMB, 0).let { it.first.first() to RequestBody(it.second) }
             false -> call.getFileDataRequest<Unit>(false, extensions, maxMB, 0).first.first() to call.prop<V1, T1>(path).first
@@ -116,7 +116,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.postF
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, bodyFileAsList = true, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val (files, p1) = when (isRequestBody<T1>()) {
             true -> call.getFileDataRequest<V1>(true, extensions, maxMB, maxItem).let { it.first to RequestBody(it.second) }
             false -> call.getFileDataRequest<Unit>(true, extensions, maxMB, maxItem).first to call.prop<V1, T1>(path).first
@@ -152,7 +152,7 @@ inline fun <reified T,
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, bodyFileAsList = false, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions, maxMB, 0)
                 .let { Tuple3(RequestBody(it.second), call.prop<V2, T2>(path).first, it.first.first()) }
@@ -192,7 +192,7 @@ inline fun <reified T,
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, bodyFileAsList = true, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions, maxMB, maxItem)
                 .let { Tuple3(RequestBody(it.second), call.prop<V2, T2>(path).first, it.first) }
@@ -234,7 +234,7 @@ inline fun <reified T,
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, bodyFileAsList = false, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions, maxMB, 0).let {
                 val (p2, idx) = call.prop<V2, T2>(path)
@@ -293,7 +293,7 @@ inline fun <reified T,
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, bodyFileAsList = true, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions, maxMB, maxItem).let {
                 val (p2, idx) = call.prop<V2, T2>(path)
@@ -354,7 +354,7 @@ inline fun <reified T,
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, bodyFileAsList = false, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(false, extensions, maxMB, 0).let {
                 val (p2, idx2) = call.prop<V2, T2>(path)
@@ -427,7 +427,7 @@ inline fun <reified T,
     }
 
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val t = when (true) {
             isRequestBody<T1>() -> call.getFileDataRequest<V1>(true, extensions, maxMB, maxItem).let {
                 val (p2, idx2) = call.prop<V2, T2>(path)

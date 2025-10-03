@@ -36,8 +36,8 @@ dependencies {
     api("io.ktor:ktor-server-status-pages")
 
     // Serialization
+    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version")
     implementation("io.ktor:ktor-serialization-jackson")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version")
 
     // OpenAPI
     implementation("io.github.smiley4:ktor-openapi:$smiley4_version")

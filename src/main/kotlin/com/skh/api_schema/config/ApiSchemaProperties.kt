@@ -7,6 +7,7 @@ import com.skh.api_schema.common.Constant.TIME_FORMAT
 import io.ktor.server.config.ApplicationConfig
 import jakarta.validation.Validation
 import jakarta.validation.Validator
+import java.lang.IllegalArgumentException
 
 object ApiSchemaProperties {
     private fun getApplicationConfig(): ApplicationConfig {
@@ -20,7 +21,7 @@ object ApiSchemaProperties {
 
     private inline fun <reified T> ApplicationConfig.getOptionalValue(key: String, elze: () -> T): T {
         return try {
-            val value = property(key).getString()
+            val value = property("api-schema.".plus(key)).getString()
             when (T::class) {
                 Int::class -> value.toInt()
                 Long::class -> value.toLong()
@@ -35,21 +36,80 @@ object ApiSchemaProperties {
         }
     }
 
+    private inline fun <reified T> String.valueOf(noinline elze: (() -> T)? = null): T {
+        val value = elze?.invoke() ?: when (T::class) {
+            Int::class -> 0
+            Long::class -> 0L
+            Float::class -> 0f
+            Double::class -> 0.0
+            Boolean::class -> false
+            String::class -> ""
+            else -> throw IllegalArgumentException("Unsupported type ${T::class}")
+        } as T
+
+        return config.getOptionalValue<T>(this) { value }
+    }
+
+    data class InfoProperty(
+        val title: String,
+        val version: String,
+        val description: String?,
+        val summary: String?
+    )
+
+    open class PathProperty(
+        open val path: String,
+        open val enabled: Boolean,
+    )
+
+    data class DownloadProperty(
+        override val path: String,
+        override val enabled: Boolean,
+        val hidden: Boolean,
+        val filename: String,
+    ) : PathProperty(path, enabled)
+
     data class Property(
-        val enabled: Boolean = true,
-        val baseUrls: List<String> = listOf(),
-        val maxFileSizeMB: Long = 0,
-        val datetimeFormat: String = "",
-        val dateFormat: String = "",
-        val timeFormat: String = ""
+        val enabled: Boolean,
+        val path: String,
+        val baseUrls: List<String>,
+        val maxFileSizeMB: Long,
+        val datetimeFormat: String,
+        val dateFormat: String,
+        val timeFormat: String,
+        val info: InfoProperty,
+        val download: DownloadProperty,
+        val redoc: PathProperty,
+        val swagger: PathProperty
     )
 
     val property = Property(
-        enabled = config.getOptionalValue<Boolean>("api-schema.enabled") { true },
-        baseUrls = config.getOptionalValue<String>("api-schema.base-urls") { "" }.split(",").map { it.trim() }.filter { it.isNotBlank() },
-        maxFileSizeMB = config.getOptionalValue<Long>("api-schema.max-file-size-mb") { DEFAULT_MAX_FILE_SIZE_100MB },
-        datetimeFormat = config.getOptionalValue<String>("api-schema.datetime-format") { DATETIME_FORMAT },
-        dateFormat = config.getOptionalValue<String>("api-schema.date-format") { DATE_FORMAT },
-        timeFormat = config.getOptionalValue<String>("api-schema.time-format") { TIME_FORMAT },
+        enabled = "enabled".valueOf { false },
+        path = "path".valueOf { "schema" },
+        baseUrls = "base-urls".valueOf<String>().split(",").filter { it.trim().isNotBlank() },
+        maxFileSizeMB = "max-file-size-mb".valueOf { DEFAULT_MAX_FILE_SIZE_100MB },
+        datetimeFormat = "datetime-format".valueOf { DATETIME_FORMAT },
+        dateFormat = "date-format".valueOf { DATE_FORMAT },
+        timeFormat = "time-format".valueOf { TIME_FORMAT },
+        info = InfoProperty(
+            title = "info.title".valueOf { "Ktor - API Schema" },
+            version = "info.version".valueOf<String> { "latest" },
+            description = "info.description".valueOf<String>().takeIf { it.isNotBlank() },
+            summary = "info.summary".valueOf<String>().takeIf { it.isNotBlank() }
+        ),
+        download = DownloadProperty(
+            path = "download.path".valueOf { "download" },
+            enabled = "download.enabled".valueOf { false },
+            hidden = "download.hidden-route".valueOf { true },
+            filename = "download.filename".valueOf { "ktor-openapi-schema" },
+        ),
+        redoc = PathProperty(
+            path = "redoc.path".valueOf { "redoc" },
+            enabled = "redoc.enabled".valueOf { false },
+        ),
+        swagger = PathProperty(
+            path = "swagger.path".valueOf { "swagger" },
+            enabled = "swagger.enabled".valueOf { false },
+        )
     )
 }
