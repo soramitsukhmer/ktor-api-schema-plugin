@@ -1,38 +1,37 @@
 package com.skh.api_schema.dto.request
 
-import com.skh.api_schema.common.Direction
+import com.skh.api_schema.common.Constant.SORTABLE_PATTERN
+import com.skh.api_schema.common.Constant.SORT_DIRECTIONS
 
-abstract class PageRequest(
+open class PageRequest(
     open val size: Int = 10,
     open val page: Long = 0,
     open val sort: List<String>
 ) {
-    fun getInvalidSortKeys(): List<String> {
-        return sort.filter { it.split(",").size > 2 }
+
+    fun throwWhenInvalidSort() {
+        sort
+            .filter { it.trim().isEmpty() }
             .takeIf { it.isNotEmpty() }
-            ?: sort.filter {
-                val list = it.split(",")
-                if (list.size != 2) return@filter false
-                val dir = list.last()
-                !Direction.isValid(dir)
-            }
+            ?.let { throw IllegalArgumentException("The sort field(s) must not be empty value") }
+
+        sort
+            .filter { !SORTABLE_PATTERN.matches(it.trim()) }
+            .takeIf { it.isNotEmpty() }
+            ?.let { throw IllegalArgumentException("The sort key(s) ${if (it.size > 1) "are" else "is"} are invalid") }
     }
 
-    fun getSortTypes(): List<Sort> {
-        return sort.map {
+    fun sortables(): List<Sort> {
+        return sort.mapNotNull {
             val list = it.split(",")
-            if (list.size == 2) {
-                val key = list.first()
-                val dir = Direction.findByName(list.last())
-                Sort(key, dir)
-            } else {
-                Sort(it, Direction.ASC)
-            }
+            Sort(it, true)
+                .takeIf { list.size != 2 }
+                ?: SORT_DIRECTIONS[list.last().trim().lowercase()]?.let { dir -> Sort(list.first(), dir) }
         }
     }
 }
 
 data class Sort(
     val property: String,
-    val direction: Direction
+    val isAsc: Boolean
 )
