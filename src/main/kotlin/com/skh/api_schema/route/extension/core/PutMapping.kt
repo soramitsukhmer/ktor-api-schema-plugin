@@ -12,7 +12,7 @@ import com.skh.api_schema.dto.route.extension.put.PutDtoT4
 import com.skh.api_schema.dto.route.extension.tuple.Tuple2
 import com.skh.api_schema.dto.route.extension.tuple.Tuple3
 import com.skh.api_schema.dto.route.extension.tuple.Tuple4
-import com.skh.api_schema.extension.cleanRoutePath
+import com.skh.api_schema.extension.cleanRoute
 import com.skh.api_schema.extension.getApiSchemaBuilderProp
 import com.skh.api_schema.extension.isRequestBody
 import com.skh.api_schema.extension.ok
@@ -20,7 +20,7 @@ import com.skh.api_schema.extension.prop
 
 inline fun <reified T> PutDto.map(crossinline block: suspend RoutingRequest.() -> T): Route {
     val builder = route.schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, accessRights = accessRights)
-    return route.put(path.cleanRoutePath(), builder) {
+    return route.put(path.cleanRoute(), builder) {
         call.ok(call.request.block(), responseWrapper)
     }
 }
@@ -32,7 +32,7 @@ inline fun <reified T, reified T1 : Any> PutDtoT1<T1>.map(crossinline block: sus
         else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return route.put(path.cleanRoutePath(), builder) {
+    return route.put(path.cleanRoute(), builder) {
         val v1 = call.prop(p1, path).first
         call.ok(call.request.block(v1), responseWrapper)
     }
@@ -46,7 +46,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> PutDtoT2<T1, T2>.map(
         else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return route.put(path.cleanRoutePath(), builder) {
+    return route.put(path.cleanRoute(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val v2 = call.prop(p2, path, idx1).first
         call.ok(call.request.block(Tuple2(v1, v2)), responseWrapper)
@@ -64,7 +64,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Put
         else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return route.put(path.cleanRoutePath(), builder) {
+    return route.put(path.cleanRoute(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val (v2, idx2) = call.prop(p2, path, idx1)
         val v3 = call.prop(p3, path, idx2).first
@@ -84,7 +84,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any, rei
         else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return route.put(path.cleanRoutePath(), builder) {
+    return route.put(path.cleanRoute(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val (v2, idx2) = call.prop(p2, path, idx1)
         val (v3, idx3) = call.prop(p3, path, idx2)

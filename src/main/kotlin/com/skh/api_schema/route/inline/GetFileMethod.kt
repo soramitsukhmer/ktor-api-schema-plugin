@@ -9,7 +9,7 @@ import com.skh.api_schema.common.MethodEnum
 import com.skh.api_schema.core.schemaBuilder
 import com.skh.api_schema.dto.route.inline.RouteProp
 import com.skh.api_schema.dto.route.inline.SchemaBuilderProp
-import com.skh.api_schema.extension.cleanRoutePath
+import com.skh.api_schema.extension.cleanRoute
 import com.skh.api_schema.extension.isRequestBody
 import com.skh.api_schema.extension.prop
 import com.skh.api_schema.extension.setFileHeader
@@ -23,7 +23,7 @@ inline fun Route.getFile(
     hidden: Boolean = false,
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
-    return this.get(path.cleanRoutePath(), schemaBuilder<Unit, Unit>(hidden, accessRights = accessRights)) {
+    return this.get(path.cleanRoute(), schemaBuilder<Unit, Unit>(hidden, accessRights = accessRights)) {
         val file = call.request.block()
         call.setFileHeader(file)
         call.respondFile(file)
@@ -46,7 +46,7 @@ inline fun <reified V : Any, reified T : RouteProp<V>> Route.getFile(
         else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable, accessRights = accessRights)
     }
 
-    return this.get(path.cleanRoutePath(), builder) {
+    return this.get(path.cleanRoute(), builder) {
         val p1 = call.prop<V, T>(path).first
         val file = call.request.block(p1)
         call.setFileHeader(file)
@@ -75,7 +75,7 @@ inline fun <
         else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable, accessRights = accessRights)
     }
 
-    return this.get(path.cleanRoutePath(), builder) {
+    return this.get(path.cleanRoute(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val p2 = call.prop<V2, T2>(path, idx).first
         val file = call.request.block(p1, p2)
@@ -111,7 +111,7 @@ inline fun <
         else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable, accessRights = accessRights)
     }
 
-    return this.get(path.cleanRoutePath(), builder) {
+    return this.get(path.cleanRoute(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val p3 = call.prop<V3, T3>(path, idx2).first
@@ -151,7 +151,7 @@ inline fun <
         else -> schemaBuilder<Unit, Unit>(hidden, prop.pathVariable, accessRights = accessRights)
     }
 
-    return this.get(path.cleanRoutePath(), builder) {
+    return this.get(path.cleanRoute(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)

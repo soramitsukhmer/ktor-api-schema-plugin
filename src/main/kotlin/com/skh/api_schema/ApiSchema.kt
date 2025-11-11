@@ -45,50 +45,38 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
     application.configureSerialization()
     application.exceptionConfigPlugin(pluginConfig.handler)
 
-    if (pluginConfig.enabled && (application.pluginOrNull(OpenApi) == null)) {
-        application.install(OpenApi) {
-            pluginConfig.info.let { config ->
-                info {
-                    config.title.let { title = it }
-                    config.version?.let { version = it }
-                    config.description?.let { description = it }
-                    config.summary?.let { summary = it }
-                }
-            }
+    if (property.enabled.not()) return@createApplicationPlugin
+    if (application.pluginOrNull(OpenApi) != null) return@createApplicationPlugin
 
-            property.baseUrls.forEach { baseUrl ->
-                server {
-                    url = baseUrl
-                }
-            }
+    application.install(OpenApi) {
+        info {
+            title = property.info.title
+            version = property.info.version
+            description = property.info.description
+            summary = property.info.summary
+        }
 
-            pluginConfig.servers.forEach { config ->
-                server {
-                    config.url?.let { url = it }
-                    config.description?.let { description = it }
-                }
-            }
+        property.baseUrls.forEach { baseUrl -> server { url = baseUrl } }
 
-            security {
-                securityScheme(SECURITY_BEARER_SCHEMA_NAME) {
-                    type = AuthType.HTTP
-                    scheme = AuthScheme.BEARER
-                    bearerFormat = "JWT"
-                }
-            }
-
-            schemas {
-                generator = SchemaGenerator.reflection {
-                    overwrite(SchemaGenerator.TypeOverwrites.LocalDateTime())
-                    overwrite(SchemaGenerator.TypeOverwrites.LocalDate())
-                    overwrite(SchemaGenerator.TypeOverwrites.JavaUuid())
-                    overwrite(SchemaGenerator.TypeOverwrites.KotlinUuid())
-                    overwrite(SchemaGenerator.TypeOverwrites.File())
-                    overwrite(SchemaGenerator.TypeOverwrites.Instant())
-                }
+        security {
+            securityScheme(SECURITY_BEARER_SCHEMA_NAME) {
+                type = AuthType.HTTP
+                scheme = AuthScheme.BEARER
+                bearerFormat = "JWT"
             }
         }
 
-        application.routing { documentRoute(pluginConfig) }
+        schemas {
+            generator = SchemaGenerator.reflection {
+                overwrite(SchemaGenerator.TypeOverwrites.LocalDateTime())
+                overwrite(SchemaGenerator.TypeOverwrites.LocalDate())
+                overwrite(SchemaGenerator.TypeOverwrites.JavaUuid())
+                overwrite(SchemaGenerator.TypeOverwrites.KotlinUuid())
+                overwrite(SchemaGenerator.TypeOverwrites.File())
+                overwrite(SchemaGenerator.TypeOverwrites.Instant())
+            }
+        }
+
+        application.routing { documentRoute() }
     }
 }
