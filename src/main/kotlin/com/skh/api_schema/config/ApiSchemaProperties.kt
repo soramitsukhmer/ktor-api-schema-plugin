@@ -19,9 +19,10 @@ object ApiSchemaProperties {
 
     val validator: Validator = Validation.buildDefaultValidatorFactory().validator
 
-    private inline fun <reified T> ApplicationConfig.getOptionalValue(key: String, elze: () -> T): T {
+    private inline fun <reified T> ApplicationConfig.getOptionalValue(root: String, key: String, elze: () -> T): T {
         return try {
-            val value = property("api-schema.".plus(key)).getString()
+            val path = root.trim().takeIf { it.isNotEmpty() }?.let { "$it.$key" } ?: key
+            val value = property(path).getString()
             when (T::class) {
                 Int::class -> value.toInt()
                 Long::class -> value.toLong()
@@ -36,7 +37,7 @@ object ApiSchemaProperties {
         }
     }
 
-    private inline fun <reified T> String.valueOf(noinline elze: (() -> T)? = null): T {
+    private inline fun <reified T> String.valueOf(root: String = "api-schema", noinline elze: (() -> T)? = null): T {
         val value = elze?.invoke() ?: when (T::class) {
             Int::class -> 0
             Long::class -> 0L
@@ -47,7 +48,7 @@ object ApiSchemaProperties {
             else -> throw IllegalArgumentException("Unsupported type ${T::class}")
         } as T
 
-        return config.getOptionalValue<T>(this) { value }
+        return config.getOptionalValue<T>(root, this) { value }
     }
 
     data class InfoProperty(
@@ -92,7 +93,7 @@ object ApiSchemaProperties {
         dateFormat = "date-format".valueOf { DATE_FORMAT },
         timeFormat = "time-format".valueOf { TIME_FORMAT },
         info = InfoProperty(
-            title = "info.title".valueOf { "Ktor - API Schema" },
+            title = "info.title".valueOf { "module".valueOf("application") { "Ktor - API Schema" } },
             version = "info.version".valueOf<String> { "latest" },
             description = "info.description".valueOf<String>().takeIf { it.isNotBlank() },
             summary = "info.summary".valueOf<String>().takeIf { it.isNotBlank() }
