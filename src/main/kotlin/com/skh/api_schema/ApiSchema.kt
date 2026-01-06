@@ -15,6 +15,7 @@ import com.skh.api_schema.plugin.configureSerialization
 import com.skh.api_schema.plugin.exceptionConfigPlugin
 import com.skh.api_schema.plugin.requestValidatorConfigPlugin
 import com.skh.api_schema.route.docs.documentRoute
+import io.github.smiley4.ktoropenapi.config.OutputFormat
 
 /**
  * Configures an API schema plugin for a Ktor application. This plugin integrates a variety of features
@@ -65,6 +66,8 @@ val ApiSchema = createApplicationPlugin("ApiSchema", ::ApiSchemaConfig) {
                 bearerFormat = "JWT"
             }
         }
+
+        outputFormat = property.format
 
         schemas {
             generator = SchemaGenerator.reflection {
