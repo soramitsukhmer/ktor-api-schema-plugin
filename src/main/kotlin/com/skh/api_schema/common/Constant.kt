@@ -16,4 +16,9 @@ object Constant {
     const val TIME_FORMAT = "HH:mm:ss"
 
     const val DEFAULT_MAX_FILE_SIZE_100MB: Long = 100
+
+    // Complete pattern: "field", "field.nested", "field.nested.deep", "field,asc" or "field,desc"
+    val SORTABLE_PATTERN = Regex("^([a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*)(?:\\s*,\\s*(asc|desc|ASC|DESC))?$")
+
+    val SORT_DIRECTIONS = mapOf("asc" to true, "desc" to false)
 }

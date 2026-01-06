@@ -14,13 +14,15 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
-import com.skh.api_schema.config.ApiSchemaConfig
+import com.skh.api_schema.config.ApiSchemaProperties.property
+import com.skh.api_schema.extension.cleanRoute
 import com.skh.api_schema.extension.mergeRoute
+import io.github.smiley4.ktoropenapi.config.OutputFormat
 
-fun Routing.documentRoute(config: ApiSchemaConfig) {
-    val baseRoute = config.getRouteBuilder()
+fun Routing.documentRoute() {
+    val baseRoute = "/".plus(property.path.cleanRoute())
 
-    fun getContent(): String {
+    fun content(): String {
         val spec = OpenApiPlugin.getOpenApiSpec(OpenApiPluginConfig.DEFAULT_SPEC_ID)
         val content = spec.replace(Regex("\"(/\\w+)/\"\\s*:")) { matchResult ->
             val pathWithoutSlash = matchResult.groupValues[1]
@@ -30,41 +32,53 @@ fun Routing.documentRoute(config: ApiSchemaConfig) {
         return content
     }
 
-    if (!config.enabled) return
+    route(property.path) {
+        // openApi()
 
-    route(baseRoute) {
-//        openApi()
         println(">>> expose endpoint json api schema: $baseRoute")
         route({ hidden = true }) {
-            get { call.respondText(ContentType.Application.Json, HttpStatusCode.OK) { getContent() } }
+            val contentType = when (property.format) {
+                OutputFormat.JSON -> ContentType.Application.Json
+                OutputFormat.YAML -> ContentType.Text.Plain
+            }
+
+            get { call.respondText(contentType, HttpStatusCode.OK) { content() } }
         }
     }
 
-    if (config.download.enabled) {
-        val route = config.download.getFullPath(baseRoute)
+    if (property.download.enabled) {
+        val route = baseRoute.mergeRoute(property.download.path)
         route(route) {
             println(">>> expose endpoint download json api schema: $route")
-            get({ hidden = config.download.hidden }) {
-                val filename = config.download.getFilename(config.info.title)
+            get({ hidden = property.download.hidden }) {
+                val ext = when (property.format) {
+                    OutputFormat.JSON -> ".json"
+                    OutputFormat.YAML -> ".yaml"
+                }
+                val filename = property.download.filename.plus(ext)
                 call.response.header(
                     HttpHeaders.ContentDisposition,
                     "attachment; filename=\"$filename\""
                 )
-                call.respondText(ContentType.Application.Json, HttpStatusCode.OK) { getContent() }
+                val contentType = when (property.format) {
+                    OutputFormat.JSON -> ContentType.Application.Json
+                    OutputFormat.YAML -> ContentType.Application.Yaml
+                }
+                call.respondText(contentType, HttpStatusCode.OK) { content() }
             }
         }
     }
 
-    if (config.swagger.enabled) {
-        val route = config.swagger.path.mergeRoute(baseRoute, config.defaultSwaggerPath)
+    if (property.swagger.enabled) {
+        val route = baseRoute.mergeRoute(property.swagger.path)
         route(route) {
             println(">>> expose endpoint swagger schema: $route")
             swaggerUI(baseRoute)
         }
     }
 
-    if (config.redoc.enabled) {
-        val route = config.redoc.path.mergeRoute(baseRoute, config.defaultRoute)
+    if (property.redoc.enabled) {
+        val route = baseRoute.mergeRoute(property.redoc.path)
         route(route) {
             println(">>> expose endpoint redoc schema: $route")
             redoc(baseRoute)

@@ -8,7 +8,7 @@ import com.skh.api_schema.extension.ok
 import com.skh.api_schema.core.schemaBuilder
 import com.skh.api_schema.dto.route.inline.RouteProp
 import com.skh.api_schema.dto.route.inline.SchemaBuilderProp
-import com.skh.api_schema.extension.cleanRoutePath
+import com.skh.api_schema.extension.cleanRoute
 import com.skh.api_schema.extension.isRequestBody
 import com.skh.api_schema.extension.prop
 
@@ -20,7 +20,7 @@ inline fun <reified T> Route.post(
     hidden: Boolean = false,
     crossinline block: suspend RoutingRequest.() -> T
 ): Route {
-    return this.post(path.cleanRoutePath(), schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, accessRights = accessRights)) {
+    return this.post(path.cleanRoute(), schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, accessRights = accessRights)) {
         call.ok(call.request.block(), responseWrapper)
     }
 }
@@ -39,7 +39,7 @@ inline fun <reified T, reified V1 : Any, reified T1 : RouteProp<V1>> Route.post(
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val p1 = call.prop<V1, T1>(path).first
         call.ok(call.request.block(p1), responseWrapper)
     }
@@ -67,7 +67,7 @@ inline fun <reified T,
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val p2 = call.prop<V2, T2>(path, idx).first
         call.ok(call.request.block(p1, p2), responseWrapper)
@@ -99,7 +99,7 @@ inline fun <reified T,
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val p3 = call.prop<V3, T3>(path, idx2).first
@@ -135,7 +135,7 @@ inline fun <reified T,
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)
@@ -175,7 +175,7 @@ inline fun <reified T,
         else -> schemaBuilder<T, Unit>(hidden, prop.pathVariable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return this.post(path.cleanRoutePath(), builder) {
+    return this.post(path.cleanRoute(), builder) {
         val (p1, idx) = call.prop<V1, T1>(path)
         val (p2, idx2) = call.prop<V2, T2>(path, idx)
         val (p3, idx3) = call.prop<V3, T3>(path, idx2)
