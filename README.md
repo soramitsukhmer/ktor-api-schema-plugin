@@ -126,6 +126,7 @@ put("/user/{id}").auth(UserAuth::class).pathVariable(Long::class).map { t2: Tupl
 api-schema:
   enabled: true
   path: "schema"
+  format: "json" # json or yaml
   base-urls: "http://localhost:8080,https://api.example.com"
   max-file-size-mb: 100
   datetime-format: "MM/dd/yyyy HH:mm:ss"

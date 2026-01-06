@@ -17,6 +17,7 @@ import io.ktor.server.routing.route
 import com.skh.api_schema.config.ApiSchemaProperties.property
 import com.skh.api_schema.extension.cleanRoute
 import com.skh.api_schema.extension.mergeRoute
+import io.github.smiley4.ktoropenapi.config.OutputFormat
 
 fun Routing.documentRoute() {
     val baseRoute = "/".plus(property.path.cleanRoute())
@@ -36,7 +37,12 @@ fun Routing.documentRoute() {
 
         println(">>> expose endpoint json api schema: $baseRoute")
         route({ hidden = true }) {
-            get { call.respondText(ContentType.Application.Json, HttpStatusCode.OK) { content() } }
+            val contentType = when (property.format) {
+                OutputFormat.JSON -> ContentType.Application.Json
+                OutputFormat.YAML -> ContentType.Text.Plain
+            }
+
+            get { call.respondText(contentType, HttpStatusCode.OK) { content() } }
         }
     }
 
@@ -45,13 +51,20 @@ fun Routing.documentRoute() {
         route(route) {
             println(">>> expose endpoint download json api schema: $route")
             get({ hidden = property.download.hidden }) {
-                val filename = property.download.filename.ifEmpty { property.info.title }
-                    .let { if (it.endsWith(".json").not()) it.plus(".json") else it }
+                val ext = when (property.format) {
+                    OutputFormat.JSON -> ".json"
+                    OutputFormat.YAML -> ".yaml"
+                }
+                val filename = property.download.filename.plus(ext)
                 call.response.header(
                     HttpHeaders.ContentDisposition,
                     "attachment; filename=\"$filename\""
                 )
-                call.respondText(ContentType.Application.Json, HttpStatusCode.OK) { content() }
+                val contentType = when (property.format) {
+                    OutputFormat.JSON -> ContentType.Application.Json
+                    OutputFormat.YAML -> ContentType.Application.Yaml
+                }
+                call.respondText(contentType, HttpStatusCode.OK) { content() }
             }
         }
     }
@@ -65,7 +78,7 @@ fun Routing.documentRoute() {
     }
 
     if (property.redoc.enabled) {
-        val route = baseRoute.mergeRoute(property.swagger.path)
+        val route = baseRoute.mergeRoute(property.redoc.path)
         route(route) {
             println(">>> expose endpoint redoc schema: $route")
             redoc(baseRoute)

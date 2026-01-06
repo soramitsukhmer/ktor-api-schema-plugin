@@ -4,6 +4,7 @@ import com.skh.api_schema.common.Constant.DATETIME_FORMAT
 import com.skh.api_schema.common.Constant.DATE_FORMAT
 import com.skh.api_schema.common.Constant.DEFAULT_MAX_FILE_SIZE_100MB
 import com.skh.api_schema.common.Constant.TIME_FORMAT
+import io.github.smiley4.ktoropenapi.config.OutputFormat
 import io.ktor.server.config.ApplicationConfig
 import jakarta.validation.Validation
 import jakarta.validation.Validator
@@ -17,7 +18,7 @@ object ApiSchemaProperties {
 
     private var config = getApplicationConfig()
 
-    val validator: Validator = Validation.buildDefaultValidatorFactory().validator
+    private var format: OutputFormat = OutputFormat.JSON
 
     private inline fun <reified T> ApplicationConfig.getOptionalValue(root: String, key: String, elze: () -> T): T {
         return try {
@@ -51,6 +52,18 @@ object ApiSchemaProperties {
         return config.getOptionalValue<T>(root, this) { value }
     }
 
+    init {
+        val value = "format".valueOf { "json" }
+
+        format = when (value) {
+            "json" -> OutputFormat.JSON
+            "yaml" -> OutputFormat.YAML
+            else -> throw IllegalArgumentException("Unsupported api schema format: [$value]")
+        }
+    }
+
+    val validator: Validator = Validation.buildDefaultValidatorFactory().validator
+
     data class InfoProperty(
         val title: String,
         val version: String,
@@ -72,6 +85,7 @@ object ApiSchemaProperties {
 
     data class Property(
         val enabled: Boolean,
+        val format: OutputFormat,
         val path: String,
         val baseUrls: List<String>,
         val maxFileSizeMB: Long,
@@ -86,6 +100,7 @@ object ApiSchemaProperties {
 
     val property = Property(
         enabled = "enabled".valueOf { false },
+        format = format,
         path = "path".valueOf { "schema" },
         baseUrls = "base-urls".valueOf<String>().split(",").filter { it.trim().isNotBlank() },
         maxFileSizeMB = "max-file-size-mb".valueOf { DEFAULT_MAX_FILE_SIZE_100MB },
@@ -102,7 +117,7 @@ object ApiSchemaProperties {
             path = "download.path".valueOf { "download" },
             enabled = "download.enabled".valueOf { false },
             hidden = "download.hidden-route".valueOf { true },
-            filename = "download.filename".valueOf { "ktor-openapi-schema" },
+            filename = "download.filename".valueOf { "module".valueOf("application") { "ktor-openapi-schema" } },
         ),
         redoc = PathProperty(
             path = "redoc.path".valueOf { "redoc" },
