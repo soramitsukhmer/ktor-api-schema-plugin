@@ -33,22 +33,31 @@ fun String.isFax() : Boolean {
     return faxRegex.matcher(this).matches()
 }
 
+/**
+ * Cleans a route path by removing leading and trailing slashes.
+ * Also removes duplicate slashes within the path.
+ *
+ * @return A cleaned route path without leading/trailing slashes
+ *
+ * Examples:
+ * - "/api/users/".cleanRoute() -> "api/users"
+ * - "//api//users//".cleanRoute() -> "api/users"
+ */
+fun String.cleanRoute() = this.trim()
+    .removePrefix("/")
+    .removeSuffix("/")
+    .replace(Regex("/+"), "/")
+    .trim()
 
-fun String.cleanRoute() = when (endsWith("/")) {
-    true -> substringBeforeLast("/")
-    false -> this
+fun String.mergeRoute(vararg paths: String): String {
+    val collection = (listOf(this) + paths.toList())
+        .map { it.cleanRoute() }
+        .filter { it.isNotEmpty() }
+
+    return collection.takeIf { it.isNotEmpty() }
+        ?.joinToString(separator = "/", prefix = "/")
+        ?: "/"
 }
-
-fun String.mergeRoute(baseRoute: String, defaultPath: String): String {
-    val path = cleanRoute().takeIf { it.trim().isNotEmpty() } ?: defaultPath
-    val base = baseRoute.cleanRoute()
-
-    return when (path.startsWith("/")) {
-        true -> path
-        false -> "/$path"
-    }.let(base::plus)
-}
-
 
 fun String.getApiSchemaBuilderProp(
     pairs: List<Pair<KClass<*>, RoutePropEnum>> = emptyList()
@@ -59,11 +68,6 @@ fun String.getApiSchemaBuilderProp(
         .toMap()
     val requestBody = pairs.find { it.second == RoutePropEnum.REQUEST_BODY }?.first
     return Pair(variable, requestBody)
-}
-
-fun String.cleanRoutePath() = when (endsWith("/")) {
-    true -> substringBeforeLast("/")
-    false -> this
 }
 
 fun File.determineContentType() : String {
@@ -78,6 +82,7 @@ fun File.determineContentType() : String {
         "txt" -> ContentType.Text.Plain
         "csv" -> ContentType.Text.CSV
         "zip" -> ContentType.Application.Zip
+        "svg", "svg+xml" -> ContentType.Image.SVG
         else -> ContentType.Application.OctetStream
     }
     return detectedType.toString()

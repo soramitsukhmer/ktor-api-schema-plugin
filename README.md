@@ -25,7 +25,7 @@ repositories {
 Add the following dependency to your `build.gradle.kts` file:
 ```
 dependencies {
-    // OpenApiShema
+    // open api schema
     implementation("com.skh.ktor:api-schema-plugin:$api_scheme_version")
 }
 ```
@@ -33,28 +33,6 @@ dependencies {
 ### Install Plugin
 ```
 install(ApiSchema) {
-    info {
-        title = "Ktor - Basic API"
-        version = "1.0.0"
-    }
-
-    server {
-        url = "http://0.0.0.0:8080"
-        description = "This is the development server"
-    }
-    
-    download {
-        enabled = true
-    }
-
-    swagger {
-        enabled = true
-    }
-
-    redoc {
-        enabled = true
-    }
-
     // Supported exception handler
     handler {
         config {
@@ -79,6 +57,16 @@ data class Request(
     @field:NotBlank val field: String
     ...
 )
+```
+
+Support with json converter
+```
+data class Response(
+    @field:JsonAlias("userId") val id: Long,
+    ...
+)
+
+val response = Any.ct(Response::class.java)
 ```
 
 ### Usage [Inline function]
@@ -128,7 +116,40 @@ put("/user/{id}").auth(UserAuth::class).pathVariable(Long::class).map { t2: Tupl
 ```
 
 ### Expose Default Endpoint:
-- Json data: `/api/v1/schema`
-- Download: `/api/v1/schema/download`
-- Swagger-UI: `/api/v1/schema/swagger`
-- Redoc: `/api/v1/schema/redoc`
+- Json data: `/schema`
+- Download: `/schema/download`
+- Swagger-UI: `/schema/swagger`
+- Redoc: `/schema/redoc`
+
+### Config application.yml:
+```
+api-schema:
+  enabled: true
+  path: "schema"
+  format: "json" # json or yaml
+  base-urls: "http://localhost:8080,https://api.example.com"
+  max-file-size-mb: 100
+  datetime-format: "MM/dd/yyyy HH:mm:ss"
+  date-format: "MM/dd/yyyy"
+  time-format: "HH:mm:ss"
+  
+  info:
+    title: "My API"
+    version: "1.0.0"
+    description: "Comprehensive API documentation for My Application"
+    summary: "Quick overview of the API"
+  
+  download:
+    enabled: true
+    path: "download"
+    hidden-route: false
+    filename: "api-schema"
+  
+  redoc:
+    enabled: true
+    path: "redoc"
+  
+  swagger:
+    enabled: true
+    path: "swagger"
+```

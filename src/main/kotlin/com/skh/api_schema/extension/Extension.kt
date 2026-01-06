@@ -41,7 +41,15 @@ fun PartData.FileItem.getRequest(
 
     var totalBytesRead = 0L
 
-    val extension = this.contentType?.contentSubtype ?: badRequest("Invalid file extension")
+    val fileName = this.originalFileName
+    when {
+        fileName.isNullOrBlank() -> badRequest("Filename is required")
+        !fileName.contains(".") -> badRequest("File must have an extension")
+        fileName.startsWith(".") -> badRequest("Invalid filename")
+        fileName.endsWith(".") -> badRequest("Invalid file extension")
+    }
+
+    val extension = this.originalFileName?.substringAfterLast(".", "")?.lowercase() ?: badRequest("Invalid file extension")
 
     if (extensions.isNotEmpty()) {
         when (extension.lowercase()) {

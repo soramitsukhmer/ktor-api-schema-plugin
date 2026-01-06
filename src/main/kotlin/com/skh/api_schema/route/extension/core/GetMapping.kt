@@ -11,7 +11,7 @@ import com.skh.api_schema.dto.route.extension.get.GetDtoT2
 import com.skh.api_schema.dto.route.extension.get.GetDtoT3
 import com.skh.api_schema.dto.route.extension.tuple.Tuple2
 import com.skh.api_schema.dto.route.extension.tuple.Tuple3
-import com.skh.api_schema.extension.cleanRoutePath
+import com.skh.api_schema.extension.cleanRoute
 import com.skh.api_schema.extension.getApiSchemaBuilderProp
 import com.skh.api_schema.extension.isRequestBody
 import com.skh.api_schema.extension.ok
@@ -22,7 +22,7 @@ import java.io.File
 @JvmName("get_dto")
 inline fun <reified T> GetDto.map(crossinline block: suspend RoutingRequest.() -> T): Route {
     val builder = route.schemaBuilder<T, Unit>(hidden, responseWrapper = responseWrapper, accessRights = accessRights)
-    return route.get(path.cleanRoutePath(), builder) {
+    return route.get(path.cleanRoute(), builder) {
         call.ok(call.request.block(), responseWrapper)
     }
 }
@@ -35,7 +35,7 @@ inline fun <reified T, reified T1 : Any> GetDtoT1<T1>.map(crossinline block: sus
         false -> route.schemaBuilder<T, T1>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return route.get(path.cleanRoutePath(), builder) {
+    return route.get(path.cleanRoute(), builder) {
         val v1 = call.prop(p1, path).first
         call.ok(call.request.block(v1), responseWrapper)
     }
@@ -52,7 +52,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
         else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return route.get(path.cleanRoutePath(), builder) {
+    return route.get(path.cleanRoute(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val v2 = call.prop(p2, path, idx1).first
         call.ok(call.request.block(Tuple2(v1, v2)), responseWrapper)
@@ -71,7 +71,7 @@ inline fun <reified T, reified T1 : Any, reified T2 : Any, reified T3 : Any> Get
         else -> route.schemaBuilder<T, Unit>(hidden, variable, responseWrapper = responseWrapper, accessRights = accessRights)
     }
 
-    return route.get(path.cleanRoutePath(), builder) {
+    return route.get(path.cleanRoute(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val (v2, idx2) = call.prop(p2, path, idx1)
         val v3 = call.prop(p3, path, idx2).first
@@ -87,7 +87,7 @@ inline fun GetDto.map(
     crossinline block: suspend RoutingRequest.() -> File
 ): Route {
     val builder = route.schemaBuilder<Unit, Unit>(hidden, accessRights = accessRights)
-    return route.get(path.cleanRoutePath(), builder) {
+    return route.get(path.cleanRoute(), builder) {
         val file = call.request.block()
         call.setFileHeader(file)
         call.respondFile(file)
@@ -107,7 +107,7 @@ inline fun <reified T1 : Any> GetDtoT1<T1>.map(
         else -> route.schemaBuilder<Unit, Unit>(hidden, variable, accessRights = accessRights)
     }
 
-    return route.get(path.cleanRoutePath(), builder) {
+    return route.get(path.cleanRoute(), builder) {
         val v1 = call.prop(p1, path).first
         val file = call.request.block(v1)
         call.setFileHeader(file)
@@ -129,7 +129,7 @@ inline fun <reified T1 : Any, reified T2 : Any> GetDtoT2<T1, T2>.map(
         else -> route.schemaBuilder<Unit, Unit>(hidden, variable, accessRights = accessRights)
     }
 
-    return route.get(path.cleanRoutePath(), builder) {
+    return route.get(path.cleanRoute(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val v2 = call.prop(p2, path, idx1).first
         val file = call.request.block(Tuple2(v1, v2))
@@ -153,7 +153,7 @@ inline fun <reified T1 : Any, reified T2 : Any, reified T3 : Any> GetDtoT3<T1, T
         else -> route.schemaBuilder<Unit, Unit>(hidden, variable, accessRights = accessRights)
     }
 
-    return route.get(path.cleanRoutePath(), builder) {
+    return route.get(path.cleanRoute(), builder) {
         val (v1, idx1) = call.prop(p1, path)
         val (v2, idx2) = call.prop(p2, path, idx1)
         val v3 = call.prop(p3, path, idx2).first
