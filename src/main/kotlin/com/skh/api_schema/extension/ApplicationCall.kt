@@ -58,6 +58,15 @@ suspend inline fun ApplicationCall.response(http: HttpStatusCode, code: Int, mes
 suspend inline fun ApplicationCall.invalidAuth(
     code: Int = ErrorCode.BAD_REQUEST,
     message: String = "Token is invalid or expired",
+    http: HttpStatusCode = HttpStatusCode.Unauthorized
+) {
+    response.status(http)
+    respond(ResponseWrapper(Status(code, message), null, request.headers[HttpHeaders.XRequestId]))
+}
+
+suspend inline fun ApplicationCall.forbidden(
+    code: Int = ErrorCode.BAD_REQUEST,
+    message: String = "Access Denied",
     http: HttpStatusCode = HttpStatusCode.Forbidden
 ) {
     response.status(http)
@@ -67,7 +76,7 @@ suspend inline fun ApplicationCall.invalidAuth(
 suspend inline fun ApplicationCall.unauthorized(
     code: Int = ErrorCode.BAD_REQUEST,
     message: String = "Access Denied",
-    http: HttpStatusCode = HttpStatusCode.Forbidden
+    http: HttpStatusCode = HttpStatusCode.Unauthorized
 ) {
     response.status(http)
     respond(ResponseWrapper(Status(code, message), null, request.headers[HttpHeaders.XRequestId]))
