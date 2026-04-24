@@ -6,8 +6,17 @@ import com.skh.api_schema.common.Constant.SORT_DIRECTIONS
 open class PageRequest(
     open val size: Int = 10,
     open val page: Long = 0,
-    open val sort: List<String>
+    open val sort: List<String> = emptyList(),
+    open val defaultSort: List<String> = emptyList(),
 ) {
+
+    /**
+     * Sort to apply: caller-provided [sort] when non-empty, otherwise [defaultSort].
+     * Subclasses set [defaultSort] via the constructor or `override val` to opt in
+     * to a fallback. Passing a default through [sort] does NOT survive Jackson
+     * deserialization when the request body contains `"sort": []`.
+     */
+    fun effectiveSort(): List<String> = sort.ifEmpty { defaultSort }
 
     fun throwWhenInvalidSort() {
         sort
@@ -22,7 +31,7 @@ open class PageRequest(
     }
 
     fun sortables(): List<Sort> {
-        return sort.mapNotNull {
+        return effectiveSort().mapNotNull {
             val list = it.split(",")
             Sort(it, true)
                 .takeIf { list.size != 2 }
